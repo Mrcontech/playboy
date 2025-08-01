@@ -296,12 +296,12 @@ export default function PlaybookScreen() {
             <div className="space-y-4">
               {topPlayers.length > 0 ? (
                 topPlayers.map((player, index) => (
-                  <div key={player.id} className="bg-gray-800 rounded-lg p-4 hover:bg-gray-700 transition-colors">
+                  <div key={player.id} className="bg-black border-2 border-green-500 rounded-lg p-4 hover:border-green-400 transition-colors">
                     <div className="flex items-center space-x-4">
                       <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold text-sm">
                         {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
                       </div>
-                      <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-green-500 to-purple-500">
+                      <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-green-500 to-green-600">
                         <img 
                           src={player.image_url || 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=400'} 
                           alt={player.name}
