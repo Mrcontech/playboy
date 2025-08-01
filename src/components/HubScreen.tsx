@@ -134,7 +134,7 @@ export default function HubScreen({ onPlayerSelect }: HubScreenProps) {
           {/* Recently Active Section */}
           <section className="bg-black border-2 border-green-500 rounded-xl p-6">
             <h2 className="text-2xl font-semibold text-white mb-6">Recently Active</h2>
-            <div className="flex justify-center space-x-3 lg:space-x-6 overflow-x-auto pb-2">
+            <div className="flex justify-start space-x-4 overflow-x-auto pb-2 px-2">
               {recentlyActive.map((player) => (
                 <PlayerCard 
                   key={player.id}

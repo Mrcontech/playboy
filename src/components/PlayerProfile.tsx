@@ -162,7 +162,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-3 gap-3 mb-6">
               <div className="bg-black border-2 border-green-500 p-4 rounded-xl text-center">
                 <Heart className="text-red-400 mx-auto mb-2" size={24} />
                 <div className="text-xl font-bold text-white">{playerStats.totalMeetings}</div>
@@ -175,7 +175,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
               </div>
               <div className="bg-black border-2 border-green-500 p-4 rounded-xl text-center">
                 <Star className="text-purple-500 fill-current mx-auto mb-2" size={24} />
-                <div className="text-xl font-bold text-white">{playerStats.averageRating.toFixed(1)}</div>
+                <div className="text-xl font-bold text-white">{player.averageRating?.toFixed(1) || playerStats.averageRating.toFixed(1)}</div>
                 <div className="text-xs text-gray-400">Avg</div>
               </div>
             </div>
