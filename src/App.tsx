@@ -77,7 +77,7 @@ export default function App() {
           onClose={() => setIsMobileMenuOpen(false)}
         />
         
-        <div className={`transition-all duration-300 pt-16 lg:pt-0 ${!selectedPlayer ? 'lg:ml-64' : ''}`}>
+        <div className="transition-all duration-300 pt-16 lg:pt-0 lg:ml-64">
           {selectedPlayer ? (
             <PlayerProfile 
               player={selectedPlayer} 
