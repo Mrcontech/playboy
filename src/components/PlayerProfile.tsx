@@ -65,22 +65,38 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
       // Calculate CPN based on hookups, not total meetings
       const cpn = hookups > 0 ? totalSpent / hookups : 0;
       
+      // Calculate date experience rating (average of all meeting ratings)
       const ratingsSum = meetings?.reduce((sum, meeting) => 
         sum + (Number(meeting.rating) || 0), 0) || 0;
-      const averageRating = totalMeetings > 0 ? ratingsSum / totalMeetings : 0;
+      const dateExperienceRating = totalMeetings > 0 ? ratingsSum / totalMeetings : 0;
       
-      const performanceSum = meetings?.reduce((sum, meeting) => 
-        sum + (Number(meeting.performance_rating) || 0), 0) || 0;
-      const performanceRating = hookups > 0 ? performanceSum / hookups : 0;
+      // Calculate performance rating average
+      const performanceRatings = meetings?.filter(meeting => 
+        meeting.performance_rating && Number(meeting.performance_rating) > 0) || [];
+      const performanceRatingSum = performanceRatings.reduce((sum, meeting) => 
+        sum + Number(meeting.performance_rating), 0);
+      const avgPerformanceRating = performanceRatings.length > 0 ? performanceRatingSum / performanceRatings.length : 0;
+      
+      // Calculate overall average rating
+      const looksRating = player.looks_rating || 0;
+      let averageRating;
+      
+      if (avgPerformanceRating > 0) {
+        // Include all three: looks, performance, date experience
+        averageRating = (looksRating + avgPerformanceRating + dateExperienceRating) / 3;
+      } else {
+        // Only looks and date experience
+        averageRating = totalMeetings > 0 ? (looksRating + dateExperienceRating) / 2 : looksRating;
+      }
       
       setPlayerStats({
         totalSpent,
         totalMeetings,
         hookups,
         cpn,
-        averageRating,
-        performanceRating,
-        dateRating: averageRating, // Using average rating as date rating for now
+        averageRating: Number(averageRating.toFixed(1)),
+        performanceRating: Number(avgPerformanceRating.toFixed(1)),
+        dateRating: Number(dateExperienceRating.toFixed(1)),
       });
     } catch (error) {
       console.error('Error loading player stats:', error);
