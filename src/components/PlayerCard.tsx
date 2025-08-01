@@ -14,6 +14,7 @@ interface PlayerCardProps {
   };
   onClick?: () => void;
   size?: 'small' | 'medium' | 'large';
+}
 
 const PlayerCard = memo(function PlayerCard({ player, onClick, size = 'medium' }: PlayerCardProps) {
   const sizeClasses = {
