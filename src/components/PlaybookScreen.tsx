@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, Users, DollarSign, Calendar, BarChart3 } from 'lucide-react';
+import { TrendingUp, Users, DollarSign, Calendar, BarChart3, Target } from 'lucide-react';
 import { statsApi } from '../services/api';
 
 interface CPNData {
@@ -21,6 +21,7 @@ interface DashboardStats {
   totalSpent: number;
   totalDates: number;
   totalHookups: number;
+  averageCPN: number;
 }
 
 export default function PlaybookScreen() {
@@ -30,7 +31,8 @@ export default function PlaybookScreen() {
   const [dashboardStats, setDashboardStats] = useState<DashboardStats>({
     totalSpent: 0,
     totalDates: 0,
-    totalHookups: 0
+    totalHookups: 0,
+    averageCPN: 0
   });
   const [loading, setLoading] = useState(true);
 
@@ -49,12 +51,20 @@ export default function PlaybookScreen() {
       
       setCpnData(cpnResult || []);
       setTopPlayers(playersResult || []);
-      setDashboardStats(statsResult || { totalSpent: 0, totalDates: 0, totalHookups: 0 });
+      
+      // Calculate average CPN
+      const stats = statsResult || { totalSpent: 0, totalDates: 0, totalHookups: 0 };
+      const averageCPN = stats.totalHookups > 0 ? stats.totalSpent / stats.totalHookups : 0;
+      
+      setDashboardStats({
+        ...stats,
+        averageCPN: Math.round(averageCPN)
+      });
     } catch (error) {
       console.error('Error loading playbook data:', error);
       setCpnData([]);
       setTopPlayers([]);
-      setDashboardStats({ totalSpent: 0, totalDates: 0, totalHookups: 0 });
+      setDashboardStats({ totalSpent: 0, totalDates: 0, totalHookups: 0, averageCPN: 0 });
     } finally {
       setLoading(false);
     }
@@ -222,7 +232,7 @@ export default function PlaybookScreen() {
         <h1 className="text-3xl font-bold text-white mb-8">Playbook Analytics</h1>
 
         {/* Performance Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-8">
+        <div className="grid grid-cols-2 gap-4 lg:gap-6 mb-6 lg:mb-8">
           <div className="bg-black border-2 border-green-500 rounded-xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="bg-green-500 p-3 rounded-lg">
@@ -234,6 +244,19 @@ export default function PlaybookScreen() {
               ${dashboardStats.totalSpent.toLocaleString()}
             </div>
             <div className="text-gray-400 text-sm">Total Spent</div>
+          </div>
+
+          <div className="bg-black border-2 border-green-500 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="bg-orange-500 p-3 rounded-lg">
+                <Target className="text-white" size={24} />
+              </div>
+              <TrendingUp className="text-orange-400" size={20} />
+            </div>
+            <div className="text-2xl font-bold text-white mb-1">
+              ${dashboardStats.averageCPN.toLocaleString()}
+            </div>
+            <div className="text-gray-400 text-sm">Average CPN</div>
           </div>
 
           <div className="bg-black border-2 border-green-500 rounded-xl p-6">
