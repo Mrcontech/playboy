@@ -3,13 +3,14 @@ import { useAuth } from '../hooks/useAuth';
 import { useSubscription } from '../hooks/useSubscription';
 import LoginScreen from './LoginScreen';
 import SubscriptionRequired from './SubscriptionRequired';
+import OnboardingFlow from './OnboardingFlow';
 
 interface AuthWrapperProps {
   children: React.ReactNode;
 }
 
 export default function AuthWrapper({ children }: AuthWrapperProps) {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, isNewUser, completeOnboarding } = useAuth();
   const { isPro, loading: subscriptionLoading } = useSubscription();
 
   if (authLoading || subscriptionLoading) {
@@ -24,6 +25,9 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
     return <LoginScreen />;
   }
 
+  if (isNewUser) {
+    return <OnboardingFlow onComplete={completeOnboarding} />;
+  }
   if (!isPro) {
     return <SubscriptionRequired />;
   }

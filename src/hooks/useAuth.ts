@@ -6,6 +6,7 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isNewUser, setIsNewUser] = useState(false);
 
   useEffect(() => {
     // Get initial session
@@ -47,6 +48,12 @@ export function useAuth() {
       email,
       password,
     });
+    
+    // Mark as new user if signup was successful
+    if (!error && data.user) {
+      setIsNewUser(true);
+    }
+    
     return { data, error };
   };
 
@@ -61,12 +68,17 @@ export function useAuth() {
     return { error };
   };
 
+  const completeOnboarding = () => {
+    setIsNewUser(false);
+  };
   return {
     user,
     session,
     loading,
+    isNewUser,
     signIn,
     signUp,
     signOut,
+    completeOnboarding,
   };
 }
