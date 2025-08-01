@@ -1,12 +1,13 @@
 import React, { memo, useCallback } from 'react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Plus, MessageCircle } from 'lucide-react';
 import PlayerCard from './PlayerCard';
 import AddDateModal from './AddDateModal';
 import UpcomingDateModal from './UpcomingDateModal';
 import ChatAnalysisModal from './ChatAnalysisModal';
 import SubscriptionBanner from './SubscriptionBanner';
-import { datesApi, playerApi, meetingsApi } from '../services/api';
+import { useDataLoader } from '../hooks/useDataLoader';
+import { datesApi, playerApi } from '../services/api';
 import type { Tables } from '../lib/supabase';
 
 type Player = Tables<'profiles'>;
@@ -17,32 +18,36 @@ interface HubScreenProps {
 }
 
 const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
-  const [upcomingDates, setUpcomingDates] = useState<UpcomingDate[]>([]);
-  const [recentlyActive, setRecentlyActive] = useState<Player[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showAddDateModal, setShowAddDateModal] = useState(false);
   const [showDateInfoModal, setShowDateInfoModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState<UpcomingDate | null>(null);
   const [showChatAnalysis, setShowChatAnalysis] = useState(false);
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  // Load data with persistent caching
+  const { 
+    data: upcomingDates, 
+    loading: datesLoading, 
+    refetch: refetchDates 
+  } = useDataLoader({
+    key: 'getUpcomingDates',
+    fetcher: () => datesApi.getUpcomingDates(),
+    ttlMinutes: 5 // Shorter TTL for upcoming dates
+  });
+
+  const { 
+    data: recentlyActive, 
+    loading: playersLoading 
+  } = useDataLoader({
+    key: 'getRecentlyActive_3',
+    fetcher: () => playerApi.getRecentlyActive(3),
+    ttlMinutes: 10
+  });
+
+  const loading = datesLoading || playersLoading;
 
   const loadData = useCallback(async () => {
-    try {
-      const [dates, players] = await Promise.all([
-        datesApi.getUpcomingDates(),
-        playerApi.getRecentlyActive(3),
-      ]);
-      setUpcomingDates(dates || []);
-      setRecentlyActive(players || []);
-    } catch (error) {
-      console.error('Error loading hub data:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    await refetchDates();
+  }, [refetchDates]);
 
   // Generate calendar dates for the next 7 days
   const getUpcomingCalendarDates = useCallback(() => {
@@ -53,7 +58,7 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
       
-      const dateInfo = upcomingDates.find(d => {
+      const dateInfo = upcomingDates?.find(d => {
         const scheduledDate = new Date(d.date);
         return scheduledDate.toDateString() === date.toDateString();
       });
@@ -78,7 +83,7 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
 
   const getPlayerName = useCallback((profileId: string | null) => {
     if (!profileId) return undefined;
-    const player = recentlyActive.find(p => p.id === profileId);
+    const player = recentlyActive?.find(p => p.id === profileId);
     return player?.name;
   }, [recentlyActive]);
 
@@ -135,7 +140,7 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
           <section className="bg-black border-2 border-green-500 rounded-xl p-6">
             <h2 className="text-2xl font-semibold text-white mb-6">Recently Active</h2>
             <div className="flex justify-start space-x-3 overflow-x-auto pb-2 px-1">
-              {recentlyActive.map((player) => (
+              {recentlyActive?.map((player) => (
                 <PlayerCard 
                   key={player.id}
                   player={{
@@ -152,9 +157,14 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
                 />
               ))}
             </div>
-            {recentlyActive.length === 0 && (
+            {(!recentlyActive || recentlyActive.length === 0) && !playersLoading && (
               <div className="text-center py-8 text-gray-400">
                 No recently active players
+              </div>
+            )}
+            {playersLoading && (
+              <div className="text-center py-8 text-gray-400">
+                Loading players...
               </div>
             )}
           </section>

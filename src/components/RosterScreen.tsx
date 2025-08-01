@@ -1,9 +1,9 @@
 import React, { useState, memo, useCallback } from 'react';
-import { useEffect } from 'react';
 import { Users, Plus } from 'lucide-react';
 import SearchBar from './SearchBar';
 import PlayerCard from './PlayerCard';
 import AddPlayerModal from './AddPlayerModal';
+import { useDataLoader } from '../hooks/useDataLoader';
 import { playerApi } from '../services/api';
 import type { Tables } from '../lib/supabase';
 
@@ -15,38 +15,39 @@ interface RosterScreenProps {
 
 const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreenProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [activePlayers, setActivePlayers] = useState<Player[]>([]);
-  const [benchPlayers, setBenchPlayers] = useState<Player[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showAddPlayerModal, setShowAddPlayerModal] = useState(false);
 
-  useEffect(() => {
-    loadPlayers();
-  }, []);
+  // Load data with persistent caching
+  const { 
+    data: activePlayers, 
+    loading: activeLoading, 
+    refetch: refetchActive 
+  } = useDataLoader({
+    key: 'getActivePlayers',
+    fetcher: () => playerApi.getActivePlayers(),
+    ttlMinutes: 30
+  });
+
+  const { 
+    data: benchPlayers, 
+    loading: benchLoading 
+  } = useDataLoader({
+    key: 'getBenchPlayers',
+    fetcher: () => playerApi.getBenchPlayers(),
+    ttlMinutes: 30
+  });
+
+  const loading = activeLoading || benchLoading;
 
   const loadPlayers = useCallback(async () => {
-    try {
-      // Get all players and separate them by bench status
-      const allPlayers = await playerApi.getAllPlayers();
-      const active = allPlayers?.filter(player => !player.bench) || [];
-      const bench = await playerApi.getBenchPlayers();
-      
-      setActivePlayers(active);
-      setBenchPlayers(bench || []);
-    } catch (error) {
-      console.error('Error loading players:', error);
-      setActivePlayers([]);
-      setBenchPlayers([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    await refetchActive();
+  }, [refetchActive]);
 
-  const filteredActivePlayers = activePlayers.filter(player =>
+  const filteredActivePlayers = (activePlayers || []).filter(player =>
     player.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const filteredBenchPlayers = benchPlayers.filter(player =>
+  const filteredBenchPlayers = (benchPlayers || []).filter(player =>
     player.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 

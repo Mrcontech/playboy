@@ -1,5 +1,6 @@
 import React, { useState, useEffect, memo, useCallback } from 'react';
 import { TrendingUp, Users, DollarSign, Calendar, BarChart3, Target } from 'lucide-react';
+import { useDataLoader } from '../hooks/useDataLoader';
 import { statsApi } from '../services/api';
 
 interface CPNData {
@@ -26,49 +27,48 @@ interface DashboardStats {
 
 const PlaybookScreen = memo(function PlaybookScreen() {
   const [selectedPeriod, setSelectedPeriod] = useState<'weekly' | 'monthly' | 'yearly'>('monthly');
-  const [cpnData, setCpnData] = useState<CPNData[]>([]);
-  const [topPlayers, setTopPlayers] = useState<TopPlayer[]>([]);
-  const [dashboardStats, setDashboardStats] = useState<DashboardStats>({
-    totalSpent: 0,
-    totalDates: 0,
-    totalHookups: 0,
-    averageCPN: 0
+
+  // Load data with persistent caching
+  const { 
+    data: cpnData, 
+    loading: cpnLoading 
+  } = useDataLoader({
+    key: `getCPNByPeriod_${selectedPeriod}`,
+    fetcher: () => statsApi.getCPNByPeriod(selectedPeriod),
+    ttlMinutes: 30,
+    dependencies: [selectedPeriod]
   });
-  const [loading, setLoading] = useState(true);
 
-  const loadData = useCallback(async () => {
-    try {
-      setLoading(true);
-      const [cpnResult, playersResult, statsResult] = await Promise.all([
-        statsApi.getCPNByPeriod(selectedPeriod),
-        statsApi.getTopPlayersByRating(3),
-        statsApi.getDashboardStats()
-      ]);
-      
-      setCpnData(cpnResult || []);
-      setTopPlayers(playersResult || []);
-      
-      // Calculate average CPN
-      const stats = statsResult || { totalSpent: 0, totalDates: 0, totalHookups: 0 };
-      const averageCPN = stats.totalHookups > 0 ? stats.totalSpent / stats.totalHookups : 0;
-      
-      setDashboardStats({
-        ...stats,
-        averageCPN: Math.round(averageCPN)
-      });
-    } catch (error) {
-      console.error('Error loading playbook data:', error);
-      setCpnData([]);
-      setTopPlayers([]);
-      setDashboardStats({ totalSpent: 0, totalDates: 0, totalHookups: 0, averageCPN: 0 });
-    } finally {
-      setLoading(false);
-    }
-  }, [selectedPeriod]);
+  const { 
+    data: topPlayers, 
+    loading: playersLoading 
+  } = useDataLoader({
+    key: 'getTopPlayersByRating_3',
+    fetcher: () => statsApi.getTopPlayersByRating(3),
+    ttlMinutes: 30
+  });
 
-  useEffect(() => {
-    loadData();
-  }, [selectedPeriod]);
+  const { 
+    data: rawStats, 
+    loading: statsLoading 
+  } = useDataLoader({
+    key: 'getDashboardStats',
+    fetcher: () => statsApi.getDashboardStats(),
+    ttlMinutes: 30
+  });
+
+  // Calculate dashboard stats with average CPN
+  const dashboardStats = React.useMemo(() => {
+    const stats = rawStats || { totalSpent: 0, totalDates: 0, totalHookups: 0 };
+    const averageCPN = stats.totalHookups > 0 ? stats.totalSpent / stats.totalHookups : 0;
+    
+    return {
+      ...stats,
+      averageCPN: Math.round(averageCPN)
+    };
+  }, [rawStats]);
+
+  const loading = cpnLoading || playersLoading || statsLoading;
 
   const formatPeriodLabel = useCallback((period: string) => {
     if (selectedPeriod === 'weekly') {
@@ -82,7 +82,7 @@ const PlaybookScreen = memo(function PlaybookScreen() {
   }, [selectedPeriod]);
 
   const renderChart = useCallback(() => {
-    if (cpnData.length === 0) {
+    if (!cpnData || cpnData.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center h-64 text-gray-400">
           <BarChart3 size={48} className="mb-4" />
@@ -317,7 +317,7 @@ const PlaybookScreen = memo(function PlaybookScreen() {
           <div className="bg-black border-2 border-green-500 rounded-xl p-6">
             <h2 className="text-2xl font-semibold text-white mb-6">Top Players by Rating</h2>
             <div className="space-y-4">
-              {topPlayers.length > 0 ? (
+              {topPlayers && topPlayers.length > 0 ? (
                 topPlayers.map((player, index) => (
                   <div key={player.id} className="bg-black border-2 border-green-500 rounded-lg p-4 hover:border-green-400 transition-colors">
                     <div className="flex items-center space-x-4">
