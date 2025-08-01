@@ -114,7 +114,6 @@ export default function AddPlayerModal({ isOpen, onClose, onPlayerAdded }: AddPl
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none"
-                className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg border border-gray-700 focus:border-green-500 focus:outline-none"
                 required
               />
             </div>
@@ -125,7 +124,6 @@ export default function AddPlayerModal({ isOpen, onClose, onPlayerAdded }: AddPl
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                 className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none"
-                className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg border border-gray-700 focus:border-green-500 focus:outline-none"
               >
                 <option value="prospect">Prospect</option>
                 <option value="dating">Dating</option>
@@ -153,7 +151,6 @@ export default function AddPlayerModal({ isOpen, onClose, onPlayerAdded }: AddPl
                 value={formData.image_url}
                 onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
                 className="flex-1 bg-gray-800 text-white px-4 py-3 rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none"
-                className="flex-1 bg-gray-800 text-white px-4 py-3 rounded-lg border border-gray-700 focus:border-green-500 focus:outline-none"
                 placeholder="https://example.com/image.jpg"
               />
               <label className="bg-gray-800 px-4 py-3 rounded-lg border border-gray-700 hover:border-gray-600 transition-colors cursor-pointer">
@@ -194,7 +191,6 @@ export default function AddPlayerModal({ isOpen, onClose, onPlayerAdded }: AddPl
               value={formData.likes}
               onChange={(e) => setFormData({ ...formData, likes: e.target.value })}
               className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none"
-              className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg border border-gray-700 focus:border-green-500 focus:outline-none"
               placeholder="working out, movies, travel"
             />
           </div>
@@ -206,7 +202,6 @@ export default function AddPlayerModal({ isOpen, onClose, onPlayerAdded }: AddPl
               value={formData.dislikes}
               onChange={(e) => setFormData({ ...formData, dislikes: e.target.value })}
               className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none"
-              className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg border border-gray-700 focus:border-green-500 focus:outline-none"
               placeholder="smoking, loud music, pets"
             />
           </div>
@@ -217,7 +212,6 @@ export default function AddPlayerModal({ isOpen, onClose, onPlayerAdded }: AddPl
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none"
-              className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg border border-gray-700 focus:border-green-500 focus:outline-none"
               rows={3}
               placeholder="Additional notes about this person..."
             />
@@ -234,7 +228,7 @@ export default function AddPlayerModal({ isOpen, onClose, onPlayerAdded }: AddPl
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-green-400 text-black py-3 rounded-lg hover:bg-green-500 disabled:bg-green-600 transition-colors"
+              className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:bg-blue-800 transition-colors"
             >
               {loading ? 'Adding...' : 'Add Player'}
             </button>

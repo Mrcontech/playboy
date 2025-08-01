@@ -50,7 +50,7 @@ export default function LeftSidebar({ activeTab, onTabChange, isOpen = true, onC
               onClick={() => onTabChange(id)}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-left ${
                 activeTab === id
-                  ? 'bg-green-400 text-black'
+                  ? 'bg-blue-600 text-white'
                   : 'text-gray-300 hover:text-white hover:bg-gray-700'
               }`}
             >
