@@ -311,7 +311,7 @@ export default function PlaybookScreen() {
                   Loading top players...
                 </div>
               ) : (
-              {topPlayers.length > 0 ? (
+                topPlayers.length > 0 ? (
                 topPlayers.map((player, index) => (
                   <div key={player.id} className="bg-black border-2 border-green-500 rounded-lg p-4 hover:border-green-400 transition-colors">
                     <div className="flex items-center space-x-4">
@@ -342,7 +342,6 @@ export default function PlaybookScreen() {
                   <p className="text-gray-400 mb-2">No rated players yet</p>
                   <p className="text-sm text-gray-500">Add some meetings with ratings to see your top performers</p>
                 </div>
-              )}
               )}
             </div>
           </div>
