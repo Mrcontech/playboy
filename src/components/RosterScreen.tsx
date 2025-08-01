@@ -90,7 +90,7 @@ export default function RosterScreen({ onPlayerSelect }: RosterScreenProps) {
           {/* Active Players Section */}
           <section className="bg-black border-2 border-green-500 rounded-xl p-6">
             <h2 className="text-2xl font-semibold text-white mb-6">Active Players</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 lg:gap-4">
               {filteredActivePlayers.map((player) => (
                 <PlayerCard 
                   key={player.id}
@@ -125,7 +125,7 @@ export default function RosterScreen({ onPlayerSelect }: RosterScreenProps) {
           {/* Bench Players Section */}
           <section className="bg-black border-2 border-green-500 rounded-xl p-6">
             <h2 className="text-2xl font-semibold text-white mb-6">Bench</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 lg:gap-4">
               {filteredBenchPlayers.map((player) => (
                 <PlayerCard 
                   key={player.id}

@@ -162,20 +162,20 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-3 gap-3 mb-6">
+            <div className="grid grid-cols-3 gap-2 mb-6">
               <div className="bg-black border-2 border-green-500 p-4 rounded-xl text-center">
                 <Heart className="text-red-400 mx-auto mb-2" size={24} />
-                <div className="text-xl font-bold text-white">{playerStats.totalMeetings}</div>
+                <div className="text-lg font-bold text-white">{playerStats.totalMeetings}</div>
                 <div className="text-xs text-gray-400">Meetings</div>
               </div>
               <div className="bg-black border-2 border-green-500 p-4 rounded-xl text-center">
                 <DollarSign className="text-green-500 mx-auto mb-2" size={24} />
-                <div className="text-lg font-bold text-white">${Math.round(playerStats.cpn)}</div>
+                <div className="text-sm font-bold text-white">${Math.round(playerStats.cpn)}</div>
                 <div className="text-xs text-gray-400">CPN</div>
               </div>
               <div className="bg-black border-2 border-green-500 p-4 rounded-xl text-center">
                 <Star className="text-purple-500 fill-current mx-auto mb-2" size={24} />
-                <div className="text-xl font-bold text-white">{player.averageRating?.toFixed(1) || playerStats.averageRating.toFixed(1)}</div>
+                <div className="text-lg font-bold text-white">{player.averageRating?.toFixed(1) || playerStats.averageRating.toFixed(1)}</div>
                 <div className="text-xs text-gray-400">Avg</div>
               </div>
             </div>
@@ -186,17 +186,17 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
             {/* Ratings */}
             <div className="bg-black border-2 border-green-500 rounded-xl p-6">
               <h3 className="text-xl font-semibold text-white mb-6">Performance Ratings</h3>
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-300 font-medium">Looks</span>
+                  <span className="text-gray-300 font-medium text-sm sm:text-base">Looks</span>
                   <StarRating rating={player.looks_rating || 0} />
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-300 font-medium">Performance</span>
+                  <span className="text-gray-300 font-medium text-sm sm:text-base">Performance</span>
                   <StarRating rating={playerStats.performanceRating} />
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-300 font-medium">Date Experience</span>
+                  <span className="text-gray-300 font-medium text-sm sm:text-base">Date Experience</span>
                   <StarRating rating={playerStats.dateRating} />
                 </div>
               </div>
@@ -276,45 +276,45 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                 <div className="space-y-4">
                   {meetings.map((meeting) => (
                     <div key={meeting.id} className="bg-gray-800 rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center space-x-3">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 space-y-2 sm:space-y-0">
+                        <div className="flex items-center space-x-2 flex-wrap">
                           <span className="bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-medium">
                             {meeting.type.charAt(0).toUpperCase() + meeting.type.slice(1)}
                           </span>
                           {meeting.amount_spent && meeting.amount_spent > 0 && (
-                            <span className="text-green-500 font-medium">
+                            <span className="text-green-500 font-medium text-sm">
                               ${Number(meeting.amount_spent).toFixed(2)}
                             </span>
                           )}
                         </div>
-                        <span className="text-gray-400 text-sm">
+                        <span className="text-gray-400 text-xs sm:text-sm">
                           {new Date(meeting.date || meeting.created_at).toLocaleDateString()}
                         </span>
                       </div>
                       
                       {meeting.base && (
-                        <div className="text-gray-300 text-sm mb-2">
+                        <div className="text-gray-300 text-xs sm:text-sm mb-2">
                           📍 {meeting.base}
                         </div>
                       )}
                       
-                      <div className="flex items-center space-x-4 mb-2">
+                      <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 mb-2">
                         {meeting.rating && (
-                          <div className="flex items-center space-x-1">
-                            <span className="text-gray-400 text-sm">Experience:</span>
+                          <div className="flex items-center space-x-1 flex-wrap">
+                            <span className="text-gray-400 text-xs">Experience:</span>
                             <StarRating rating={meeting.rating} maxRating={10} size="small" />
                           </div>
                         )}
                         {meeting.performance_rating && (
-                          <div className="flex items-center space-x-1">
-                            <span className="text-gray-400 text-sm">Performance 😏:</span>
+                          <div className="flex items-center space-x-1 flex-wrap">
+                            <span className="text-gray-400 text-xs">Performance 😏:</span>
                             <StarRating rating={meeting.performance_rating} maxRating={10} size="small" />
                           </div>
                         )}
                       </div>
                       
                       {meeting.notes && (
-                        <div className="text-gray-300 text-sm bg-gray-700 rounded p-3 mt-2">
+                        <div className="text-gray-300 text-xs sm:text-sm bg-gray-700 rounded p-2 sm:p-3 mt-2">
                           {meeting.notes}
                         </div>
                       )}

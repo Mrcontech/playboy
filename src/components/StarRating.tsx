@@ -17,7 +17,7 @@ export default function StarRating({
   onChange 
 }: StarRatingProps) {
   const sizeClasses = {
-    small: 'w-3 h-3',
+    small: 'w-2.5 h-2.5',
     medium: 'w-4 h-4',
     large: 'w-5 h-5'
   };
@@ -52,7 +52,7 @@ export default function StarRating({
           </button>
         );
       })}
-      <span className="text-white font-medium ml-2">{rating.toFixed(1)}</span>
+      <span className={`text-white font-medium ml-1 ${size === 'small' ? 'text-xs' : 'text-sm'}`}>{rating.toFixed(1)}</span>
     </div>
   );
 }
