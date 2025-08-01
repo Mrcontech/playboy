@@ -1,13 +1,16 @@
 import React from 'react';
 import { XCircle, ArrowLeft, RefreshCw } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function CancelPage() {
+  const navigate = useNavigate();
+
   const handleGoBack = () => {
-    window.location.href = '/';
+    navigate('/');
   };
 
   const handleTryAgain = () => {
-    window.location.href = '/';
+    navigate('/');
   };
 
   return (

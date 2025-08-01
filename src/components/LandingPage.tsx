@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Heart, Users, BarChart3, Calendar, Star, ArrowRight, Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 export default function LandingPage() {
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -10,6 +12,11 @@ export default function LandingPage() {
   const [error, setError] = useState('');
 
   const { signIn, signUp } = useAuth();
+
+  // Navigate to hub after successful authentication
+  React.useEffect(() => {
+    // This will be handled by the auth state change in the main App component
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import LandingPage from './components/LandingPage';
 import AuthWrapper from './components/AuthWrapper';
 import LeftSidebar from './components/LeftSidebar';
@@ -15,54 +16,40 @@ import type { Tables } from './lib/supabase';
 
 type Player = Tables<'profiles'>;
 
-export default function App() {
-  const [activeTab, setActiveTab] = useState('hub');
+function AppContent() {
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { user, loading } = useAuth();
-
-  // Check for success/cancel pages based on URL
-  const currentPath = window.location.pathname;
+  const navigate = useNavigate();
+  const location = useLocation();
   
-  if (currentPath === '/success') {
-    return <SuccessPage />;
-  }
-  
-  if (currentPath === '/cancel') {
-    return <CancelPage />;
-  }
+  // Get current tab from URL
+  const getCurrentTab = () => {
+    const path = location.pathname;
+    if (path === '/' || path === '/hub') return 'hub';
+    if (path === '/roster') return 'roster';
+    if (path === '/playbook') return 'playbook';
+    if (path === '/settings') return 'settings';
+    return 'hub';
+  };
 
   const handlePlayerSelect = (player: Player) => {
     setSelectedPlayer(player);
-    setIsMobileMenuOpen(false); // Close mobile menu when navigating
+    setIsMobileMenuOpen(false);
   };
 
   const handleBackToRoster = () => {
     setSelectedPlayer(null);
-    setActiveTab('roster');
+    navigate('/roster');
   };
 
   const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-    setSelectedPlayer(null); // Clear selected player when navigating to other tabs
-    setIsMobileMenuOpen(false); // Close mobile menu when tab changes
+    setSelectedPlayer(null);
+    setIsMobileMenuOpen(false);
+    navigate(`/${tab === 'hub' ? '' : tab}`);
   };
 
-  // Show loading screen while checking auth
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-white text-lg">Loading...</div>
-      </div>
-    );
-  }
+  const activeTab = getCurrentTab();
 
-  // Show landing page if not authenticated
-  if (!user) {
-    return <LandingPage />;
-  }
-
-  // Wrap authenticated content with subscription check
   return (
     <AuthWrapper>
       <div className="min-h-screen bg-black">
@@ -85,15 +72,42 @@ export default function App() {
               onBack={handleBackToRoster}
             />
           ) : (
-            <>
-              {activeTab === 'hub' && <HubScreen onPlayerSelect={handlePlayerSelect} />}
-              {activeTab === 'roster' && <RosterScreen onPlayerSelect={handlePlayerSelect} />}
-              {activeTab === 'playbook' && <PlaybookScreen />}
-              {activeTab === 'settings' && <SettingsScreen />}
-            </>
+            <Routes>
+              <Route path="/" element={<HubScreen onPlayerSelect={handlePlayerSelect} />} />
+              <Route path="/hub" element={<HubScreen onPlayerSelect={handlePlayerSelect} />} />
+              <Route path="/roster" element={<RosterScreen onPlayerSelect={handlePlayerSelect} />} />
+              <Route path="/playbook" element={<PlaybookScreen />} />
+              <Route path="/settings" element={<SettingsScreen />} />
+            </Routes>
           )}
         </div>
       </div>
     </AuthWrapper>
+  );
+}
+
+export default function App() {
+  const { user, loading } = useAuth();
+
+  // Show loading screen while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-white text-lg">Loading...</div>
+      </div>
+    );
+  }
+
+  // Show landing page if not authenticated
+  if (!user) {
+    return <LandingPage />;
+  }
+
+  return (
+    <Routes>
+      <Route path="/success" element={<SuccessPage />} />
+      <Route path="/cancel" element={<CancelPage />} />
+      <Route path="/*" element={<AppContent />} />
+    </Routes>
   );
 }

@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
 import { CheckCircle, ArrowRight, Crown } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useSubscription } from '../hooks/useSubscription';
 
 export default function SuccessPage() {
   const { refetch, currentPlan } = useSubscription();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Refetch subscription data after successful payment
@@ -15,7 +17,7 @@ export default function SuccessPage() {
   }, [refetch]);
 
   const handleContinue = () => {
-    window.location.href = '/';
+    navigate('/');
   };
 
   return (
