@@ -131,7 +131,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
           {/* Left Column - Profile Info */}
           <div className="lg:col-span-1">
             {/* Profile Header */}
-            <div className="bg-gray-900 rounded-xl p-6 text-center mb-6">
+            <div className="bg-black border-2 border-green-500 rounded-xl p-6 text-center mb-6">
               <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden bg-gradient-to-br from-green-400 to-green-600">
                 <img 
                   src={player.image_url || 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=400'} 
@@ -147,17 +147,17 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="bg-gray-900 p-4 rounded-xl text-center">
+              <div className="bg-black border-2 border-green-500 p-4 rounded-xl text-center">
                 <Heart className="text-red-400 mx-auto mb-2" size={24} />
                 <div className="text-xl font-bold text-white">{playerStats.totalMeetings}</div>
                 <div className="text-xs text-gray-400">Meetings</div>
               </div>
-              <div className="bg-gray-900 p-4 rounded-xl text-center">
+              <div className="bg-black border-2 border-green-500 p-4 rounded-xl text-center">
                 <DollarSign className="text-green-500 mx-auto mb-2" size={24} />
                 <div className="text-lg font-bold text-white">${Math.round(playerStats.cpn)}</div>
                 <div className="text-xs text-gray-400">CPN</div>
               </div>
-              <div className="bg-gray-900 p-4 rounded-xl text-center">
+              <div className="bg-black border-2 border-green-500 p-4 rounded-xl text-center">
                 <Star className="text-purple-500 fill-current mx-auto mb-2" size={24} />
                 <div className="text-xl font-bold text-white">{playerStats.averageRating.toFixed(1)}</div>
                 <div className="text-xs text-gray-400">Avg</div>
@@ -168,7 +168,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
           {/* Right Column - Details */}
           <div className="lg:col-span-2 space-y-4 lg:space-y-6">
             {/* Ratings */}
-            <div className="bg-gray-900 rounded-xl p-6">
+            <div className="bg-black border-2 border-green-500 rounded-xl p-6">
               <h3 className="text-xl font-semibold text-white mb-6">Performance Ratings</h3>
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
@@ -187,7 +187,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
             </div>
 
             {/* Quick Facts */}
-            <div className="bg-gray-900 rounded-xl p-6">
+            <div className="bg-black border-2 border-green-500 rounded-xl p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-semibold text-white">Profile Details</h3>
                 <button 
@@ -254,7 +254,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
             </div>
 
             {/* Meetings & Expenses History */}
-            <div className="bg-gray-900 rounded-xl p-6">
+            <div className="bg-black border-2 border-green-500 rounded-xl p-6">
               <h3 className="text-xl font-semibold text-white mb-6">Meeting & Expense History</h3>
               {meetings.length > 0 ? (
                 <div className="space-y-4">

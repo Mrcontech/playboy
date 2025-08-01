@@ -121,7 +121,7 @@ export default function LandingPage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
-              <div key={index} className="bg-gray-900 rounded-xl p-6 hover:bg-gray-800 transition-colors">
+              <div key={index} className="bg-black border-2 border-green-500 rounded-xl p-6 hover:border-green-400 transition-colors">
                 <div className="bg-gradient-to-br from-green-500 to-green-600 p-3 rounded-lg w-fit mb-4">
                   <feature.icon className="text-white" size={24} />
                 </div>
@@ -148,7 +148,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {screenshots.map((screenshot, index) => (
               <div key={index} className="group">
-                <div className="bg-gray-900 rounded-xl overflow-hidden hover:transform hover:scale-105 transition-all duration-300">
+                <div className="bg-black border-2 border-green-500 rounded-xl overflow-hidden hover:border-green-400 hover:transform hover:scale-105 transition-all duration-300">
                   <img 
                     src={screenshot.src} 
                     alt={screenshot.alt}
@@ -176,7 +176,7 @@ export default function LandingPage() {
             </p>
           </div>
           
-          <div className="bg-gray-900 rounded-2xl p-8 border border-gray-700">
+          <div className="bg-black border-2 border-green-500 rounded-2xl p-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
               <div>
                 <h3 className="text-2xl font-bold text-white mb-6">Playboi Pro Features:</h3>
@@ -223,7 +223,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="bg-gray-800 rounded-xl p-8">
+          <div className="bg-black border-2 border-green-500 rounded-xl p-8">
             <div className="flex mb-8">
               <button
                 onClick={() => setIsLogin(true)}

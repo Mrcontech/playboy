@@ -45,7 +45,7 @@ export default function LoginScreen() {
           <p className="text-gray-400 text-lg">Manage your dating game like a pro</p>
         </div>
 
-        <div className="bg-gray-800 rounded-xl p-8">
+        <div className="bg-black border-2 border-green-500 rounded-xl p-8">
           <div className="flex mb-8">
             <button
               onClick={() => setIsLogin(true)}

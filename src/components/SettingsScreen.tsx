@@ -94,7 +94,7 @@ export default function SettingsScreen() {
         <h1 className="text-3xl font-bold text-white mb-8">Settings</h1>
 
         {/* User Info Section */}
-        <div className="bg-gray-900 rounded-xl p-6 mb-6">
+        <div className="bg-black border-2 border-green-500 rounded-xl p-6 mb-6">
           <h2 className="text-xl font-semibold text-white mb-4">Account Information</h2>
           <div className="flex items-center space-x-4">
             <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-purple-500 rounded-full flex items-center justify-center">
@@ -116,7 +116,7 @@ export default function SettingsScreen() {
         {/* Settings Options */}
         <div className="space-y-4">
           {/* Edit Profile */}
-          <div className="bg-gray-900 rounded-xl p-6">
+          <div className="bg-black border-2 border-green-500 rounded-xl p-6">
             <button
               onClick={() => setShowEditProfile(true)}
               className="w-full flex items-center justify-between hover:bg-gray-800 p-4 rounded-lg transition-colors"
@@ -135,7 +135,7 @@ export default function SettingsScreen() {
           </div>
 
           {/* Sign Out */}
-          <div className="bg-gray-900 rounded-xl p-6">
+          <div className="bg-black border-2 border-green-500 rounded-xl p-6">
             <button
               onClick={handleSignOut}
               className="w-full flex items-center justify-between hover:bg-gray-800 p-4 rounded-lg transition-colors"

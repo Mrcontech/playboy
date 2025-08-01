@@ -71,7 +71,7 @@ export default function SubscriptionRequired() {
           </p>
         </div>
 
-        <div className="bg-gray-800 rounded-2xl p-8 mb-8">
+        <div className="bg-black border-2 border-green-500 rounded-2xl p-8 mb-8">
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-500 rounded-full mb-4">
               <Crown className="text-white" size={32} />

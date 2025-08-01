@@ -223,7 +223,7 @@ export default function PlaybookScreen() {
 
         {/* Performance Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-8">
-          <div className="bg-gray-900 rounded-xl p-6">
+          <div className="bg-black border-2 border-green-500 rounded-xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="bg-green-500 p-3 rounded-lg">
                 <DollarSign className="text-white" size={24} />
@@ -236,7 +236,7 @@ export default function PlaybookScreen() {
             <div className="text-gray-400 text-sm">Total Spent</div>
           </div>
 
-          <div className="bg-gray-900 rounded-xl p-6">
+          <div className="bg-black border-2 border-green-500 rounded-xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="bg-purple-500 p-3 rounded-lg">
                 <Calendar className="text-white" size={24} />
@@ -249,7 +249,7 @@ export default function PlaybookScreen() {
             <div className="text-gray-400 text-sm">Total Dates</div>
           </div>
 
-          <div className="bg-gray-900 rounded-xl p-6">
+          <div className="bg-black border-2 border-green-500 rounded-xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="bg-purple-500 p-3 rounded-lg">
                 <Users className="text-white" size={24} />
@@ -265,7 +265,7 @@ export default function PlaybookScreen() {
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-8">
           {/* CPN Chart */}
-          <div className="bg-gray-900 rounded-xl p-6">
+          <div className="bg-black border-2 border-green-500 rounded-xl p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-semibold text-white">Average Cost Per Night</h2>
               <div className="flex bg-gray-700 rounded-lg p-1 text-xs lg:text-sm">
@@ -291,7 +291,7 @@ export default function PlaybookScreen() {
           </div>
 
           {/* Top Players */}
-          <div className="bg-gray-900 rounded-xl p-6">
+          <div className="bg-black border-2 border-green-500 rounded-xl p-6">
             <h2 className="text-2xl font-semibold text-white mb-6">Top Players by Rating</h2>
             <div className="space-y-4">
               {topPlayers.length > 0 ? (
