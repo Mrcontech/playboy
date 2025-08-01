@@ -246,7 +246,6 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                   <div className="text-gray-400 mb-4">
                     {loading ? 'Loading player data...' : 'No additional information available'}
                   </div>
-                  <button className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-white font-medium transition-colors">
                   <button className="bg-purple-500 hover:bg-purple-600 px-4 py-2 rounded-lg text-white font-medium transition-colors">
                     Add Details
                   </button>
