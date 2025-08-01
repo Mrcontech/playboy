@@ -51,7 +51,7 @@ export default function PlayerCard({ player, onClick, size = 'medium' }: PlayerC
         {/* Status Badge */}
         {player.status && (
           <div className="flex justify-center mb-4">
-            <span className="bg-green-600 text-white px-3 py-1 rounded-full text-xs font-medium">
+            <span className="bg-green-400 text-black px-3 py-1 rounded-full text-xs font-medium">
               {player.status === 'side_piece' ? '🍑' : 
                player.status === 'wifey' ? '💍' : 
                player.status === 'dating' ? '❤️' : 

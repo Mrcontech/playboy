@@ -275,7 +275,7 @@ export default function EditPlayerModal({ isOpen, onClose, onPlayerUpdated, onPl
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 disabled:bg-blue-800 transition-colors"
+                className="bg-green-400 text-black py-3 px-6 rounded-lg hover:bg-green-500 disabled:bg-green-600 transition-colors"
               >
                 {loading ? 'Updating...' : 'Update Player'}
               </button>

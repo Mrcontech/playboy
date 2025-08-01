@@ -234,7 +234,7 @@ export default function AddPlayerModal({ isOpen, onClose, onPlayerAdded }: AddPl
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 disabled:bg-green-800 transition-colors"
+              className="flex-1 bg-green-400 text-black py-3 rounded-lg hover:bg-green-500 disabled:bg-green-600 transition-colors"
             >
               {loading ? 'Adding...' : 'Add Player'}
             </button>

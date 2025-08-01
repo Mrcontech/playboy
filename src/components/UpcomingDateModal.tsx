@@ -108,7 +108,7 @@ export default function UpcomingDateModal({ isOpen, onClose, date, playerName }:
                 // TODO: Implement edit functionality
                 alert('Edit functionality coming soon!');
               }}
-              className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors"
+              className="flex-1 bg-green-400 text-black py-3 rounded-lg hover:bg-green-500 transition-colors"
             >
               Edit Date
             </button>

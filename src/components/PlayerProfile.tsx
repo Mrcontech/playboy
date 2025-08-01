@@ -112,17 +112,17 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
             </button>
             <button 
               onClick={() => setShowAddExpenseModal(true)}
-              className="bg-blue-600 px-3 lg:px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+              className="bg-green-400 hover:bg-green-500 text-black px-3 lg:px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
             >
-              <DollarSign className="text-white" size={20} />
-              <span className="text-white font-medium hidden sm:inline">Add Expense</span>
+              <DollarSign className="text-black" size={20} />
+              <span className="text-black font-medium hidden sm:inline">Add Expense</span>
             </button>
             <button 
               onClick={() => setShowAddMeetingModal(true)}
-              className="bg-green-600 px-3 lg:px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+              className="bg-green-400 hover:bg-green-500 text-black px-3 lg:px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
             >
-              <Plus className="text-white" size={20} />
-              <span className="text-white font-medium hidden sm:inline">Add Meeting</span>
+              <Plus className="text-black" size={20} />
+              <span className="text-black font-medium hidden sm:inline">Add Meeting</span>
             </button>
           </div>
         </div>
@@ -140,7 +140,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                 />
               </div>
               <h1 className="text-2xl font-bold mb-2 text-white">{player.name}</h1>
-              <span className="bg-green-600 text-white px-4 py-2 rounded-full text-sm font-medium">
+              <span className="bg-green-400 text-black px-4 py-2 rounded-full text-sm font-medium">
                 {player.status || 'Active'}
               </span>
             </div>
@@ -192,7 +192,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                 <h3 className="text-xl font-semibold text-white">Profile Details</h3>
                 <button 
                   onClick={() => setShowAIRecap(true)}
-                  className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  className="bg-green-400 hover:bg-green-500 px-4 py-2 rounded-lg text-black text-sm font-medium transition-colors"
                 >
                   AI Recap
                 </button>
@@ -204,7 +204,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                   <h4 className="text-green-400 font-medium mb-3">Likes</h4>
                   <div className="flex flex-wrap gap-2">
                     {player.likes.map((like, index) => (
-                      <span key={index} className="bg-green-900/20 text-green-300 px-3 py-1 rounded-full text-sm">
+                      <span key={index} className="bg-green-400/20 text-green-400 px-3 py-1 rounded-full text-sm">
                         {like}
                       </span>
                     ))}
@@ -262,7 +262,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                     <div key={meeting.id} className="bg-gray-700 rounded-lg p-4">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center space-x-3">
-                          <span className="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                          <span className="bg-green-400 text-black px-3 py-1 rounded-full text-sm font-medium">
                             {meeting.type.charAt(0).toUpperCase() + meeting.type.slice(1)}
                           </span>
                           {meeting.amount_spent && meeting.amount_spent > 0 && (
@@ -311,13 +311,13 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                   <div className="flex justify-center space-x-4">
                     <button 
                       onClick={() => setShowAddMeetingModal(true)}
-                      className="bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-lg text-white font-medium transition-colors"
+                      className="bg-green-400 hover:bg-green-500 px-4 py-2 rounded-lg text-black font-medium transition-colors"
                     >
                       Add Meeting
                     </button>
                     <button 
                       onClick={() => setShowAddExpenseModal(true)}
-                      className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg text-white font-medium transition-colors"
+                      className="bg-green-400 hover:bg-green-500 px-4 py-2 rounded-lg text-black font-medium transition-colors"
                     >
                       Add Expense
                     </button>

@@ -89,7 +89,7 @@ export default function ChatAnalysisModal({ isOpen, onClose }: ChatAnalysisModal
           <h2 className="text-2xl font-bold text-white">AI Chat Analysis</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors"
+            className="bg-green-400 hover:bg-green-500 px-6 py-3 rounded-lg text-black font-medium transition-colors"
           >
             <X size={24} />
           </button>
@@ -123,6 +123,7 @@ export default function ChatAnalysisModal({ isOpen, onClose }: ChatAnalysisModal
                   <h3 className="text-lg font-semibold text-white mb-2">Upload Chat Screenshot</h3>
                   <p className="text-gray-400 text-sm mb-4">Drag & drop or click to upload</p>
                   <label className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer inline-block">
+                  <label className="bg-green-400 hover:bg-green-500 disabled:bg-green-600 text-black px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer inline-block">
                     Choose File
                     <input
                       type="file"
@@ -170,7 +171,7 @@ Her: You should! It's really relaxing"
               <button
                 onClick={handleAnalyze}
                 disabled={loading || ocrLoading || !conversationText.trim()}
-                className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:bg-blue-800 transition-colors flex items-center justify-center space-x-2"
+                className="flex-1 bg-green-400 text-black py-3 rounded-lg hover:bg-green-500 disabled:bg-green-600 transition-colors flex items-center justify-center space-x-2"
               >
                 {loading ? (
                   <>

@@ -43,7 +43,7 @@ export default function SuccessPage() {
 
           <button
             onClick={handleContinue}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
+            className="w-full bg-green-400 hover:bg-green-500 text-black py-3 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
           >
             <span>Continue to Dashboard</span>
             <ArrowRight size={20} />

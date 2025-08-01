@@ -66,10 +66,10 @@ export default function RosterScreen({ onPlayerSelect }: RosterScreenProps) {
           <div className="flex items-center space-x-4">
             <button 
               onClick={() => setShowAddPlayerModal(true)}
-              className="bg-green-600 hover:bg-green-700 px-3 lg:px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
+              className="bg-green-400 hover:bg-green-500 px-3 lg:px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
             >
               <Plus className="text-white" size={20} />
-              <span className="text-white font-medium hidden sm:inline">Add Player</span>
+              <span className="text-black font-medium hidden sm:inline">Add Player</span>
             </button>
             <button className="bg-gray-800 hover:bg-gray-700 p-2 rounded-lg transition-colors">
               <Users className="text-gray-400" size={24} />
@@ -114,7 +114,7 @@ export default function RosterScreen({ onPlayerSelect }: RosterScreenProps) {
                 <div className="text-gray-400 mb-4">No active players found</div>
                 <button 
                   onClick={() => setShowAddPlayerModal(true)}
-                  className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg text-white font-medium transition-colors"
+                  className="bg-green-400 hover:bg-green-500 px-4 py-2 rounded-lg text-black font-medium transition-colors"
                 >
                   Add Your First Player
                 </button>

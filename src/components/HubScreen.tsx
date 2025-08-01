@@ -106,10 +106,10 @@ export default function HubScreen({ onPlayerSelect }: HubScreenProps) {
               <h2 className="text-2xl font-semibold text-white">Upcoming Dates</h2>
               <button 
                 onClick={() => setShowAddDateModal(true)}
-                className="bg-green-600 hover:bg-green-700 px-3 lg:px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
+                className="bg-green-400 hover:bg-green-500 px-3 lg:px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
               >
                 <Plus className="text-white" size={20} />
-                <span className="text-white font-medium hidden sm:inline">Add Date</span>
+                <span className="text-black font-medium hidden sm:inline">Add Date</span>
               </button>
             </div>
             
@@ -119,7 +119,7 @@ export default function HubScreen({ onPlayerSelect }: HubScreenProps) {
                   key={index}
                   className={`p-2 lg:p-4 rounded-lg text-center transition-colors ${
                     date.active 
-                      ? 'bg-green-600 text-white shadow-lg cursor-pointer hover:bg-green-500' 
+                      ? 'bg-green-400 text-black shadow-lg cursor-pointer hover:bg-green-500' 
                       : 'bg-gray-700 text-gray-300 hover:bg-gray-600 cursor-default'
                   }`}
                   onClick={() => handleDateClick(date.dateInfo)}
@@ -183,7 +183,7 @@ export default function HubScreen({ onPlayerSelect }: HubScreenProps) {
                   e.stopPropagation();
                   setShowChatAnalysis(true);
                 }}
-                className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                className="bg-green-400 hover:bg-green-500 text-black px-6 py-3 rounded-lg font-medium transition-colors"
               >
                 Choose File
               </button>

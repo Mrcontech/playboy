@@ -36,7 +36,7 @@ export default function LoginScreen() {
     <div className="min-h-screen bg-gray-900 flex items-center justify-center p-8">
       <div className="max-w-lg w-full">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full mb-6">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-400 to-green-500 rounded-full mb-6">
             <Heart className="text-white" size={40} />
           </div>
           <h1 className="text-4xl font-bold text-white mb-3">Dating Roster</h1>
@@ -49,7 +49,7 @@ export default function LoginScreen() {
               onClick={() => setIsLogin(true)}
               className={`flex-1 py-3 px-6 rounded-lg font-medium transition-colors ${
                 isLogin
-                  ? 'bg-green-600 text-white'
+                  ? 'bg-green-400 text-black'
                   : 'text-gray-400 hover:text-gray-300'
               }`}
             >
@@ -59,7 +59,7 @@ export default function LoginScreen() {
               onClick={() => setIsLogin(false)}
               className={`flex-1 py-3 px-6 rounded-lg font-medium transition-colors ${
                 !isLogin
-                  ? 'bg-green-600 text-white'
+                  ? 'bg-green-400 text-black'
                   : 'text-gray-400 hover:text-gray-300'
               }`}
             >
@@ -118,7 +118,7 @@ export default function LoginScreen() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-green-600 hover:bg-green-700 disabled:bg-green-800 text-white py-4 rounded-lg font-medium transition-colors text-lg"
+              className="w-full bg-green-400 hover:bg-green-500 disabled:bg-green-600 text-black py-4 rounded-lg font-medium transition-colors text-lg"
             >
               {loading ? 'Loading...' : isLogin ? 'Sign In' : 'Create Account'}
             </button>

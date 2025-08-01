@@ -275,7 +275,7 @@ export default function PlaybookScreen() {
                     onClick={() => setSelectedPeriod(period)}
                     className={`px-2 lg:px-4 py-2 rounded-md font-medium transition-colors ${
                       selectedPeriod === period
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-green-400 text-black'
                         : 'text-gray-300 hover:text-white'
                     }`}
                   >
