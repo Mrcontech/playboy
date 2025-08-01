@@ -45,7 +45,26 @@ export const playerApi = {
       
       const ratingsSum = meetings.reduce((sum: number, meeting: any) => 
         sum + (Number(meeting.rating) || 0), 0);
-      const averageRating = totalMeetings > 0 ? ratingsSum / totalMeetings : (player.looks_rating || 0);
+      const dateExperienceRating = totalMeetings > 0 ? ratingsSum / totalMeetings : 0;
+      
+      // Calculate performance rating average
+      const performanceRatings = meetings.filter((meeting: any) => 
+        meeting.performance_rating && Number(meeting.performance_rating) > 0);
+      const performanceRatingSum = performanceRatings.reduce((sum: number, meeting: any) => 
+        sum + Number(meeting.performance_rating), 0);
+      const avgPerformanceRating = performanceRatings.length > 0 ? performanceRatingSum / performanceRatings.length : 0;
+      
+      // Calculate overall average rating
+      const looksRating = player.looks_rating || 0;
+      let averageRating;
+      
+      if (avgPerformanceRating > 0) {
+        // Include all three: looks, performance, date experience
+        averageRating = (looksRating + avgPerformanceRating + dateExperienceRating) / 3;
+      } else {
+        // Only looks and date experience
+        averageRating = totalMeetings > 0 ? (looksRating + dateExperienceRating) / 2 : looksRating;
+      }
       
       // Remove meetings array from response
       const { meetings: _, ...playerWithoutMeetings } = player;
@@ -87,7 +106,26 @@ export const playerApi = {
       
       const ratingsSum = meetings.reduce((sum: number, meeting: any) => 
         sum + (Number(meeting.rating) || 0), 0);
-      const averageRating = totalMeetings > 0 ? ratingsSum / totalMeetings : (player.looks_rating || 0);
+      const dateExperienceRating = totalMeetings > 0 ? ratingsSum / totalMeetings : 0;
+      
+      // Calculate performance rating average
+      const performanceRatings = meetings.filter((meeting: any) => 
+        meeting.performance_rating && Number(meeting.performance_rating) > 0);
+      const performanceRatingSum = performanceRatings.reduce((sum: number, meeting: any) => 
+        sum + Number(meeting.performance_rating), 0);
+      const avgPerformanceRating = performanceRatings.length > 0 ? performanceRatingSum / performanceRatings.length : 0;
+      
+      // Calculate overall average rating
+      const looksRating = player.looks_rating || 0;
+      let averageRating;
+      
+      if (avgPerformanceRating > 0) {
+        // Include all three: looks, performance, date experience
+        averageRating = (looksRating + avgPerformanceRating + dateExperienceRating) / 3;
+      } else {
+        // Only looks and date experience
+        averageRating = totalMeetings > 0 ? (looksRating + dateExperienceRating) / 2 : looksRating;
+      }
       
       // Remove meetings array from response
       const { meetings: _, ...playerWithoutMeetings } = player;
@@ -129,7 +167,26 @@ export const playerApi = {
       
       const ratingsSum = meetings.reduce((sum: number, meeting: any) => 
         sum + (Number(meeting.rating) || 0), 0);
-      const averageRating = totalMeetings > 0 ? ratingsSum / totalMeetings : (player.looks_rating || 0);
+      const dateExperienceRating = totalMeetings > 0 ? ratingsSum / totalMeetings : 0;
+      
+      // Calculate performance rating average
+      const performanceRatings = meetings.filter((meeting: any) => 
+        meeting.performance_rating && Number(meeting.performance_rating) > 0);
+      const performanceRatingSum = performanceRatings.reduce((sum: number, meeting: any) => 
+        sum + Number(meeting.performance_rating), 0);
+      const avgPerformanceRating = performanceRatings.length > 0 ? performanceRatingSum / performanceRatings.length : 0;
+      
+      // Calculate overall average rating
+      const looksRating = player.looks_rating || 0;
+      let averageRating;
+      
+      if (avgPerformanceRating > 0) {
+        // Include all three: looks, performance, date experience
+        averageRating = (looksRating + avgPerformanceRating + dateExperienceRating) / 3;
+      } else {
+        // Only looks and date experience
+        averageRating = totalMeetings > 0 ? (looksRating + dateExperienceRating) / 2 : looksRating;
+      }
       
       // Remove meetings array from response
       const { meetings: _, ...playerWithoutMeetings } = player;
@@ -175,7 +232,26 @@ export const playerApi = {
       
       const ratingsSum = meetings.reduce((sum: number, meeting: any) => 
         sum + (Number(meeting.rating) || 0), 0);
-      const averageRating = totalMeetings > 0 ? ratingsSum / totalMeetings : (player.looks_rating || 0);
+      const dateExperienceRating = totalMeetings > 0 ? ratingsSum / totalMeetings : 0;
+      
+      // Calculate performance rating average
+      const performanceRatings = meetings.filter((meeting: any) => 
+        meeting.performance_rating && Number(meeting.performance_rating) > 0);
+      const performanceRatingSum = performanceRatings.reduce((sum: number, meeting: any) => 
+        sum + Number(meeting.performance_rating), 0);
+      const avgPerformanceRating = performanceRatings.length > 0 ? performanceRatingSum / performanceRatings.length : 0;
+      
+      // Calculate overall average rating
+      const looksRating = player.looks_rating || 0;
+      let averageRating;
+      
+      if (avgPerformanceRating > 0) {
+        // Include all three: looks, performance, date experience
+        averageRating = (looksRating + avgPerformanceRating + dateExperienceRating) / 3;
+      } else {
+        // Only looks and date experience
+        averageRating = totalMeetings > 0 ? (looksRating + dateExperienceRating) / 2 : looksRating;
+      }
       
       // Find the most recent meeting date
       const mostRecentMeetingDate = meetings.reduce((latest: string, meeting: any) => {
