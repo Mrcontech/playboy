@@ -58,6 +58,7 @@ export default function SubscriptionRequired() {
       <div className="max-w-4xl w-full">
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full mb-6">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-full mb-6">
             <Heart className="text-white" size={40} />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
@@ -81,7 +82,7 @@ export default function SubscriptionRequired() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             {proFeatures.map((feature, index) => (
               <div key={index} className="flex items-start space-x-4 p-4 bg-gray-700 rounded-lg">
-                <div className="bg-gradient-to-br from-pink-500 to-purple-600 p-2 rounded-lg flex-shrink-0">
+                <div className="bg-gradient-to-br from-green-500 to-green-600 p-2 rounded-lg flex-shrink-0">
                   <feature.icon className="text-white" size={20} />
                 </div>
                 <div>
@@ -96,7 +97,7 @@ export default function SubscriptionRequired() {
             <button
               onClick={handleUpgrade}
               disabled={loading}
-              className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 text-white py-4 rounded-lg font-semibold text-lg transition-all flex items-center justify-center space-x-2"
+              className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:from-gray-600 disabled:to-gray-700 text-white py-4 rounded-lg font-semibold text-lg transition-all flex items-center justify-center space-x-2"
             >
               {loading ? (
                 <>

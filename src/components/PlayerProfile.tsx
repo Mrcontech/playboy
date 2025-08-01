@@ -132,7 +132,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
           <div className="lg:col-span-1">
             {/* Profile Header */}
             <div className="bg-gray-800 rounded-xl p-6 text-center mb-6">
-              <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden bg-gradient-to-br from-blue-400 to-purple-600">
+              <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden bg-gradient-to-br from-green-400 to-green-600">
                 <img 
                   src={player.image_url || 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=400'} 
                   alt={player.name}
@@ -140,7 +140,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                 />
               </div>
               <h1 className="text-2xl font-bold mb-2 text-white">{player.name}</h1>
-              <span className="bg-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium">
+              <span className="bg-green-600 text-white px-4 py-2 rounded-full text-sm font-medium">
                 {player.status || 'Active'}
               </span>
             </div>

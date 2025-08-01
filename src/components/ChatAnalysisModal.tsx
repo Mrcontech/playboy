@@ -199,10 +199,10 @@ Her: You should! It's really relaxing"
                     <p className="text-gray-400 text-sm mt-2">This might take a few seconds</p>
                   </div>
                 ) : analysis ? (
-                  <div className="space-y-4">
+                        <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
                     <div className="flex items-center space-x-2 mb-4">
                       <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
-                        <MessageCircle className="text-white" size={16} />
+                        <span className="text-green-400 font-semibold">Your Playboi Coach Says:</span>
                       </div>
                       <span className="text-blue-400 font-semibold">Your Playboi Coach Says:</span>
                     </div>

@@ -78,7 +78,7 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
           <button
             onClick={handleUpgrade}
             disabled={loading}
-            className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-600 disabled:to-gray-700 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
+            className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 disabled:from-gray-600 disabled:to-gray-700 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
           >
             {loading ? (
               <>

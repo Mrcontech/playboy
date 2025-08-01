@@ -35,7 +35,7 @@ export default function PlayerCard({ player, onClick, size = 'medium' }: PlayerC
       onClick={onClick}
     >
       {/* Image Section */}
-      <div className={`${avatarSizes[size]} w-full overflow-hidden bg-gradient-to-br from-blue-400 to-purple-600`}>
+      <div className={`${avatarSizes[size]} w-full overflow-hidden bg-gradient-to-br from-green-400 to-green-600`}>
         <img 
           src={player.avatar} 
           alt={player.name}
@@ -51,7 +51,7 @@ export default function PlayerCard({ player, onClick, size = 'medium' }: PlayerC
         {/* Status Badge */}
         {player.status && (
           <div className="flex justify-center mb-4">
-            <span className="bg-purple-600 text-white px-3 py-1 rounded-full text-xs font-medium">
+            <span className="bg-green-600 text-white px-3 py-1 rounded-full text-xs font-medium">
               {player.status === 'side_piece' ? '🍑' : 
                player.status === 'wifey' ? '💍' : 
                player.status === 'dating' ? '❤️' : 
