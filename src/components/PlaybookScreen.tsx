@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo, useCallback } from 'react';
 import { TrendingUp, Users, DollarSign, Calendar, BarChart3, Target } from 'lucide-react';
 import { statsApi } from '../services/api';
 
@@ -24,7 +24,7 @@ interface DashboardStats {
   averageCPN: number;
 }
 
-export default function PlaybookScreen() {
+const PlaybookScreen = memo(function PlaybookScreen() {
   const [selectedPeriod, setSelectedPeriod] = useState<'weekly' | 'monthly' | 'yearly'>('monthly');
   const [cpnData, setCpnData] = useState<CPNData[]>([]);
   const [topPlayers, setTopPlayers] = useState<TopPlayer[]>([]);
@@ -36,11 +36,7 @@ export default function PlaybookScreen() {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadData();
-  }, [selectedPeriod]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       const [cpnResult, playersResult, statsResult] = await Promise.all([
@@ -68,9 +64,13 @@ export default function PlaybookScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedPeriod]);
 
-  const formatPeriodLabel = (period: string) => {
+  useEffect(() => {
+    loadData();
+  }, [selectedPeriod]);
+
+  const formatPeriodLabel = useCallback((period: string) => {
     if (selectedPeriod === 'weekly') {
       return new Date(period).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     } else if (selectedPeriod === 'monthly') {
@@ -79,9 +79,9 @@ export default function PlaybookScreen() {
     } else {
       return period;
     }
-  };
+  }, [selectedPeriod]);
 
-  const renderChart = () => {
+  const renderChart = useCallback(() => {
     if (cpnData.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center h-64 text-gray-400">
@@ -214,7 +214,7 @@ export default function PlaybookScreen() {
         </svg>
       </div>
     );
-  };
+  }, [cpnData, selectedPeriod, formatPeriodLabel]);
 
   if (loading) {
     return (
@@ -355,4 +355,6 @@ export default function PlaybookScreen() {
       </div>
     </div>
   );
-}
+});
+
+export default PlaybookScreen;
