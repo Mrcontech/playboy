@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Star, DollarSign, Heart } from 'lucide-react';
 
 interface PlayerCardProps {
@@ -14,9 +14,8 @@ interface PlayerCardProps {
   };
   onClick?: () => void;
   size?: 'small' | 'medium' | 'large';
-}
 
-export default function PlayerCard({ player, onClick, size = 'medium' }: PlayerCardProps) {
+const PlayerCard = memo(function PlayerCard({ player, onClick, size = 'medium' }: PlayerCardProps) {
   const sizeClasses = {
     small: 'w-36',
     medium: 'w-40',
@@ -89,4 +88,6 @@ export default function PlayerCard({ player, onClick, size = 'medium' }: PlayerC
       </div>
     </div>
   );
-}
+});
+
+export default PlayerCard;

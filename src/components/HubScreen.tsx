@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo, useCallback } from 'react';
 import { useState, useEffect } from 'react';
 import { Plus, MessageCircle } from 'lucide-react';
 import PlayerCard from './PlayerCard';
@@ -16,7 +16,7 @@ interface HubScreenProps {
   onPlayerSelect?: (player: Player) => void;
 }
 
-export default function HubScreen({ onPlayerSelect }: HubScreenProps) {
+const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
   const [upcomingDates, setUpcomingDates] = useState<UpcomingDate[]>([]);
   const [recentlyActive, setRecentlyActive] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,7 +29,7 @@ export default function HubScreen({ onPlayerSelect }: HubScreenProps) {
     loadData();
   }, []);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       const [dates, players] = await Promise.all([
         datesApi.getUpcomingDates(),
@@ -42,10 +42,10 @@ export default function HubScreen({ onPlayerSelect }: HubScreenProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Generate calendar dates for the next 7 days
-  const getUpcomingCalendarDates = () => {
+  const getUpcomingCalendarDates = useCallback(() => {
     const dates = [];
     const today = new Date();
     
@@ -67,20 +67,20 @@ export default function HubScreen({ onPlayerSelect }: HubScreenProps) {
     }
     
     return dates;
-  };
+  }, [upcomingDates]);
 
-  const handleDateClick = (dateInfo: UpcomingDate | null) => {
+  const handleDateClick = useCallback((dateInfo: UpcomingDate | null) => {
     if (dateInfo) {
       setSelectedDate(dateInfo);
       setShowDateInfoModal(true);
     }
-  };
+  }, []);
 
-  const getPlayerName = (profileId: string | null) => {
+  const getPlayerName = useCallback((profileId: string | null) => {
     if (!profileId) return undefined;
     const player = recentlyActive.find(p => p.id === profileId);
     return player?.name;
-  };
+  }, [recentlyActive]);
 
   if (loading) {
     return (
@@ -212,4 +212,6 @@ export default function HubScreen({ onPlayerSelect }: HubScreenProps) {
       />
     </div>
   );
-}
+});
+
+export default HubScreen;

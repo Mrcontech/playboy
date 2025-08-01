@@ -1,22 +1,26 @@
 import React, { useState } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { Suspense, memo } from 'react';
 import LandingPage from './components/LandingPage';
 import AuthWrapper from './components/AuthWrapper';
 import LeftSidebar from './components/LeftSidebar';
 import MobileHeader from './components/MobileHeader';
-import HubScreen from './components/HubScreen';
-import RosterScreen from './components/RosterScreen';
-import PlaybookScreen from './components/PlaybookScreen';
-import SettingsScreen from './components/SettingsScreen';
-import PlayerProfile from './components/PlayerProfile';
 import SuccessPage from './components/SuccessPage';
 import CancelPage from './components/CancelPage';
+import LoadingSpinner from './components/LoadingSpinner';
 import { useAuth } from './hooks/useAuth';
 import type { Tables } from './lib/supabase';
 
+// Lazy load heavy components
+const HubScreen = React.lazy(() => import('./components/HubScreen'));
+const RosterScreen = React.lazy(() => import('./components/RosterScreen'));
+const PlaybookScreen = React.lazy(() => import('./components/PlaybookScreen'));
+const SettingsScreen = React.lazy(() => import('./components/SettingsScreen'));
+const PlayerProfile = React.lazy(() => import('./components/PlayerProfile'));
+
 type Player = Tables<'profiles'>;
 
-function AppContent() {
+const AppContent = memo(function AppContent() {
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -67,24 +71,28 @@ function AppContent() {
         
         <div className="transition-all duration-300 pt-16 lg:pt-0 lg:ml-64">
           {selectedPlayer ? (
-            <PlayerProfile 
-              player={selectedPlayer} 
-              onBack={handleBackToRoster}
-            />
+            <Suspense fallback={<div className="p-8"><LoadingSpinner text="Loading player profile..." /></div>}>
+              <PlayerProfile 
+                player={selectedPlayer} 
+                onBack={handleBackToRoster}
+              />
+            </Suspense>
           ) : (
-            <Routes>
-              <Route path="/" element={<HubScreen onPlayerSelect={handlePlayerSelect} />} />
-              <Route path="/hub" element={<HubScreen onPlayerSelect={handlePlayerSelect} />} />
-              <Route path="/roster" element={<RosterScreen onPlayerSelect={handlePlayerSelect} />} />
-              <Route path="/playbook" element={<PlaybookScreen />} />
-              <Route path="/settings" element={<SettingsScreen />} />
-            </Routes>
+            <Suspense fallback={<div className="p-8"><LoadingSpinner text="Loading..." /></div>}>
+              <Routes>
+                <Route path="/" element={<HubScreen onPlayerSelect={handlePlayerSelect} />} />
+                <Route path="/hub" element={<HubScreen onPlayerSelect={handlePlayerSelect} />} />
+                <Route path="/roster" element={<RosterScreen onPlayerSelect={handlePlayerSelect} />} />
+                <Route path="/playbook" element={<PlaybookScreen />} />
+                <Route path="/settings" element={<SettingsScreen />} />
+              </Routes>
+            </Suspense>
           )}
         </div>
       </div>
     </AuthWrapper>
   );
-}
+});
 
 export default function App() {
   const { user, loading } = useAuth();
@@ -93,7 +101,7 @@ export default function App() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-white text-lg">Loading...</div>
+        <LoadingSpinner text="Loading..." />
       </div>
     );
   }

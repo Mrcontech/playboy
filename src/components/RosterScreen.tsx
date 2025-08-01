@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo, useCallback } from 'react';
 import { useEffect } from 'react';
 import { Users, Plus } from 'lucide-react';
 import SearchBar from './SearchBar';
@@ -13,7 +13,7 @@ interface RosterScreenProps {
   onPlayerSelect: (player: Player) => void;
 }
 
-export default function RosterScreen({ onPlayerSelect }: RosterScreenProps) {
+const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreenProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [activePlayers, setActivePlayers] = useState<Player[]>([]);
   const [benchPlayers, setBenchPlayers] = useState<Player[]>([]);
@@ -24,7 +24,7 @@ export default function RosterScreen({ onPlayerSelect }: RosterScreenProps) {
     loadPlayers();
   }, []);
 
-  const loadPlayers = async () => {
+  const loadPlayers = useCallback(async () => {
     try {
       // Get all players and separate them by bench status
       const allPlayers = await playerApi.getAllPlayers();
@@ -40,7 +40,7 @@ export default function RosterScreen({ onPlayerSelect }: RosterScreenProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const filteredActivePlayers = activePlayers.filter(player =>
     player.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -160,4 +160,6 @@ export default function RosterScreen({ onPlayerSelect }: RosterScreenProps) {
       />
     </div>
   );
-}
+});
+
+export default RosterScreen;

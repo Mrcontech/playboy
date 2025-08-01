@@ -1,13 +1,80 @@
 import { supabase } from '../lib/supabase';
+import { useMemo } from 'react';
 import type { Tables, Inserts, Updates } from '../lib/supabase';
 
 type Player = Tables<'profiles'>;
 type Meeting = Tables<'meetings'>;
 type UpcomingDate = Tables<'upcoming_dates'>;
 
+// Cache for API responses
+const cache = new Map();
+const CACHE_DURATION = 30000; // 30 seconds
+
+function getCacheKey(fn: string, ...args: any[]) {
+  return `${fn}_${JSON.stringify(args)}`;
+}
+
+function getCachedData(key: string) {
+  const cached = cache.get(key);
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    return cached.data;
+  }
+  return null;
+}
+
+function setCachedData(key: string, data: any) {
+  cache.set(key, { data, timestamp: Date.now() });
+}
+
+// Helper function to calculate player stats
+function calculatePlayerStats(player: any) {
+  const meetings = player.meetings || [];
+  const totalSpent = meetings.reduce((sum: number, meeting: any) => 
+    sum + (Number(meeting.amount_spent) || 0), 0);
+  const totalMeetings = meetings.length;
+  const hookups = meetings.filter((meeting: any) => 
+    meeting.performance_rating && Number(meeting.performance_rating) > 0).length;
+  const cpn = hookups > 0 ? totalSpent / hookups : 0;
+  
+  const ratingsSum = meetings.reduce((sum: number, meeting: any) => 
+    sum + (Number(meeting.rating) || 0), 0);
+  const dateExperienceRating = totalMeetings > 0 ? ratingsSum / totalMeetings : 0;
+  
+  // Calculate performance rating average
+  const performanceRatings = meetings.filter((meeting: any) => 
+    meeting.performance_rating && Number(meeting.performance_rating) > 0);
+  const performanceRatingSum = performanceRatings.reduce((sum: number, meeting: any) => 
+    sum + Number(meeting.performance_rating), 0);
+  const avgPerformanceRating = performanceRatings.length > 0 ? performanceRatingSum / performanceRatings.length : 0;
+  
+  // Calculate overall average rating
+  const looksRating = player.looks_rating || 0;
+  let averageRating;
+  
+  if (avgPerformanceRating > 0) {
+    // Include all three: looks, performance, date experience
+    averageRating = (looksRating + avgPerformanceRating + dateExperienceRating) / 3;
+  } else {
+    // Only looks and date experience
+    averageRating = totalMeetings > 0 ? (looksRating + dateExperienceRating) / 2 : looksRating;
+  }
+  
+  // Remove meetings array from response
+  const { meetings: _, ...playerWithoutMeetings } = player;
+  
+  return {
+    ...playerWithoutMeetings,
+    totalMeetings,
+    cpn: Math.round(cpn),
+    averageRating: Number(averageRating.toFixed(1))
+  };
+}
+
 // Player API
 export const playerApi = {
   async createPlayer(player: Inserts<'profiles'>) {
+    // Clear cache after creating
+    cache.clear();
     const { data, error } = await supabase
       .from('profiles')
       .insert(player)
@@ -19,6 +86,10 @@ export const playerApi = {
   },
 
   async getAllPlayers(): Promise<Player[]> {
+    const cacheKey = getCacheKey('getAllPlayers');
+    const cached = getCachedData(cacheKey);
+    if (cached) return cached;
+
     const { data: players, error } = await supabase
       .from('profiles')
       .select(`
@@ -33,52 +104,16 @@ export const playerApi = {
     
     if (error) throw error;
     
-    // Calculate stats for each player
-    return (players || []).map(player => {
-      const meetings = player.meetings || [];
-      const totalSpent = meetings.reduce((sum: number, meeting: any) => 
-        sum + (Number(meeting.amount_spent) || 0), 0);
-      const totalMeetings = meetings.length;
-      const hookups = meetings.filter((meeting: any) => 
-        meeting.performance_rating && Number(meeting.performance_rating) > 0).length;
-      const cpn = hookups > 0 ? totalSpent / hookups : 0;
-      
-      const ratingsSum = meetings.reduce((sum: number, meeting: any) => 
-        sum + (Number(meeting.rating) || 0), 0);
-      const dateExperienceRating = totalMeetings > 0 ? ratingsSum / totalMeetings : 0;
-      
-      // Calculate performance rating average
-      const performanceRatings = meetings.filter((meeting: any) => 
-        meeting.performance_rating && Number(meeting.performance_rating) > 0);
-      const performanceRatingSum = performanceRatings.reduce((sum: number, meeting: any) => 
-        sum + Number(meeting.performance_rating), 0);
-      const avgPerformanceRating = performanceRatings.length > 0 ? performanceRatingSum / performanceRatings.length : 0;
-      
-      // Calculate overall average rating
-      const looksRating = player.looks_rating || 0;
-      let averageRating;
-      
-      if (avgPerformanceRating > 0) {
-        // Include all three: looks, performance, date experience
-        averageRating = (looksRating + avgPerformanceRating + dateExperienceRating) / 3;
-      } else {
-        // Only looks and date experience
-        averageRating = totalMeetings > 0 ? (looksRating + dateExperienceRating) / 2 : looksRating;
-      }
-      
-      // Remove meetings array from response
-      const { meetings: _, ...playerWithoutMeetings } = player;
-      
-      return {
-        ...playerWithoutMeetings,
-        totalMeetings,
-        cpn: Math.round(cpn),
-        averageRating: Number(averageRating.toFixed(1))
-      };
-    });
+    const result = (players || []).map(calculatePlayerStats);
+    setCachedData(cacheKey, result);
+    return result;
   },
 
   async getActivePlayers(): Promise<Player[]> {
+    const cacheKey = getCacheKey('getActivePlayers');
+    const cached = getCachedData(cacheKey);
+    if (cached) return cached;
+
     const { data: players, error } = await supabase
       .from('profiles')
       .select(`
@@ -94,52 +129,16 @@ export const playerApi = {
     
     if (error) throw error;
     
-    // Calculate stats for each player
-    return (players || []).map(player => {
-      const meetings = player.meetings || [];
-      const totalSpent = meetings.reduce((sum: number, meeting: any) => 
-        sum + (Number(meeting.amount_spent) || 0), 0);
-      const totalMeetings = meetings.length;
-      const hookups = meetings.filter((meeting: any) => 
-        meeting.performance_rating && Number(meeting.performance_rating) > 0).length;
-      const cpn = hookups > 0 ? totalSpent / hookups : 0;
-      
-      const ratingsSum = meetings.reduce((sum: number, meeting: any) => 
-        sum + (Number(meeting.rating) || 0), 0);
-      const dateExperienceRating = totalMeetings > 0 ? ratingsSum / totalMeetings : 0;
-      
-      // Calculate performance rating average
-      const performanceRatings = meetings.filter((meeting: any) => 
-        meeting.performance_rating && Number(meeting.performance_rating) > 0);
-      const performanceRatingSum = performanceRatings.reduce((sum: number, meeting: any) => 
-        sum + Number(meeting.performance_rating), 0);
-      const avgPerformanceRating = performanceRatings.length > 0 ? performanceRatingSum / performanceRatings.length : 0;
-      
-      // Calculate overall average rating
-      const looksRating = player.looks_rating || 0;
-      let averageRating;
-      
-      if (avgPerformanceRating > 0) {
-        // Include all three: looks, performance, date experience
-        averageRating = (looksRating + avgPerformanceRating + dateExperienceRating) / 3;
-      } else {
-        // Only looks and date experience
-        averageRating = totalMeetings > 0 ? (looksRating + dateExperienceRating) / 2 : looksRating;
-      }
-      
-      // Remove meetings array from response
-      const { meetings: _, ...playerWithoutMeetings } = player;
-      
-      return {
-        ...playerWithoutMeetings,
-        totalMeetings,
-        cpn: Math.round(cpn),
-        averageRating: Number(averageRating.toFixed(1))
-      };
-    });
+    const result = (players || []).map(calculatePlayerStats);
+    setCachedData(cacheKey, result);
+    return result;
   },
 
   async getBenchPlayers(): Promise<Player[]> {
+    const cacheKey = getCacheKey('getBenchPlayers');
+    const cached = getCachedData(cacheKey);
+    if (cached) return cached;
+
     const { data, error } = await supabase
       .from('profiles')
       .select(`
@@ -155,52 +154,16 @@ export const playerApi = {
     
     if (error) throw error;
     
-    // Calculate stats for each bench player
-    return (data || []).map(player => {
-      const meetings = player.meetings || [];
-      const totalSpent = meetings.reduce((sum: number, meeting: any) => 
-        sum + (Number(meeting.amount_spent) || 0), 0);
-      const totalMeetings = meetings.length;
-      const hookups = meetings.filter((meeting: any) => 
-        meeting.performance_rating && Number(meeting.performance_rating) > 0).length;
-      const cpn = hookups > 0 ? totalSpent / hookups : 0;
-      
-      const ratingsSum = meetings.reduce((sum: number, meeting: any) => 
-        sum + (Number(meeting.rating) || 0), 0);
-      const dateExperienceRating = totalMeetings > 0 ? ratingsSum / totalMeetings : 0;
-      
-      // Calculate performance rating average
-      const performanceRatings = meetings.filter((meeting: any) => 
-        meeting.performance_rating && Number(meeting.performance_rating) > 0);
-      const performanceRatingSum = performanceRatings.reduce((sum: number, meeting: any) => 
-        sum + Number(meeting.performance_rating), 0);
-      const avgPerformanceRating = performanceRatings.length > 0 ? performanceRatingSum / performanceRatings.length : 0;
-      
-      // Calculate overall average rating
-      const looksRating = player.looks_rating || 0;
-      let averageRating;
-      
-      if (avgPerformanceRating > 0) {
-        // Include all three: looks, performance, date experience
-        averageRating = (looksRating + avgPerformanceRating + dateExperienceRating) / 3;
-      } else {
-        // Only looks and date experience
-        averageRating = totalMeetings > 0 ? (looksRating + dateExperienceRating) / 2 : looksRating;
-      }
-      
-      // Remove meetings array from response
-      const { meetings: _, ...playerWithoutMeetings } = player;
-      
-      return {
-        ...playerWithoutMeetings,
-        totalMeetings,
-        cpn: Math.round(cpn),
-        averageRating: Number(averageRating.toFixed(1))
-      };
-    });
+    const result = (data || []).map(calculatePlayerStats);
+    setCachedData(cacheKey, result);
+    return result;
   },
 
   async getRecentlyActive(limit: number = 3): Promise<Player[]> {
+    const cacheKey = getCacheKey('getRecentlyActive', limit);
+    const cached = getCachedData(cacheKey);
+    if (cached) return cached;
+
     const { data: players, error } = await supabase
       .from('profiles')
       .select(`
@@ -222,61 +185,30 @@ export const playerApi = {
     const playersWithStats = (players || [])
       .filter(player => player.meetings && player.meetings.length > 0)
       .map(player => {
-      const meetings = player.meetings || [];
-      const totalSpent = meetings.reduce((sum: number, meeting: any) => 
-        sum + (Number(meeting.amount_spent) || 0), 0);
-      const totalMeetings = meetings.length;
-      const hookups = meetings.filter((meeting: any) => 
-        meeting.performance_rating && Number(meeting.performance_rating) > 0).length;
-      const cpn = hookups > 0 ? totalSpent / hookups : 0;
-      
-      const ratingsSum = meetings.reduce((sum: number, meeting: any) => 
-        sum + (Number(meeting.rating) || 0), 0);
-      const dateExperienceRating = totalMeetings > 0 ? ratingsSum / totalMeetings : 0;
-      
-      // Calculate performance rating average
-      const performanceRatings = meetings.filter((meeting: any) => 
-        meeting.performance_rating && Number(meeting.performance_rating) > 0);
-      const performanceRatingSum = performanceRatings.reduce((sum: number, meeting: any) => 
-        sum + Number(meeting.performance_rating), 0);
-      const avgPerformanceRating = performanceRatings.length > 0 ? performanceRatingSum / performanceRatings.length : 0;
-      
-      // Calculate overall average rating
-      const looksRating = player.looks_rating || 0;
-      let averageRating;
-      
-      if (avgPerformanceRating > 0) {
-        // Include all three: looks, performance, date experience
-        averageRating = (looksRating + avgPerformanceRating + dateExperienceRating) / 3;
-      } else {
-        // Only looks and date experience
-        averageRating = totalMeetings > 0 ? (looksRating + dateExperienceRating) / 2 : looksRating;
-      }
-      
-      // Find the most recent meeting date
-      const mostRecentMeetingDate = meetings.reduce((latest: string, meeting: any) => {
-        const meetingDate = meeting.date || meeting.created_at;
-        return meetingDate > latest ? meetingDate : latest;
-      }, '1970-01-01');
-      
-      // Remove meetings array from response
-      const { meetings: _, ...playerWithoutMeetings } = player;
-      
-      return {
-        ...playerWithoutMeetings,
-        totalMeetings,
-        cpn: Math.round(cpn),
-        averageRating: Number(averageRating.toFixed(1)),
-        mostRecentMeetingDate
-      };
-    })
+        const baseStats = calculatePlayerStats(player);
+        const meetings = player.meetings || [];
+        
+        // Find the most recent meeting date
+        const mostRecentMeetingDate = meetings.reduce((latest: string, meeting: any) => {
+          const meetingDate = meeting.date || meeting.created_at;
+          return meetingDate > latest ? meetingDate : latest;
+        }, '1970-01-01');
+        
+        return {
+          ...baseStats,
+          mostRecentMeetingDate
+        };
+      })
     .sort((a, b) => new Date(b.mostRecentMeetingDate).getTime() - new Date(a.mostRecentMeetingDate).getTime())
     .slice(0, limit);
     
+    setCachedData(cacheKey, playersWithStats);
     return playersWithStats;
   },
 
   async updatePlayer(id: string, updates: Updates<'profiles'>) {
+    // Clear cache after updating
+    cache.clear();
     const { data, error } = await supabase
       .from('profiles')
       .update(updates)
@@ -289,6 +221,8 @@ export const playerApi = {
   },
 
   async deletePlayer(id: string) {
+    // Clear cache after deleting
+    cache.clear();
     const { error } = await supabase
       .from('profiles')
       .delete()
@@ -301,6 +235,8 @@ export const playerApi = {
 // Meetings API
 export const meetingsApi = {
   async createMeeting(meeting: Inserts<'meetings'>) {
+    // Clear cache after creating
+    cache.clear();
     const { data, error } = await supabase
       .from('meetings')
       .insert(meeting)
@@ -312,6 +248,10 @@ export const meetingsApi = {
   },
 
   async getMeetingsByPlayer(playerId: string): Promise<Meeting[]> {
+    const cacheKey = getCacheKey('getMeetingsByPlayer', playerId);
+    const cached = getCachedData(cacheKey);
+    if (cached) return cached;
+
     const { data, error } = await supabase
       .from('meetings')
       .select('*')
@@ -319,10 +259,14 @@ export const meetingsApi = {
       .order('date', { ascending: false });
     
     if (error) throw error;
-    return data || [];
+    const result = data || [];
+    setCachedData(cacheKey, result);
+    return result;
   },
 
   async updateMeeting(id: string, updates: Updates<'meetings'>) {
+    // Clear cache after updating
+    cache.clear();
     const { data, error } = await supabase
       .from('meetings')
       .update(updates)
@@ -335,6 +279,8 @@ export const meetingsApi = {
   },
 
   async deleteMeeting(id: string) {
+    // Clear cache after deleting
+    cache.clear();
     const { error } = await supabase
       .from('meetings')
       .delete()
@@ -347,6 +293,8 @@ export const meetingsApi = {
 // Dates API
 export const datesApi = {
   async createDate(date: Inserts<'upcoming_dates'>) {
+    // Clear cache after creating
+    cache.clear();
     const { data, error } = await supabase
       .from('upcoming_dates')
       .insert(date)
@@ -358,6 +306,10 @@ export const datesApi = {
   },
 
   async getUpcomingDates(): Promise<UpcomingDate[]> {
+    const cacheKey = getCacheKey('getUpcomingDates');
+    const cached = getCachedData(cacheKey);
+    if (cached) return cached;
+
     const { data, error } = await supabase
       .from('upcoming_dates')
       .select(`
@@ -371,10 +323,14 @@ export const datesApi = {
       .order('date', { ascending: true });
     
     if (error) throw error;
-    return data || [];
+    const result = data || [];
+    setCachedData(cacheKey, result);
+    return result;
   },
 
   async updateDate(id: string, updates: Updates<'upcoming_dates'>) {
+    // Clear cache after updating
+    cache.clear();
     const { data, error } = await supabase
       .from('upcoming_dates')
       .update(updates)
@@ -387,6 +343,8 @@ export const datesApi = {
   },
 
   async deleteDate(id: string) {
+    // Clear cache after deleting
+    cache.clear();
     const { error } = await supabase
       .from('upcoming_dates')
       .delete()
@@ -399,6 +357,10 @@ export const datesApi = {
 // Stats API for Playbook
 export const statsApi = {
   async getDashboardStats() {
+    const cacheKey = getCacheKey('getDashboardStats');
+    const cached = getCachedData(cacheKey);
+    if (cached) return cached;
+
     const { data: meetings, error } = await supabase
       .from('meetings')
       .select('amount_spent, performance_rating');
@@ -411,14 +373,20 @@ export const statsApi = {
     const totalHookups = meetings?.filter(meeting => 
       meeting.performance_rating && Number(meeting.performance_rating) > 0).length || 0;
     
-    return {
+    const result = {
       totalSpent: Math.round(totalSpent),
       totalDates,
       totalHookups
     };
+    setCachedData(cacheKey, result);
+    return result;
   },
 
   async getTopPlayersByRating(limit: number = 3) {
+    const cacheKey = getCacheKey('getTopPlayersByRating', limit);
+    const cached = getCachedData(cacheKey);
+    if (cached) return cached;
+
     const { data: players, error } = await supabase
       .from('profiles')
       .select(`
@@ -455,10 +423,15 @@ export const statsApi = {
       .sort((a, b) => b.average_rating - a.average_rating)
       .slice(0, limit);
     
+    setCachedData(cacheKey, playersWithRatings);
     return playersWithRatings;
   },
 
   async getCPNByPeriod(period: 'weekly' | 'monthly' | 'yearly') {
+    const cacheKey = getCacheKey('getCPNByPeriod', period);
+    const cached = getCachedData(cacheKey);
+    if (cached) return cached;
+
     const { data: meetings, error } = await supabase
       .from('meetings')
       .select('amount_spent, performance_rating, date, created_at')
@@ -501,7 +474,7 @@ export const statsApi = {
     });
     
     // Convert to array and calculate CPN
-    return Object.entries(groupedData)
+    const result = Object.entries(groupedData)
       .map(([period, data]) => ({
         period,
         cpn: data.hookups > 0 ? data.totalSpent / data.hookups : 0,
@@ -509,5 +482,8 @@ export const statsApi = {
         hookups: data.hookups
       }))
       .sort((a, b) => a.period.localeCompare(b.period));
+    
+    setCachedData(cacheKey, result);
+    return result;
   }
 };
