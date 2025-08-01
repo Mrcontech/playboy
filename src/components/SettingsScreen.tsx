@@ -3,7 +3,6 @@ import { LogOut, User, Shield, Trash2, Eye, EyeOff, Crown } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useSubscription } from '../hooks/useSubscription';
 import { supabase } from '../lib/supabase';
-import { supabase } from '../lib/supabase';
 
 export default function SettingsScreen() {
   const { user, signOut } = useAuth();
