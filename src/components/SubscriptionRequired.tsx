@@ -54,7 +54,7 @@ export default function SubscriptionRequired() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <div className="max-w-4xl w-full">
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full mb-6">
@@ -73,7 +73,7 @@ export default function SubscriptionRequired() {
 
         <div className="bg-gray-800 rounded-2xl p-8 mb-8">
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full mb-4">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-500 rounded-full mb-4">
               <Crown className="text-white" size={32} />
             </div>
             <div className="text-5xl font-bold text-white mb-2">$0.99</div>
@@ -82,7 +82,7 @@ export default function SubscriptionRequired() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             {proFeatures.map((feature, index) => (
-              <div key={index} className="flex items-start space-x-4 p-4 bg-gray-700 rounded-lg">
+              <div key={index} className="flex items-start space-x-4 p-4 bg-gray-900 rounded-lg">
                 <div className="bg-gradient-to-br from-green-500 to-green-600 p-2 rounded-lg flex-shrink-0">
                   <feature.icon className="text-white" size={20} />
                 </div>
@@ -98,7 +98,7 @@ export default function SubscriptionRequired() {
             <button
               onClick={handleUpgrade}
               disabled={loading}
-              className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:from-gray-600 disabled:to-gray-700 text-white py-4 rounded-lg font-semibold text-lg transition-all flex items-center justify-center space-x-2"
+              className="w-full bg-green-500 hover:bg-green-600 disabled:bg-green-700 text-black py-4 rounded-lg font-semibold text-lg transition-all flex items-center justify-center space-x-2"
             >
               {loading ? (
                 <>
@@ -115,7 +115,7 @@ export default function SubscriptionRequired() {
             
             <button
               onClick={handleSignOut}
-              className="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg font-medium transition-colors"
+              className="w-full bg-gray-800 hover:bg-gray-700 text-white py-3 rounded-lg font-medium transition-colors"
             >
               Sign Out
             </button>

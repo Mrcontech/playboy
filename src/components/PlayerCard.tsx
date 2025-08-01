@@ -30,8 +30,8 @@ export default function PlayerCard({ player, onClick, size = 'medium' }: PlayerC
   };
 
   return (
-    <div 
-      className={`${sizeClasses[size]} bg-gray-800 rounded-xl overflow-hidden cursor-pointer hover:bg-gray-750 transition-all duration-200 hover:scale-105 shadow-lg`}
+    <div
+      className={`${sizeClasses[size]} bg-gray-900 rounded-xl overflow-hidden cursor-pointer hover:bg-gray-800 transition-all duration-200 hover:scale-105 shadow-lg`}
       onClick={onClick}
     >
       {/* Image Section */}
@@ -51,7 +51,7 @@ export default function PlayerCard({ player, onClick, size = 'medium' }: PlayerC
         {/* Status Badge */}
         {player.status && (
           <div className="flex justify-center mb-4">
-            <span className="bg-green-600 text-white px-3 py-1 rounded-full text-xs font-medium">
+            <span className="bg-green-500 text-black px-3 py-1 rounded-full text-xs font-medium">
               {player.status === 'side_piece' ? '🍑' : 
                player.status === 'wifey' ? '💍' : 
                player.status === 'dating' ? '❤️' : 
@@ -74,7 +74,7 @@ export default function PlayerCard({ player, onClick, size = 'medium' }: PlayerC
           {player.cpn !== undefined && (
             <div className="flex items-center space-x-1">
               <span>💰</span>
-              <span className="text-green-400 font-bold">${player.cpn}</span>
+              <span className="text-green-500 font-bold">${player.cpn}</span>
             </div>
           )}
           

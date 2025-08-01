@@ -8,7 +8,7 @@ interface MobileHeaderProps {
 
 export default function MobileHeader({ isMenuOpen, onToggleMenu }: MobileHeaderProps) {
   return (
-    <div className="lg:hidden fixed top-0 left-0 right-0 bg-gray-800 border-b border-gray-700 z-40">
+    <div className="lg:hidden fixed top-0 left-0 right-0 bg-black border-b border-gray-700 z-40">
       <div className="flex items-center justify-between px-4 py-3">
         <button
           onClick={onToggleMenu}
@@ -21,6 +21,7 @@ export default function MobileHeader({ isMenuOpen, onToggleMenu }: MobileHeaderP
           )}
         </button>
         <h1 className="text-xl font-bold text-green-400">Playboi</h1>
+        <h1 className="text-xl font-bold text-green-500">Playboi</h1>
       </div>
     </div>
   );

@@ -105,21 +105,21 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
           <div className="flex items-center space-x-2 lg:space-x-3">
             <button 
               onClick={() => setShowEditModal(true)}
-              className="bg-gray-800 px-3 lg:px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors flex items-center space-x-2"
+              className="bg-gray-900 px-3 lg:px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors flex items-center space-x-2"
             >
               <Edit2 className="text-white" size={20} />
               <span className="text-white font-medium hidden sm:inline">Edit</span>
             </button>
             <button 
               onClick={() => setShowAddExpenseModal(true)}
-              className="bg-blue-600 px-3 lg:px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+              className="bg-purple-500 px-3 lg:px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors flex items-center space-x-2"
             >
               <DollarSign className="text-white" size={20} />
               <span className="text-white font-medium hidden sm:inline">Add Expense</span>
             </button>
             <button 
               onClick={() => setShowAddMeetingModal(true)}
-              className="bg-green-600 px-3 lg:px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+              className="bg-green-500 px-3 lg:px-4 py-2 rounded-lg hover:bg-green-600 transition-colors flex items-center space-x-2"
             >
               <Plus className="text-white" size={20} />
               <span className="text-white font-medium hidden sm:inline">Add Meeting</span>
@@ -131,7 +131,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
           {/* Left Column - Profile Info */}
           <div className="lg:col-span-1">
             {/* Profile Header */}
-            <div className="bg-gray-800 rounded-xl p-6 text-center mb-6">
+            <div className="bg-gray-900 rounded-xl p-6 text-center mb-6">
               <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden bg-gradient-to-br from-green-400 to-green-600">
                 <img 
                   src={player.image_url || 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=400'} 
@@ -140,25 +140,25 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                 />
               </div>
               <h1 className="text-2xl font-bold mb-2 text-white">{player.name}</h1>
-              <span className="bg-green-600 text-white px-4 py-2 rounded-full text-sm font-medium">
+              <span className="bg-green-500 text-black px-4 py-2 rounded-full text-sm font-medium">
                 {player.status || 'Active'}
               </span>
             </div>
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="bg-gray-800 p-4 rounded-xl text-center">
+              <div className="bg-gray-900 p-4 rounded-xl text-center">
                 <Heart className="text-red-400 mx-auto mb-2" size={24} />
                 <div className="text-xl font-bold text-white">{playerStats.totalMeetings}</div>
                 <div className="text-xs text-gray-400">Meetings</div>
               </div>
-              <div className="bg-gray-800 p-4 rounded-xl text-center">
-                <DollarSign className="text-green-400 mx-auto mb-2" size={24} />
+              <div className="bg-gray-900 p-4 rounded-xl text-center">
+                <DollarSign className="text-green-500 mx-auto mb-2" size={24} />
                 <div className="text-lg font-bold text-white">${Math.round(playerStats.cpn)}</div>
                 <div className="text-xs text-gray-400">CPN</div>
               </div>
-              <div className="bg-gray-800 p-4 rounded-xl text-center">
-                <Star className="text-blue-400 fill-current mx-auto mb-2" size={24} />
+              <div className="bg-gray-900 p-4 rounded-xl text-center">
+                <Star className="text-purple-500 fill-current mx-auto mb-2" size={24} />
                 <div className="text-xl font-bold text-white">{playerStats.averageRating.toFixed(1)}</div>
                 <div className="text-xs text-gray-400">Avg</div>
               </div>
@@ -168,7 +168,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
           {/* Right Column - Details */}
           <div className="lg:col-span-2 space-y-4 lg:space-y-6">
             {/* Ratings */}
-            <div className="bg-gray-800 rounded-xl p-6">
+            <div className="bg-gray-900 rounded-xl p-6">
               <h3 className="text-xl font-semibold text-white mb-6">Performance Ratings</h3>
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
@@ -187,12 +187,12 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
             </div>
 
             {/* Quick Facts */}
-            <div className="bg-gray-800 rounded-xl p-6">
+            <div className="bg-gray-900 rounded-xl p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-semibold text-white">Profile Details</h3>
                 <button 
                   onClick={() => setShowAIRecap(true)}
-                  className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  className="bg-purple-500 hover:bg-purple-600 px-4 py-2 rounded-lg text-white text-sm font-medium transition-colors"
                 >
                   AI Recap
                 </button>
@@ -201,10 +201,10 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
               {/* Likes Section */}
               {player.likes && player.likes.length > 0 && (
                 <div className="mb-6">
-                  <h4 className="text-green-400 font-medium mb-3">Likes</h4>
+                  <h4 className="text-green-500 font-medium mb-3">Likes</h4>
                   <div className="flex flex-wrap gap-2">
                     {player.likes.map((like, index) => (
-                      <span key={index} className="bg-green-900/20 text-green-300 px-3 py-1 rounded-full text-sm">
+                      <span key={index} className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm">
                         {like}
                       </span>
                     ))}
@@ -215,10 +215,10 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
               {/* Dislikes Section */}
               {player.dislikes && player.dislikes.length > 0 && (
                 <div className="mb-6">
-                  <h4 className="text-red-400 font-medium mb-3">Dislikes</h4>
+                  <h4 className="text-red-500 font-medium mb-3">Dislikes</h4>
                   <div className="flex flex-wrap gap-2">
                     {player.dislikes.map((dislike, index) => (
-                      <span key={index} className="bg-red-900/20 text-red-300 px-3 py-1 rounded-full text-sm">
+                      <span key={index} className="bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-sm">
                         {dislike}
                       </span>
                     ))}
@@ -229,8 +229,8 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
               {/* Notes Section */}
               {player.notes && (
                 <div className="mb-6">
-                  <h4 className="text-blue-400 font-medium mb-3">Notes</h4>
-                  <div className="bg-gray-700 rounded-lg p-4">
+                  <h4 className="text-purple-500 font-medium mb-3">Notes</h4>
+                  <div className="bg-gray-800 rounded-lg p-4">
                     <p className="text-gray-300 leading-relaxed">
                       {player.notes}
                     </p>
@@ -247,6 +247,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                     {loading ? 'Loading player data...' : 'No additional information available'}
                   </div>
                   <button className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-white font-medium transition-colors">
+                  <button className="bg-purple-500 hover:bg-purple-600 px-4 py-2 rounded-lg text-white font-medium transition-colors">
                     Add Details
                   </button>
                 </div>
@@ -254,19 +255,19 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
             </div>
 
             {/* Meetings & Expenses History */}
-            <div className="bg-gray-800 rounded-xl p-6">
+            <div className="bg-gray-900 rounded-xl p-6">
               <h3 className="text-xl font-semibold text-white mb-6">Meeting & Expense History</h3>
               {meetings.length > 0 ? (
                 <div className="space-y-4">
                   {meetings.map((meeting) => (
-                    <div key={meeting.id} className="bg-gray-700 rounded-lg p-4">
+                    <div key={meeting.id} className="bg-gray-800 rounded-lg p-4">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center space-x-3">
-                          <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                          <span className="bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-medium">
                             {meeting.type.charAt(0).toUpperCase() + meeting.type.slice(1)}
                           </span>
                           {meeting.amount_spent && meeting.amount_spent > 0 && (
-                            <span className="text-green-400 font-medium">
+                            <span className="text-green-500 font-medium">
                               ${Number(meeting.amount_spent).toFixed(2)}
                             </span>
                           )}
@@ -298,7 +299,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                       </div>
                       
                       {meeting.notes && (
-                        <div className="text-gray-300 text-sm bg-gray-600 rounded p-3 mt-2">
+                        <div className="text-gray-300 text-sm bg-gray-700 rounded p-3 mt-2">
                           {meeting.notes}
                         </div>
                       )}
@@ -311,13 +312,13 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                   <div className="flex justify-center space-x-4">
                     <button 
                       onClick={() => setShowAddMeetingModal(true)}
-                      className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg text-white font-medium transition-colors"
+                      className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded-lg text-black font-medium transition-colors"
                     >
                       Add Meeting
                     </button>
                     <button 
                       onClick={() => setShowAddExpenseModal(true)}
-                      className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-white font-medium transition-colors"
+                      className="bg-purple-500 hover:bg-purple-600 px-4 py-2 rounded-lg text-white font-medium transition-colors"
                     >
                       Add Expense
                     </button>

@@ -84,7 +84,7 @@ export default function ChatAnalysisModal({ isOpen, onClose }: ChatAnalysisModal
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
-      <div className="bg-gray-900 rounded-xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-gray-800 rounded-xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-white">AI Chat Analysis</h2>
           <button
@@ -102,7 +102,7 @@ export default function ChatAnalysisModal({ isOpen, onClose }: ChatAnalysisModal
             <div
               className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                 dragActive || ocrLoading
-                  ? 'border-blue-500 bg-blue-500/10' 
+                  ? 'border-green-500 bg-green-500/10'
                   : 'border-gray-600 hover:border-gray-500'
               }`}
               onDrop={handleDrop}
@@ -111,7 +111,7 @@ export default function ChatAnalysisModal({ isOpen, onClose }: ChatAnalysisModal
             >
               {ocrLoading ? (
                 <div className="flex flex-col items-center">
-                  <Loader2 className="animate-spin text-blue-400 mb-4" size={32} />
+                  <Loader2 className="animate-spin text-green-500 mb-4" size={32} />
                   <h3 className="text-lg font-semibold text-white mb-2">Extracting Text...</h3>
                   <p className="text-gray-400 text-sm">Reading your chat screenshot</p>
                 </div>
@@ -122,7 +122,7 @@ export default function ChatAnalysisModal({ isOpen, onClose }: ChatAnalysisModal
                   </div>
                   <h3 className="text-lg font-semibold text-white mb-2">Upload Chat Screenshot</h3>
                   <p className="text-gray-400 text-sm mb-4">Drag & drop or click to upload</p>
-                  <label className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer inline-block">
+                  <label className="bg-green-500 hover:bg-green-600 disabled:bg-green-700 text-black px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer inline-block">
                     Choose File
                     <input
                       type="file"
@@ -147,7 +147,7 @@ export default function ChatAnalysisModal({ isOpen, onClose }: ChatAnalysisModal
               <textarea
                 value={conversationText}
                 onChange={(e) => setConversationText(e.target.value)}
-                className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none resize-none"
+                className="w-full bg-gray-900 text-white px-4 py-3 rounded-lg border border-gray-700 focus:border-green-500 focus:outline-none resize-none"
                 rows={12}
                 placeholder="Paste your conversation here...
 
@@ -163,14 +163,14 @@ Her: You should! It's really relaxing"
               <button
                 onClick={handleReset}
                 disabled={ocrLoading}
-                className="flex-1 bg-gray-800 text-white py-3 rounded-lg hover:bg-gray-700 transition-colors"
+                className="flex-1 bg-gray-900 text-white py-3 rounded-lg hover:bg-gray-800 transition-colors"
               >
                 Clear
               </button>
               <button
                 onClick={handleAnalyze}
                 disabled={loading || ocrLoading || !conversationText.trim()}
-                className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:bg-blue-800 transition-colors flex items-center justify-center space-x-2"
+                className="flex-1 bg-green-500 text-black py-3 rounded-lg hover:bg-green-600 disabled:bg-green-700 transition-colors flex items-center justify-center space-x-2"
               >
                 {loading ? (
                   <>
@@ -191,22 +191,21 @@ Her: You should! It's really relaxing"
           <div className="space-y-6">
             <div>
               <h3 className="text-xl font-semibold text-white mb-4">AI Analysis</h3>
-              <div className="bg-gray-800 rounded-lg p-6 min-h-[400px]">
+              <div className="bg-gray-900 rounded-lg p-6 min-h-[400px]">
                 {loading ? (
                   <div className="flex flex-col items-center justify-center h-full text-center">
-                    <Loader2 className="animate-spin text-blue-400 mb-4" size={32} />
+                    <Loader2 className="animate-spin text-green-500 mb-4" size={32} />
                     <p className="text-gray-300">Your personal dating coach is analyzing this conversation...</p>
                     <p className="text-gray-400 text-sm mt-2">This might take a few seconds</p>
                   </div>
                 ) : analysis ? (
-                        <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
+                  <div>
                     <div className="flex items-center space-x-2 mb-4">
                       <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
-                        <span className="text-green-400 font-semibold">Your Playboi Coach Says:</span>
                       </div>
-                      <span className="text-blue-400 font-semibold">Your Playboi Coach Says:</span>
+                      <span className="text-green-500 font-semibold">Your Playboi Coach Says:</span>
                     </div>
-                    <div className="bg-gray-700 rounded-lg p-4">
+                    <div className="bg-gray-800 rounded-lg p-4">
                       <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">{analysis}</p>
                     </div>
                   </div>

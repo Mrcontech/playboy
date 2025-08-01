@@ -64,7 +64,7 @@ export default function App() {
   // Wrap authenticated content with subscription check
   return (
     <AuthWrapper>
-      <div className="min-h-screen bg-gray-900">
+      <div className="min-h-screen bg-black">
         <MobileHeader 
           isMenuOpen={isMobileMenuOpen}
           onToggleMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}

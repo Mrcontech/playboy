@@ -40,7 +40,7 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
-      <div className="bg-gray-900 rounded-xl p-6 max-w-lg w-full">
+      <div className="bg-gray-800 rounded-xl p-6 max-w-lg w-full">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-white">Upgrade to Playboi Pro</h2>
           <button
@@ -52,7 +52,7 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
         </div>
 
         <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-20 h-20 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <Crown className="text-white" size={32} />
           </div>
           <div className="text-4xl font-bold text-white mb-2">$0.99</div>
@@ -71,14 +71,14 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
         <div className="flex space-x-4">
           <button
             onClick={onClose}
-            className="flex-1 bg-gray-800 text-white py-3 rounded-lg hover:bg-gray-700 transition-colors"
+            className="flex-1 bg-gray-900 text-white py-3 rounded-lg hover:bg-gray-700 transition-colors"
           >
             Maybe Later
           </button>
           <button
             onClick={handleUpgrade}
             disabled={loading}
-            className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 disabled:from-gray-600 disabled:to-gray-700 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
+            className="flex-1 bg-green-500 hover:bg-green-600 disabled:bg-green-700 text-black py-3 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
           >
             {loading ? (
               <>

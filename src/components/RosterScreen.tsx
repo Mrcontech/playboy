@@ -66,12 +66,12 @@ export default function RosterScreen({ onPlayerSelect }: RosterScreenProps) {
           <div className="flex items-center space-x-4">
             <button 
               onClick={() => setShowAddPlayerModal(true)}
-              className="bg-blue-600 hover:bg-blue-700 px-3 lg:px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
+              className="bg-green-500 hover:bg-green-600 px-3 lg:px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
             >
-              <Plus className="text-white" size={20} />
-              <span className="text-white font-medium hidden sm:inline">Add Player</span>
+              <Plus className="text-black" size={20} />
+              <span className="text-black font-medium hidden sm:inline">Add Player</span>
             </button>
-            <button className="bg-gray-800 hover:bg-gray-700 p-2 rounded-lg transition-colors">
+            <button className="bg-gray-900 hover:bg-gray-800 p-2 rounded-lg transition-colors">
               <Users className="text-gray-400" size={24} />
             </button>
           </div>
@@ -88,7 +88,7 @@ export default function RosterScreen({ onPlayerSelect }: RosterScreenProps) {
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-8">
           {/* Active Players Section */}
-          <section className="bg-gray-800 rounded-xl p-6">
+          <section className="bg-gray-900 rounded-xl p-6">
             <h2 className="text-2xl font-semibold text-white mb-6">Active Players</h2>
             <div className="flex flex-wrap justify-center gap-3 lg:gap-6">
               {filteredActivePlayers.map((player) => (
@@ -114,7 +114,7 @@ export default function RosterScreen({ onPlayerSelect }: RosterScreenProps) {
                 <div className="text-gray-400 mb-4">No active players found</div>
                 <button 
                   onClick={() => setShowAddPlayerModal(true)}
-                  className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-white font-medium transition-colors"
+                  className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded-lg text-black font-medium transition-colors"
                 >
                   Add Your First Player
                 </button>
@@ -123,7 +123,7 @@ export default function RosterScreen({ onPlayerSelect }: RosterScreenProps) {
           </section>
 
           {/* Bench Players Section */}
-          <section className="bg-gray-800 rounded-xl p-6">
+          <section className="bg-gray-900 rounded-xl p-6">
             <h2 className="text-2xl font-semibold text-white mb-6">Bench</h2>
             <div className="flex flex-wrap justify-center gap-3 lg:gap-6">
               {filteredBenchPlayers.map((player) => (

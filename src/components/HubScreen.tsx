@@ -101,15 +101,15 @@ export default function HubScreen({ onPlayerSelect }: HubScreenProps) {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8 mb-8">
           {/* Upcoming Dates Section */}
-          <section className="bg-gray-800 rounded-xl p-6">
+          <section className="bg-gray-900 rounded-xl p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-semibold text-white">Upcoming Dates</h2>
               <button 
                 onClick={() => setShowAddDateModal(true)}
-                className="bg-blue-600 hover:bg-blue-700 px-3 lg:px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
+                className="bg-green-500 hover:bg-green-600 px-3 lg:px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
               >
-                <Plus className="text-white" size={20} />
-                <span className="text-white font-medium hidden sm:inline">Add Date</span>
+                <Plus className="text-black" size={20} />
+                <span className="text-black font-medium hidden sm:inline">Add Date</span>
               </button>
             </div>
             
@@ -119,8 +119,8 @@ export default function HubScreen({ onPlayerSelect }: HubScreenProps) {
                   key={index}
                   className={`p-2 lg:p-4 rounded-lg text-center transition-colors ${
                     date.active 
-                      ? 'bg-green-600 text-white shadow-lg cursor-pointer hover:bg-green-500' 
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600 cursor-default'
+                      ? 'bg-green-500 text-black shadow-lg cursor-pointer hover:bg-green-400'
+                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-default'
                   }`}
                   onClick={() => handleDateClick(date.dateInfo)}
                 >
@@ -132,7 +132,7 @@ export default function HubScreen({ onPlayerSelect }: HubScreenProps) {
           </section>
 
           {/* Recently Active Section */}
-          <section className="bg-gray-800 rounded-xl p-6">
+          <section className="bg-gray-900 rounded-xl p-6">
             <h2 className="text-2xl font-semibold text-white mb-6">Recently Active</h2>
             <div className="flex justify-center space-x-3 lg:space-x-6 overflow-x-auto pb-2">
               {recentlyActive.map((player) => (
@@ -161,10 +161,10 @@ export default function HubScreen({ onPlayerSelect }: HubScreenProps) {
         </div>
         
         {/* Chat Upload Section */}
-        <section className="bg-gray-800 rounded-xl p-6">
+        <section className="bg-gray-900 rounded-xl p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-semibold text-white">AI Chat Analysis</h2>
-            <MessageCircle className="text-blue-400" size={24} />
+            <MessageCircle className="text-purple-500" size={24} />
           </div>
           <div 
             className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center hover:border-gray-500 transition-colors cursor-pointer"
@@ -172,7 +172,7 @@ export default function HubScreen({ onPlayerSelect }: HubScreenProps) {
           >
             <div className="max-w-md mx-auto">
               <div className="mb-4">
-                <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Plus className="text-gray-400" size={24} />
                 </div>
                 <h3 className="text-lg font-semibold text-white mb-2">Upload Chat Screenshot</h3>
@@ -184,7 +184,7 @@ export default function HubScreen({ onPlayerSelect }: HubScreenProps) {
                   e.stopPropagation();
                   setShowChatAnalysis(true);
                 }}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                className="bg-green-500 hover:bg-green-600 text-black px-6 py-3 rounded-lg font-medium transition-colors"
               >
                 Choose File
               </button>

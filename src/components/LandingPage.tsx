@@ -73,10 +73,10 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-black">
       {/* Hero Section */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 to-blue-900/20"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-purple-500/10"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-full mb-8">
@@ -91,14 +91,14 @@ export default function LandingPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button 
                 onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
-                className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all transform hover:scale-105 flex items-center justify-center space-x-2"
+                className="bg-green-500 hover:bg-green-600 text-black px-8 py-4 rounded-lg font-semibold text-lg transition-all transform hover:scale-105 flex items-center justify-center space-x-2"
               >
                 <span>Start Free Trial</span>
                 <ArrowRight size={20} />
               </button>
               <button 
                 onClick={() => document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' })}
-                className="border-2 border-white/20 hover:border-white/40 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all hover:bg-white/5"
+                className="border-2 border-gray-600 hover:border-gray-500 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all hover:bg-gray-800"
               >
                 Learn More
               </button>
@@ -108,7 +108,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section id="features-section" className="py-24 bg-gray-800">
+      <section id="features-section" className="py-24 bg-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">
@@ -121,7 +121,7 @@ export default function LandingPage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
-              <div key={index} className="bg-gray-900 rounded-xl p-6 hover:bg-gray-850 transition-colors">
+              <div key={index} className="bg-gray-900 rounded-xl p-6 hover:bg-gray-800 transition-colors">
                 <div className="bg-gradient-to-br from-green-500 to-green-600 p-3 rounded-lg w-fit mb-4">
                   <feature.icon className="text-white" size={24} />
                 </div>
@@ -134,7 +134,7 @@ export default function LandingPage() {
       </section>
 
       {/* Screenshots Section */}
-      <section className="py-24 bg-gray-900">
+      <section className="py-24 bg-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">
@@ -148,7 +148,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {screenshots.map((screenshot, index) => (
               <div key={index} className="group">
-                <div className="bg-gray-800 rounded-xl overflow-hidden hover:transform hover:scale-105 transition-all duration-300">
+                <div className="bg-gray-900 rounded-xl overflow-hidden hover:transform hover:scale-105 transition-all duration-300">
                   <img 
                     src={screenshot.src} 
                     alt={screenshot.alt}
@@ -165,7 +165,7 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing/Benefits Section */}
-      <section className="py-24 bg-gray-800">
+      <section className="py-24 bg-black">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">
@@ -176,7 +176,7 @@ export default function LandingPage() {
             </p>
           </div>
           
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 border border-gray-700">
+          <div className="bg-gray-900 rounded-2xl p-8 border border-gray-700">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
               <div>
                 <h3 className="text-2xl font-bold text-white mb-6">Playboi Pro Features:</h3>
@@ -201,7 +201,7 @@ export default function LandingPage() {
                 <div className="text-gray-400 mb-6">per month</div>
                 <button 
                   onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all transform hover:scale-105 w-full"
+                  className="bg-purple-500 hover:bg-purple-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all transform hover:scale-105 w-full"
                 >
                   Start Free Trial
                 </button>
@@ -212,7 +212,7 @@ export default function LandingPage() {
       </section>
 
       {/* Auth Section */}
-      <section id="auth-section" className="py-24 bg-gray-900">
+      <section id="auth-section" className="py-24 bg-black">
         <div className="max-w-lg mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-white mb-4">
@@ -229,7 +229,7 @@ export default function LandingPage() {
                 onClick={() => setIsLogin(true)}
                 className={`flex-1 py-3 px-6 rounded-lg font-medium transition-colors ${
                   isLogin
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-green-500 text-black'
                     : 'text-gray-400 hover:text-gray-300'
                 }`}
               >
@@ -239,7 +239,7 @@ export default function LandingPage() {
                 onClick={() => setIsLogin(false)}
                 className={`flex-1 py-3 px-6 rounded-lg font-medium transition-colors ${
                   !isLogin
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-green-500 text-black'
                     : 'text-gray-400 hover:text-gray-300'
                 }`}
               >
@@ -256,7 +256,7 @@ export default function LandingPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-gray-700 text-white px-4 py-4 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors text-lg"
+                  className="w-full bg-gray-700 text-white px-4 py-4 rounded-lg border border-gray-600 focus:border-green-500 focus:outline-none transition-colors text-lg"
                   placeholder="Enter your email"
                   required
                 />
@@ -270,7 +270,7 @@ export default function LandingPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-gray-700 text-white px-4 py-4 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors text-lg"
+                  className="w-full bg-gray-700 text-white px-4 py-4 rounded-lg border border-gray-600 focus:border-green-500 focus:outline-none transition-colors text-lg"
                   placeholder="Enter your password"
                   required
                 />
@@ -285,7 +285,7 @@ export default function LandingPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 text-white py-4 rounded-lg font-medium transition-all text-lg"
+                className="w-full bg-green-500 hover:bg-green-600 disabled:bg-green-700 text-black py-4 rounded-lg font-medium transition-colors text-lg"
               >
                 {loading ? 'Loading...' : isLogin ? 'Sign In' : 'Create Account'}
               </button>
@@ -301,7 +301,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-800 border-t border-gray-700 py-12">
+      <footer className="bg-black border-t border-gray-700 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full mb-4">
