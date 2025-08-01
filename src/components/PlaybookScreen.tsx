@@ -342,7 +342,7 @@ export default function PlaybookScreen() {
                   <p className="text-gray-400 mb-2">No rated players yet</p>
                   <p className="text-sm text-gray-500">Add some meetings with ratings to see your top performers</p>
                 </div>
-              )}
+              ))}
             </div>
           </div>
         </div>
