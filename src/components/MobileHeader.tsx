@@ -21,7 +21,7 @@ export default function MobileHeader({ isMenuOpen, onToggleMenu }: MobileHeaderP
           )}
         </button>
         <h1 className="text-xl font-bold text-green-400">Playboi</h1>
-        <div></div>
+        <div className="text-xl font-bold text-green-400">Playboi</div>
       </div>
     </div>
   );
