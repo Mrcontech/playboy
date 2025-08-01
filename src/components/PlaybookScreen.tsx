@@ -223,9 +223,9 @@ export default function PlaybookScreen() {
 
         {/* Performance Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-8">
-          <div className="bg-gray-800 rounded-xl p-6">
+          <div className="bg-gray-900 rounded-xl p-6">
             <div className="flex items-center justify-between mb-4">
-              <div className="bg-green-600 p-3 rounded-lg">
+              <div className="bg-green-500 p-3 rounded-lg">
                 <DollarSign className="text-white" size={24} />
               </div>
               <TrendingUp className="text-green-400" size={20} />
@@ -236,12 +236,12 @@ export default function PlaybookScreen() {
             <div className="text-gray-400 text-sm">Total Spent</div>
           </div>
 
-          <div className="bg-gray-800 rounded-xl p-6">
+          <div className="bg-gray-900 rounded-xl p-6">
             <div className="flex items-center justify-between mb-4">
-              <div className="bg-blue-600 p-3 rounded-lg">
+              <div className="bg-purple-500 p-3 rounded-lg">
                 <Calendar className="text-white" size={24} />
               </div>
-              <TrendingUp className="text-blue-400" size={20} />
+              <TrendingUp className="text-purple-500" size={20} />
             </div>
             <div className="text-2xl font-bold text-white mb-1">
               {dashboardStats.totalDates}
@@ -249,9 +249,9 @@ export default function PlaybookScreen() {
             <div className="text-gray-400 text-sm">Total Dates</div>
           </div>
 
-          <div className="bg-gray-800 rounded-xl p-6">
+          <div className="bg-gray-900 rounded-xl p-6">
             <div className="flex items-center justify-between mb-4">
-              <div className="bg-purple-600 p-3 rounded-lg">
+              <div className="bg-purple-500 p-3 rounded-lg">
                 <Users className="text-white" size={24} />
               </div>
               <TrendingUp className="text-purple-400" size={20} />
@@ -265,7 +265,7 @@ export default function PlaybookScreen() {
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-8">
           {/* CPN Chart */}
-          <div className="bg-gray-800 rounded-xl p-6">
+          <div className="bg-gray-900 rounded-xl p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-semibold text-white">Average Cost Per Night</h2>
               <div className="flex bg-gray-700 rounded-lg p-1 text-xs lg:text-sm">
@@ -275,7 +275,7 @@ export default function PlaybookScreen() {
                     onClick={() => setSelectedPeriod(period)}
                     className={`px-2 lg:px-4 py-2 rounded-md font-medium transition-colors ${
                       selectedPeriod === period
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-green-500 text-black'
                         : 'text-gray-300 hover:text-white'
                     }`}
                   >
@@ -285,23 +285,23 @@ export default function PlaybookScreen() {
               </div>
             </div>
             
-            <div className="bg-gray-900 rounded-lg p-2 lg:p-4 overflow-x-auto">
+            <div className="bg-black rounded-lg p-2 lg:p-4 overflow-x-auto">
               {renderChart()}
             </div>
           </div>
 
           {/* Top Players */}
-          <div className="bg-gray-800 rounded-xl p-6">
+          <div className="bg-gray-900 rounded-xl p-6">
             <h2 className="text-2xl font-semibold text-white mb-6">Top Players by Rating</h2>
             <div className="space-y-4">
               {topPlayers.length > 0 ? (
                 topPlayers.map((player, index) => (
-                  <div key={player.id} className="bg-gray-700 rounded-lg p-4 hover:bg-gray-650 transition-colors">
+                  <div key={player.id} className="bg-gray-800 rounded-lg p-4 hover:bg-gray-700 transition-colors">
                     <div className="flex items-center space-x-4">
                       <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold text-sm">
                         {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
                       </div>
-                      <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-blue-400 to-purple-600">
+                      <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-green-500 to-purple-500">
                         <img 
                           src={player.image_url || 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=400'} 
                           alt={player.name}
