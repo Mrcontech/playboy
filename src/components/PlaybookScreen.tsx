@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TrendingUp, Users, DollarSign, Calendar, BarChart3, Target } from 'lucide-react';
 import { statsApi } from '../services/api';
+import { useAppContext } from '../contexts/AppContext';
 
 interface CPNData {
   period: string;
@@ -25,48 +26,32 @@ interface DashboardStats {
 }
 
 export default function PlaybookScreen() {
+  const { dashboardStats, statsLoading } = useAppContext();
   const [selectedPeriod, setSelectedPeriod] = useState<'weekly' | 'monthly' | 'yearly'>('monthly');
   const [cpnData, setCpnData] = useState<CPNData[]>([]);
   const [topPlayers, setTopPlayers] = useState<TopPlayer[]>([]);
-  const [dashboardStats, setDashboardStats] = useState<DashboardStats>({
-    totalSpent: 0,
-    totalDates: 0,
-    totalHookups: 0,
-    averageCPN: 0
-  });
-  const [loading, setLoading] = useState(true);
+  const [chartLoading, setChartLoading] = useState(true);
 
   useEffect(() => {
-    loadData();
+    loadChartData();
   }, [selectedPeriod]);
 
-  const loadData = async () => {
+  const loadChartData = async () => {
     try {
-      setLoading(true);
+      setChartLoading(true);
       const [cpnResult, playersResult, statsResult] = await Promise.all([
         statsApi.getCPNByPeriod(selectedPeriod),
-        statsApi.getTopPlayersByRating(3),
-        statsApi.getDashboardStats()
+        statsApi.getTopPlayersByRating(3)
       ]);
       
       setCpnData(cpnResult || []);
       setTopPlayers(playersResult || []);
-      
-      // Calculate average CPN
-      const stats = statsResult || { totalSpent: 0, totalDates: 0, totalHookups: 0 };
-      const averageCPN = stats.totalHookups > 0 ? stats.totalSpent / stats.totalHookups : 0;
-      
-      setDashboardStats({
-        ...stats,
-        averageCPN: Math.round(averageCPN)
-      });
     } catch (error) {
       console.error('Error loading playbook data:', error);
       setCpnData([]);
       setTopPlayers([]);
-      setDashboardStats({ totalSpent: 0, totalDates: 0, totalHookups: 0, averageCPN: 0 });
     } finally {
-      setLoading(false);
+      setChartLoading(false);
     }
   };
 
@@ -216,7 +201,7 @@ export default function PlaybookScreen() {
     );
   };
 
-  if (loading) {
+  if (statsLoading) {
     return (
       <div className="p-8">
         <div className="max-w-6xl mx-auto">
@@ -308,15 +293,24 @@ export default function PlaybookScreen() {
               </div>
             </div>
             
-            <div className="bg-black rounded-lg p-2 lg:p-4 overflow-x-auto">
-              {renderChart()}
+            <div className="bg-black rounded-lg p-2 lg:p-4 overflow-x-auto min-h-[300px] flex items-center justify-center">
+              {chartLoading ? (
+                <div className="text-gray-400">Loading chart data...</div>
+              ) : (
+                renderChart()
+              )}
             </div>
           </div>
 
           {/* Top Players */}
           <div className="bg-black border-2 border-green-500 rounded-xl p-6">
             <h2 className="text-2xl font-semibold text-white mb-6">Top Players by Rating</h2>
-            <div className="space-y-4">
+            <div className="space-y-4 min-h-[300px]">
+              {chartLoading ? (
+                <div className="flex items-center justify-center h-full text-gray-400">
+                  Loading top players...
+                </div>
+              ) : (
               {topPlayers.length > 0 ? (
                 topPlayers.map((player, index) => (
                   <div key={player.id} className="bg-black border-2 border-green-500 rounded-lg p-4 hover:border-green-400 transition-colors">
@@ -348,6 +342,7 @@ export default function PlaybookScreen() {
                   <p className="text-gray-400 mb-2">No rated players yet</p>
                   <p className="text-sm text-gray-500">Add some meetings with ratings to see your top performers</p>
                 </div>
+              )}
               )}
             </div>
           </div>

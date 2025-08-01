@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Upload } from 'lucide-react';
 import { playerApi } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
+import { useAppContext } from '../contexts/AppContext';
 
 interface AddPlayerModalProps {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface AddPlayerModalProps {
 }
 
 export default function AddPlayerModal({ isOpen, onClose, onPlayerAdded }: AddPlayerModalProps) {
+  const { refreshPlayers } = useAppContext();
   const { user } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
@@ -74,6 +76,7 @@ export default function AddPlayerModal({ isOpen, onClose, onPlayerAdded }: AddPl
         user_id: user.id,
       });
       
+      await refreshPlayers();
       onPlayerAdded();
       onClose();
       setFormData({

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { AppProvider } from './contexts/AppContext';
 import LandingPage from './components/LandingPage';
 import AuthWrapper from './components/AuthWrapper';
 import LeftSidebar from './components/LeftSidebar';
@@ -107,7 +108,11 @@ export default function App() {
     <Routes>
       <Route path="/success" element={<SuccessPage />} />
       <Route path="/cancel" element={<CancelPage />} />
-      <Route path="/*" element={<AppContent />} />
+      <Route path="/*" element={
+        <AppProvider>
+          <AppContent />
+        </AppProvider>
+      } />
     </Routes>
   );
 }

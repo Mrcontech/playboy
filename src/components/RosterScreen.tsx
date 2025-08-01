@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { useEffect } from 'react';
 import { Users, Plus } from 'lucide-react';
 import SearchBar from './SearchBar';
 import PlayerCard from './PlayerCard';
 import AddPlayerModal from './AddPlayerModal';
-import { playerApi } from '../services/api';
+import { useAppContext } from '../contexts/AppContext';
 import type { Tables } from '../lib/supabase';
 
 type Player = Tables<'profiles'>;
@@ -14,33 +13,9 @@ interface RosterScreenProps {
 }
 
 export default function RosterScreen({ onPlayerSelect }: RosterScreenProps) {
+  const { activePlayers, benchPlayers, playersLoading, refreshPlayers } = useAppContext();
   const [searchQuery, setSearchQuery] = useState('');
-  const [activePlayers, setActivePlayers] = useState<Player[]>([]);
-  const [benchPlayers, setBenchPlayers] = useState<Player[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showAddPlayerModal, setShowAddPlayerModal] = useState(false);
-
-  useEffect(() => {
-    loadPlayers();
-  }, []);
-
-  const loadPlayers = async () => {
-    try {
-      // Get all players and separate them by bench status
-      const allPlayers = await playerApi.getAllPlayers();
-      const active = allPlayers?.filter(player => !player.bench) || [];
-      const bench = await playerApi.getBenchPlayers();
-      
-      setActivePlayers(active);
-      setBenchPlayers(bench || []);
-    } catch (error) {
-      console.error('Error loading players:', error);
-      setActivePlayers([]);
-      setBenchPlayers([]);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const filteredActivePlayers = activePlayers.filter(player =>
     player.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -50,7 +25,7 @@ export default function RosterScreen({ onPlayerSelect }: RosterScreenProps) {
     player.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  if (loading) {
+  if (playersLoading) {
     return (
       <div className="p-4 pb-20">
         <div className="text-center text-white">Loading players...</div>
@@ -156,7 +131,7 @@ export default function RosterScreen({ onPlayerSelect }: RosterScreenProps) {
       <AddPlayerModal
         isOpen={showAddPlayerModal}
         onClose={() => setShowAddPlayerModal(false)}
-        onPlayerAdded={loadPlayers}
+        onPlayerAdded={refreshPlayers}
       />
     </div>
   );

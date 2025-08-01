@@ -1,12 +1,11 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
 import { Plus, MessageCircle } from 'lucide-react';
 import PlayerCard from './PlayerCard';
 import AddDateModal from './AddDateModal';
 import UpcomingDateModal from './UpcomingDateModal';
 import ChatAnalysisModal from './ChatAnalysisModal';
 import SubscriptionBanner from './SubscriptionBanner';
-import { datesApi, playerApi, meetingsApi } from '../services/api';
+import { useAppContext } from '../contexts/AppContext';
 import type { Tables } from '../lib/supabase';
 
 type Player = Tables<'profiles'>;
@@ -17,32 +16,13 @@ interface HubScreenProps {
 }
 
 export default function HubScreen({ onPlayerSelect }: HubScreenProps) {
-  const [upcomingDates, setUpcomingDates] = useState<UpcomingDate[]>([]);
-  const [recentlyActive, setRecentlyActive] = useState<Player[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { upcomingDates, recentlyActive, datesLoading, playersLoading, refreshDates } = useAppContext();
   const [showAddDateModal, setShowAddDateModal] = useState(false);
   const [showDateInfoModal, setShowDateInfoModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState<UpcomingDate | null>(null);
   const [showChatAnalysis, setShowChatAnalysis] = useState(false);
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
-    try {
-      const [dates, players] = await Promise.all([
-        datesApi.getUpcomingDates(),
-        playerApi.getRecentlyActive(3),
-      ]);
-      setUpcomingDates(dates || []);
-      setRecentlyActive(players || []);
-    } catch (error) {
-      console.error('Error loading hub data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const loading = datesLoading || playersLoading;
 
   // Generate calendar dates for the next 7 days
   const getUpcomingCalendarDates = () => {
@@ -196,7 +176,7 @@ export default function HubScreen({ onPlayerSelect }: HubScreenProps) {
       <AddDateModal
         isOpen={showAddDateModal}
         onClose={() => setShowAddDateModal(false)}
-        onDateAdded={loadData}
+        onDateAdded={refreshDates}
       />
 
       <UpcomingDateModal
