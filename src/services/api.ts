@@ -152,17 +152,19 @@ export const playerApi = {
           amount_spent,
           rating,
           performance_rating,
-          created_at
+          created_at,
+          date
         )
       `)
       .eq('bench', false)
-      .order('updated_at', { ascending: false })
-      .limit(limit);
+      .not('meetings', 'is', null);
     
     if (error) throw error;
     
-    // Calculate stats for each player
-    return (players || []).map(player => {
+    // Calculate stats and find most recent meeting date for each player
+    const playersWithStats = (players || [])
+      .filter(player => player.meetings && player.meetings.length > 0)
+      .map(player => {
       const meetings = player.meetings || [];
       const totalSpent = meetings.reduce((sum: number, meeting: any) => 
         sum + (Number(meeting.amount_spent) || 0), 0);
@@ -175,6 +177,12 @@ export const playerApi = {
         sum + (Number(meeting.rating) || 0), 0);
       const averageRating = totalMeetings > 0 ? ratingsSum / totalMeetings : (player.looks_rating || 0);
       
+      // Find the most recent meeting date
+      const mostRecentMeetingDate = meetings.reduce((latest: string, meeting: any) => {
+        const meetingDate = meeting.date || meeting.created_at;
+        return meetingDate > latest ? meetingDate : latest;
+      }, '1970-01-01');
+      
       // Remove meetings array from response
       const { meetings: _, ...playerWithoutMeetings } = player;
       
@@ -182,9 +190,14 @@ export const playerApi = {
         ...playerWithoutMeetings,
         totalMeetings,
         cpn: Math.round(cpn),
-        averageRating: Number(averageRating.toFixed(1))
+        averageRating: Number(averageRating.toFixed(1)),
+        mostRecentMeetingDate
       };
-    });
+    })
+    .sort((a, b) => new Date(b.mostRecentMeetingDate).getTime() - new Date(a.mostRecentMeetingDate).getTime())
+    .slice(0, limit);
+    
+    return playersWithStats;
   },
 
   async updatePlayer(id: string, updates: Updates<'profiles'>) {
