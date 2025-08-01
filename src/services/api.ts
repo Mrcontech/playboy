@@ -155,12 +155,15 @@ export const playerApi = {
     const { data: players, error } = await supabase
       .from('profiles')
       .select(`
-        *,
+        id,
+        name,
+        image_url,
+        status,
+        looks_rating,
         meetings (
           amount_spent,
           rating,
           performance_rating,
-          created_at,
           date
         )
       `)
@@ -183,14 +186,26 @@ export const playerApi = {
         }, '1970-01-01');
         
         return {
-          ...baseStats,
+          id: baseStats.id,
+          name: baseStats.name,
+          image_url: baseStats.image_url,
+          status: baseStats.status,
+          looks_rating: baseStats.looks_rating,
+          totalMeetings: baseStats.totalMeetings,
+          cpn: baseStats.cpn,
+          averageRating: baseStats.averageRating,
           mostRecentMeetingDate
         };
       })
     .sort((a, b) => new Date(b.mostRecentMeetingDate).getTime() - new Date(a.mostRecentMeetingDate).getTime())
     .slice(0, limit);
     
-    persistentCache.set(cacheKey, playersWithStats, SHORT_TTL);
+    // Try to cache with error handling
+    try {
+      persistentCache.set(cacheKey, playersWithStats, SHORT_TTL);
+    } catch (error) {
+      console.warn('Failed to cache recently active players:', error);
+    }
     return playersWithStats;
   },
 
