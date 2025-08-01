@@ -3,6 +3,7 @@ import { LogOut, User, Shield, Trash2, Eye, EyeOff, Crown } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useSubscription } from '../hooks/useSubscription';
 import { supabase } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 
 export default function SettingsScreen() {
   const { user, signOut } = useAuth();
@@ -35,8 +36,16 @@ export default function SettingsScreen() {
 
     setLoading(true);
     try {
-      // TODO: Implement password change with Supabase
-      alert('Password change functionality will be implemented');
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+      
+      if (error) {
+        alert(`Failed to change password: ${error.message}`);
+      } else {
+        alert('Password changed successfully!');
+      }
+      
       setNewPassword('');
       setConfirmPassword('');
       setShowEditProfile(false);
