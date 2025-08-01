@@ -88,7 +88,7 @@ export default function RosterScreen({ onPlayerSelect }: RosterScreenProps) {
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-8">
           {/* Active Players Section */}
-          <section className="bg-gray-900 rounded-xl p-6">
+          <section className="bg-black border-2 border-green-500 rounded-xl p-6">
             <h2 className="text-2xl font-semibold text-white mb-6">Active Players</h2>
             <div className="flex flex-wrap justify-center gap-3 lg:gap-6">
               {filteredActivePlayers.map((player) => (
@@ -123,7 +123,7 @@ export default function RosterScreen({ onPlayerSelect }: RosterScreenProps) {
           </section>
 
           {/* Bench Players Section */}
-          <section className="bg-gray-900 rounded-xl p-6">
+          <section className="bg-black border-2 border-green-500 rounded-xl p-6">
             <h2 className="text-2xl font-semibold text-white mb-6">Bench</h2>
             <div className="flex flex-wrap justify-center gap-3 lg:gap-6">
               {filteredBenchPlayers.map((player) => (

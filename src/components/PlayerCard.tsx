@@ -31,7 +31,7 @@ export default function PlayerCard({ player, onClick, size = 'medium' }: PlayerC
 
   return (
     <div
-      className={`${sizeClasses[size]} bg-gray-900 rounded-xl overflow-hidden cursor-pointer hover:bg-gray-800 transition-all duration-200 hover:scale-105 shadow-lg`}
+      className={`${sizeClasses[size]} bg-black border-2 border-green-500 rounded-xl overflow-hidden cursor-pointer hover:border-green-400 transition-all duration-200 hover:scale-105 shadow-lg`}
       onClick={onClick}
     >
       {/* Image Section */}

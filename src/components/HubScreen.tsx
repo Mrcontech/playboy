@@ -101,7 +101,7 @@ export default function HubScreen({ onPlayerSelect }: HubScreenProps) {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8 mb-8">
           {/* Upcoming Dates Section */}
-          <section className="bg-gray-900 rounded-xl p-6">
+          <section className="bg-black border-2 border-green-500 rounded-xl p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-semibold text-white">Upcoming Dates</h2>
               <button 
@@ -132,7 +132,7 @@ export default function HubScreen({ onPlayerSelect }: HubScreenProps) {
           </section>
 
           {/* Recently Active Section */}
-          <section className="bg-gray-900 rounded-xl p-6">
+          <section className="bg-black border-2 border-green-500 rounded-xl p-6">
             <h2 className="text-2xl font-semibold text-white mb-6">Recently Active</h2>
             <div className="flex justify-center space-x-3 lg:space-x-6 overflow-x-auto pb-2">
               {recentlyActive.map((player) => (
@@ -161,7 +161,7 @@ export default function HubScreen({ onPlayerSelect }: HubScreenProps) {
         </div>
         
         {/* Chat Upload Section */}
-        <section className="bg-gray-900 rounded-xl p-6">
+        <section className="bg-black border-2 border-green-500 rounded-xl p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-semibold text-white">AI Chat Analysis</h2>
             <MessageCircle className="text-purple-500" size={24} />
