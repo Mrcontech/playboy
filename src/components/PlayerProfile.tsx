@@ -140,7 +140,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                 />
               </div>
               <h1 className="text-2xl font-bold mb-2 text-white">{player.name}</h1>
-              <span className="bg-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium">
+              <span className="bg-green-600 text-white px-4 py-2 rounded-full text-sm font-medium">
                 {player.status || 'Active'}
               </span>
             </div>
@@ -192,7 +192,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                 <h3 className="text-xl font-semibold text-white">Profile Details</h3>
                 <button 
                   onClick={() => setShowAIRecap(true)}
-                  className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                 >
                   AI Recap
                 </button>
@@ -262,7 +262,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                     <div key={meeting.id} className="bg-gray-700 rounded-lg p-4">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center space-x-3">
-                          <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                          <span className="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-medium">
                             {meeting.type.charAt(0).toUpperCase() + meeting.type.slice(1)}
                           </span>
                           {meeting.amount_spent && meeting.amount_spent > 0 && (
@@ -311,13 +311,13 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                   <div className="flex justify-center space-x-4">
                     <button 
                       onClick={() => setShowAddMeetingModal(true)}
-                      className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg text-white font-medium transition-colors"
+                      className="bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-lg text-white font-medium transition-colors"
                     >
                       Add Meeting
                     </button>
                     <button 
                       onClick={() => setShowAddExpenseModal(true)}
-                      className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-white font-medium transition-colors"
+                      className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg text-white font-medium transition-colors"
                     >
                       Add Expense
                     </button>

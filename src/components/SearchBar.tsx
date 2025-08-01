@@ -19,6 +19,7 @@ export default function SearchBar({ value, onChange, placeholder = "Search...", 
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           className="w-full bg-gray-800 text-white pl-10 pr-4 py-3 rounded-xl border border-gray-700 focus:border-blue-500 focus:outline-none transition-colors"
+          className="w-full bg-gray-800 text-white pl-10 pr-4 py-3 rounded-xl border border-gray-700 focus:border-green-500 focus:outline-none transition-colors"
         />
       </div>
       {onSort && (

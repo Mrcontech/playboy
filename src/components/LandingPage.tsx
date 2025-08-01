@@ -76,10 +76,10 @@ export default function LandingPage() {
     <div className="min-h-screen bg-gray-900">
       {/* Hero Section */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 to-blue-900/20"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-green-900/20 to-emerald-900/20"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full mb-8">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full mb-8">
               <Heart className="text-white" size={40} />
             </div>
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
@@ -91,7 +91,7 @@ export default function LandingPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button 
                 onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
-                className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all transform hover:scale-105 flex items-center justify-center space-x-2"
+                className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all transform hover:scale-105 flex items-center justify-center space-x-2"
               >
                 <span>Start Free Trial</span>
                 <ArrowRight size={20} />
@@ -122,7 +122,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
               <div key={index} className="bg-gray-900 rounded-xl p-6 hover:bg-gray-850 transition-colors">
-                <div className="bg-gradient-to-br from-pink-500 to-purple-600 p-3 rounded-lg w-fit mb-4">
+                <div className="bg-gradient-to-br from-green-500 to-emerald-600 p-3 rounded-lg w-fit mb-4">
                   <feature.icon className="text-white" size={24} />
                 </div>
                 <h3 className="text-xl font-semibold text-white mb-3">{feature.title}</h3>
@@ -201,7 +201,7 @@ export default function LandingPage() {
                 <div className="text-gray-400 mb-6">per month</div>
                 <button 
                   onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all transform hover:scale-105 w-full"
+                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all transform hover:scale-105 w-full"
                 >
                   Start Free Trial
                 </button>
@@ -229,7 +229,7 @@ export default function LandingPage() {
                 onClick={() => setIsLogin(true)}
                 className={`flex-1 py-3 px-6 rounded-lg font-medium transition-colors ${
                   isLogin
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-green-600 text-white'
                     : 'text-gray-400 hover:text-gray-300'
                 }`}
               >
@@ -239,7 +239,7 @@ export default function LandingPage() {
                 onClick={() => setIsLogin(false)}
                 className={`flex-1 py-3 px-6 rounded-lg font-medium transition-colors ${
                   !isLogin
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-green-600 text-white'
                     : 'text-gray-400 hover:text-gray-300'
                 }`}
               >
@@ -256,7 +256,6 @@ export default function LandingPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-gray-700 text-white px-4 py-4 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors text-lg"
                   placeholder="Enter your email"
                   required
                 />
@@ -270,7 +269,6 @@ export default function LandingPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-gray-700 text-white px-4 py-4 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors text-lg"
                   placeholder="Enter your password"
                   required
                 />
@@ -285,7 +283,7 @@ export default function LandingPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 text-white py-4 rounded-lg font-medium transition-all text-lg"
+                className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 disabled:from-gray-600 disabled:to-gray-700 text-white py-4 rounded-lg font-medium transition-all text-lg"
               >
                 {loading ? 'Loading...' : isLogin ? 'Sign In' : 'Create Account'}
               </button>
@@ -304,7 +302,7 @@ export default function LandingPage() {
       <footer className="bg-gray-800 border-t border-gray-700 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full mb-4">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full mb-4">
               <Heart className="text-white" size={24} />
             </div>
             <h3 className="text-2xl font-bold text-white mb-2">Playboi</h3>

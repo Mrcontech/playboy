@@ -106,7 +106,7 @@ export default function HubScreen({ onPlayerSelect }: HubScreenProps) {
               <h2 className="text-2xl font-semibold text-white">Upcoming Dates</h2>
               <button 
                 onClick={() => setShowAddDateModal(true)}
-                className="bg-blue-600 hover:bg-blue-700 px-3 lg:px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
+                className="bg-green-600 hover:bg-green-700 px-3 lg:px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
               >
                 <Plus className="text-white" size={20} />
                 <span className="text-white font-medium hidden sm:inline">Add Date</span>
@@ -134,8 +134,7 @@ export default function HubScreen({ onPlayerSelect }: HubScreenProps) {
           {/* Recently Active Section */}
           <section className="bg-gray-800 rounded-xl p-6">
             <h2 className="text-2xl font-semibold text-white mb-6">Recently Active</h2>
-            <div className="flex justify-center space-x-3 lg:space-x-6 overflow-x-auto pb-2">
-              {recentlyActive.map((player) => (
+              <MessageCircle className="text-green-400" size={24} />
                 <PlayerCard 
                   key={player.id}
                   player={{
@@ -184,7 +183,7 @@ export default function HubScreen({ onPlayerSelect }: HubScreenProps) {
                   e.stopPropagation();
                   setShowChatAnalysis(true);
                 }}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
               >
                 Choose File
               </button>
