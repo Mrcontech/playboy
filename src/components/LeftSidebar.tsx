@@ -36,13 +36,14 @@ export default function LeftSidebar({ activeTab, onTabChange, isOpen = true, onC
       
       {/* Sidebar */}
       <div className={`
-        fixed left-0 h-full w-64 bg-gray-800 border-r border-gray-700 flex flex-col z-40 transition-transform duration-300 ease-in-out
+        fixed left-0 h-full w-64 bg-black border-r border-gray-700 flex flex-col z-40 transition-transform duration-300 ease-in-out
         lg:translate-x-0 lg:top-0
         ${isOpen ? 'translate-x-0 top-0' : '-translate-x-full top-16'}
       `}>
           <h1 className="text-2xl font-bold text-white mb-8 hidden lg:block">Dating Roster</h1>
+        <h1 className="text-2xl font-bold text-white mb-8 hidden lg:block">Playboi</h1>
           <div className="lg:hidden h-4"></div>
-        <h1 className="text-2xl font-bold text-white mb-8">Dating Roster</h1>
+        <h1 className="text-2xl font-bold text-white mb-8">Playboi</h1>
         <nav className="space-y-2">
           {tabs.map(({ id, label, icon: Icon }) => (
             <button
@@ -50,8 +51,8 @@ export default function LeftSidebar({ activeTab, onTabChange, isOpen = true, onC
               onClick={() => onTabChange(id)}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-left ${
                 activeTab === id
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-300 hover:text-white hover:bg-gray-700'
+                  ? 'bg-green-500 text-black'
+                  : 'text-gray-300 hover:text-white hover:bg-gray-800'
               }`}
             >
               <Icon size={20} />

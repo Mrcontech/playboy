@@ -94,18 +94,18 @@ export default function SettingsScreen() {
         <h1 className="text-3xl font-bold text-white mb-8">Settings</h1>
 
         {/* User Info Section */}
-        <div className="bg-gray-800 rounded-xl p-6 mb-6">
+        <div className="bg-gray-900 rounded-xl p-6 mb-6">
           <h2 className="text-xl font-semibold text-white mb-4">Account Information</h2>
           <div className="flex items-center space-x-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-purple-600 rounded-full flex items-center justify-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-purple-500 rounded-full flex items-center justify-center">
               <User className="text-white" size={24} />
             </div>
             <div>
               <div className="text-white font-medium">{user?.email}</div>
               <div className="text-gray-400 text-sm">Member since {new Date(user?.created_at || '').toLocaleDateString()}</div>
               <div className="flex items-center space-x-2 mt-1">
-                {isPro && <Crown className="text-yellow-400" size={16} />}
-                <span className={`text-sm font-medium ${isPro ? 'text-yellow-400' : 'text-gray-400'}`}>
+                {isPro && <Crown className="text-green-500" size={16} />}
+                <span className={`text-sm font-medium ${isPro ? 'text-green-500' : 'text-gray-400'}`}>
                   {currentPlan}
                 </span>
               </div>
@@ -116,13 +116,13 @@ export default function SettingsScreen() {
         {/* Settings Options */}
         <div className="space-y-4">
           {/* Edit Profile */}
-          <div className="bg-gray-800 rounded-xl p-6">
+          <div className="bg-gray-900 rounded-xl p-6">
             <button
               onClick={() => setShowEditProfile(true)}
-              className="w-full flex items-center justify-between hover:bg-gray-700 p-4 rounded-lg transition-colors"
+              className="w-full flex items-center justify-between hover:bg-gray-800 p-4 rounded-lg transition-colors"
             >
               <div className="flex items-center space-x-4">
-                <div className="bg-blue-600 p-3 rounded-lg">
+                <div className="bg-purple-500 p-3 rounded-lg">
                   <Shield className="text-white" size={20} />
                 </div>
                 <div className="text-left">
@@ -135,13 +135,13 @@ export default function SettingsScreen() {
           </div>
 
           {/* Sign Out */}
-          <div className="bg-gray-800 rounded-xl p-6">
+          <div className="bg-gray-900 rounded-xl p-6">
             <button
               onClick={handleSignOut}
-              className="w-full flex items-center justify-between hover:bg-gray-700 p-4 rounded-lg transition-colors"
+              className="w-full flex items-center justify-between hover:bg-gray-800 p-4 rounded-lg transition-colors"
             >
               <div className="flex items-center space-x-4">
-                <div className="bg-red-600 p-3 rounded-lg">
+                <div className="bg-red-500 p-3 rounded-lg">
                   <LogOut className="text-white" size={20} />
                 </div>
                 <div className="text-left">
@@ -157,7 +157,7 @@ export default function SettingsScreen() {
         {/* Edit Profile Modal */}
         {showEditProfile && (
           <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
-            <div className="bg-gray-900 rounded-xl p-6 max-w-lg w-full">
+            <div className="bg-gray-800 rounded-xl p-6 max-w-lg w-full">
               <h3 className="text-2xl font-bold text-white mb-6">Edit Profile</h3>
               
               <form onSubmit={handlePasswordChange} className="space-y-6">
@@ -167,7 +167,7 @@ export default function SettingsScreen() {
                     type="email"
                     value={user?.email || ''}
                     disabled
-                    className="w-full bg-gray-700 text-gray-400 px-4 py-3 rounded-lg border border-gray-600 cursor-not-allowed"
+                    className="w-full bg-gray-900 text-gray-400 px-4 py-3 rounded-lg border border-gray-600 cursor-not-allowed"
                   />
                   <p className="text-gray-400 text-xs mt-1">Email cannot be changed</p>
                 </div>
@@ -179,7 +179,7 @@ export default function SettingsScreen() {
                       type={showPassword ? 'text' : 'password'}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full bg-gray-800 text-white px-4 py-3 pr-12 rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none"
+                      className="w-full bg-gray-900 text-white px-4 py-3 pr-12 rounded-lg border border-gray-700 focus:border-green-500 focus:outline-none"
                       placeholder="Enter new password"
                       minLength={6}
                     />
@@ -199,7 +199,7 @@ export default function SettingsScreen() {
                     type={showPassword ? 'text' : 'password'}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none"
+                    className="w-full bg-gray-900 text-white px-4 py-3 rounded-lg border border-gray-700 focus:border-green-500 focus:outline-none"
                     placeholder="Confirm new password"
                     minLength={6}
                   />
@@ -213,14 +213,14 @@ export default function SettingsScreen() {
                       setNewPassword('');
                       setConfirmPassword('');
                     }}
-                    className="flex-1 bg-gray-800 text-white py-3 rounded-lg hover:bg-gray-700 transition-colors"
+                    className="flex-1 bg-gray-900 text-white py-3 rounded-lg hover:bg-gray-800 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={loading || !newPassword || !confirmPassword}
-                    className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:bg-blue-800 transition-colors"
+                    className="flex-1 bg-green-500 text-black py-3 rounded-lg hover:bg-green-600 disabled:bg-green-700 transition-colors"
                   >
                     {loading ? 'Updating...' : 'Update Password'}
                   </button>
@@ -229,10 +229,10 @@ export default function SettingsScreen() {
 
               {/* Delete Account Section */}
               <div className="mt-8 pt-6 border-t border-gray-700">
-                <h4 className="text-red-400 font-medium mb-3">Danger Zone</h4>
+                <h4 className="text-red-500 font-medium mb-3">Danger Zone</h4>
                 <button
                   onClick={() => setShowDeleteConfirm(true)}
-                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
+                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
                 >
                   <Trash2 size={16} />
                   <span>Delete Account</span>
@@ -245,7 +245,7 @@ export default function SettingsScreen() {
         {/* Delete Account Confirmation */}
         {showDeleteConfirm && (
           <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
-            <div className="bg-gray-900 rounded-xl p-6 max-w-sm w-full">
+            <div className="bg-gray-800 rounded-xl p-6 max-w-sm w-full">
               <h3 className="text-xl font-bold text-white mb-4">Delete Account</h3>
               <p className="text-gray-300 mb-6">
                 Are you sure you want to delete your account? This action cannot be undone and will permanently delete all your data including players, meetings, and statistics.
@@ -253,14 +253,14 @@ export default function SettingsScreen() {
               <div className="flex space-x-4">
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="flex-1 bg-gray-800 text-white py-3 rounded-lg hover:bg-gray-700 transition-colors"
+                  className="flex-1 bg-gray-900 text-white py-3 rounded-lg hover:bg-gray-800 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleDeleteAccount}
                   disabled={loading}
-                  className="flex-1 bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 disabled:bg-red-800 transition-colors"
+                  className="flex-1 bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 disabled:bg-red-700 transition-colors"
                 >
                   {loading ? 'Deleting...' : 'Delete Account'}
                 </button>
