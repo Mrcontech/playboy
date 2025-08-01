@@ -44,6 +44,7 @@ export default function App() {
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
+    setSelectedPlayer(null); // Clear selected player when navigating to other tabs
     setIsMobileMenuOpen(false); // Close mobile menu when tab changes
   };
 
