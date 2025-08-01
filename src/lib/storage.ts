@@ -18,15 +18,27 @@ class PersistentCache {
     };
     
     try {
+      // Check available storage space
+      const serialized = JSON.stringify(item);
+      const currentSize = this.getStorageSize();
+      const itemSize = new Blob([serialized]).size;
+      
+      // If item is too large or would exceed quota, don't cache it
+      if (itemSize > 1024 * 1024 || currentSize + itemSize > 4 * 1024 * 1024) {
+        console.warn(`Item too large to cache: ${key} (${Math.round(itemSize / 1024)}KB)`);
+        return;
+      }
+      
       localStorage.setItem(this.prefix + key, JSON.stringify(item));
     } catch (error) {
       console.warn('Failed to save to localStorage:', error);
-      // If localStorage is full, clear old items and try again
-      this.clearExpired();
+      // Try to free up space by clearing old cache
+      this.clearOldCache();
       try {
         localStorage.setItem(this.prefix + key, JSON.stringify(item));
       } catch (retryError) {
-        console.error('Failed to save to localStorage after cleanup:', retryError);
+        console.warn('Failed to save to localStorage after cleanup:', retryError);
+        // Don't throw error, just continue without caching
       }
     }
   }
@@ -58,6 +70,23 @@ class PersistentCache {
     } catch (error) {
       console.warn('Failed to delete from localStorage:', error);
     }
+  }
+
+  private getStorageSize(): number {
+    let total = 0;
+    for (let key in localStorage) {
+      if (localStorage.hasOwnProperty(key) && key.startsWith(this.prefix)) {
+        total += localStorage[key].length;
+      }
+    }
+    return total;
+  }
+
+  private clearOldCache(): void {
+    const keys = Object.keys(localStorage).filter(key => key.startsWith(this.prefix));
+    // Remove oldest 50% of cache items
+    const itemsToRemove = Math.ceil(keys.length / 2);
+    keys.slice(0, itemsToRemove).forEach(key => localStorage.removeItem(key));
   }
   
   clear(): void {
