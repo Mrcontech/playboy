@@ -7,7 +7,6 @@ import EditPlayerModal from './EditPlayerModal';
 import AddMeetingModal from './AddMeetingModal';
 import AddExpenseModal from './AddExpenseModal';
 import { meetingsApi } from '../services/api';
-import { useAppContext } from '../contexts/AppContext';
 import type { Tables } from '../lib/supabase';
 
 type Player = Tables<'profiles'>;
@@ -29,7 +28,6 @@ interface PlayerProfileProps {
 }
 
 export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
-  const { refreshPlayers } = useAppContext();
   const [showAIRecap, setShowAIRecap] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAddMeetingModal, setShowAddMeetingModal] = useState(false);
@@ -360,14 +358,8 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
         <EditPlayerModal
           isOpen={showEditModal}
           onClose={() => setShowEditModal(false)}
-          onPlayerUpdated={() => {
-            loadPlayerStats();
-            refreshPlayers();
-          }}
-          onPlayerDeleted={() => {
-            refreshPlayers();
-            onBack();
-          }}
+          onPlayerUpdated={loadPlayerStats}
+          onPlayerDeleted={onBack}
           player={player}
         />
       )}

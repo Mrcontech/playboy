@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { meetingsApi } from '../services/api';
-import { useAppContext } from '../contexts/AppContext';
 
 interface AddMeetingModalProps {
   isOpen: boolean;
@@ -18,7 +17,6 @@ export default function AddMeetingModal({
   playerId, 
   playerName 
 }: AddMeetingModalProps) {
-  const { refreshStats } = useAppContext();
   const [formData, setFormData] = useState({
     type: 'date',
     amount_spent: '',
@@ -49,7 +47,6 @@ export default function AddMeetingModal({
         date: formData.date,
       });
       
-      await refreshStats();
       onMeetingAdded();
       onClose();
       setFormData({

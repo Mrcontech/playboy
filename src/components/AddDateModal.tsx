@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Calendar } from 'lucide-react';
-import { datesApi } from '../services/api';
-import { useAppContext } from '../contexts/AppContext';
+import { datesApi, playerApi } from '../services/api';
 import type { Tables } from '../lib/supabase';
 
 type Player = Tables<'profiles'>;
@@ -13,7 +12,7 @@ interface AddDateModalProps {
 }
 
 export default function AddDateModal({ isOpen, onClose, onDateAdded }: AddDateModalProps) {
-  const { activePlayers, refreshDates } = useAppContext();
+  const [players, setPlayers] = useState<Player[]>([]);
   const [formData, setFormData] = useState({
     profile_id: '',
     type: 'dinner',
@@ -21,6 +20,21 @@ export default function AddDateModal({ isOpen, onClose, onDateAdded }: AddDateMo
     notes: '',
   });
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      loadPlayers();
+    }
+  }, [isOpen]);
+
+  const loadPlayers = async () => {
+    try {
+      const data = await playerApi.getAllPlayers();
+      setPlayers(data || []);
+    } catch (error) {
+      console.error('Error loading players:', error);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -36,7 +50,6 @@ export default function AddDateModal({ isOpen, onClose, onDateAdded }: AddDateMo
         notes: formData.notes || null,
       });
       
-      await refreshDates();
       onDateAdded();
       onClose();
       setFormData({
@@ -87,7 +100,7 @@ export default function AddDateModal({ isOpen, onClose, onDateAdded }: AddDateMo
               required
             >
               <option value="">Choose a player...</option>
-              {activePlayers.map((player) => (
+              {players.map((player) => (
                 <option key={player.id} value={player.id}>
                   {player.name}
                 </option>
