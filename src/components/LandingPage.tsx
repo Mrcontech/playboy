@@ -54,24 +54,6 @@ export default function LandingPage() {
     }
   ];
 
-  const screenshots = [
-    {
-      src: 'https://images.pexels.com/photos/4348401/pexels-photo-4348401.jpeg?auto=compress&cs=tinysrgb&w=800',
-      alt: 'Dashboard Overview',
-      title: 'Comprehensive Dashboard'
-    },
-    {
-      src: 'https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=800',
-      alt: 'Player Profiles',
-      title: 'Detailed Player Profiles'
-    },
-    {
-      src: 'https://images.pexels.com/photos/590022/pexels-photo-590022.jpg?auto=compress&cs=tinysrgb&w=800',
-      alt: 'Analytics View',
-      title: 'Performance Analytics'
-    }
-  ];
-
   return (
     <div className="min-h-screen bg-black">
       {/* Hero Section */}
@@ -126,37 +108,6 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-semibold text-white mb-3">{feature.title}</h3>
                 <p className="text-gray-400 leading-relaxed">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Screenshots Section */}
-      <section className="py-24 bg-black">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">
-              See Playboi in Action
-            </h2>
-            <p className="text-xl text-gray-400">
-              Beautiful, intuitive interface designed for the modern dater
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {screenshots.map((screenshot, index) => (
-              <div key={index} className="group">
-                <div className="bg-black border-2 border-green-500 rounded-xl overflow-hidden hover:border-green-400 hover:transform hover:scale-105 transition-all duration-300">
-                  <img 
-                    src={screenshot.src} 
-                    alt={screenshot.alt}
-                    className="w-full h-64 object-cover"
-                  />
-                  <div className="p-6">
-                    <h3 className="text-lg font-semibold text-white">{screenshot.title}</h3>
-                  </div>
-                </div>
               </div>
             ))}
           </div>
