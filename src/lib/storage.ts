@@ -1,158 +1,162 @@
-import React from 'react';
-
-// Persistent storage utility with expiration
+// In-memory cache with session storage fallback
 interface CacheItem<T> {
   data: T;
   timestamp: number;
   expiry: number;
 }
 
-class PersistentCache {
-  private prefix = 'playboi_cache_';
+class MemoryCache {
+  private cache = new Map<string, CacheItem<any>>();
+  private maxItems = 100; // Limit cache size
   
   set<T>(key: string, data: T, ttlMinutes: number = 30): void {
+    // Clean up expired items first
+    this.cleanupExpired();
+    
+    // If cache is getting too large, remove oldest items
+    if (this.cache.size >= this.maxItems) {
+      const oldestKey = this.cache.keys().next().value;
+      if (oldestKey) {
+        this.cache.delete(oldestKey);
+      }
+    }
+    
     const item: CacheItem<T> = {
       data,
       timestamp: Date.now(),
       expiry: Date.now() + (ttlMinutes * 60 * 1000)
     };
     
+    this.cache.set(key, item);
+    
+    // Try to store in sessionStorage as backup (smaller, more reliable)
     try {
-      // Check available storage space
-      const serialized = JSON.stringify(item);
-      const currentSize = this.getStorageSize();
-      const itemSize = new Blob([serialized]).size;
-      
-      // If item is too large or would exceed quota, don't cache it
-      if (itemSize > 1024 * 1024 || currentSize + itemSize > 4 * 1024 * 1024) {
-        console.warn(`Item too large to cache: ${key} (${Math.round(itemSize / 1024)}KB)`);
-        return;
+      // Only store essential data in sessionStorage
+      const essentialData = this.getEssentialData(data);
+      if (essentialData) {
+        sessionStorage.setItem(`cache_${key}`, JSON.stringify({
+          data: essentialData,
+          expiry: item.expiry
+        }));
       }
-      
-      localStorage.setItem(this.prefix + key, JSON.stringify(item));
     } catch (error) {
-      console.warn('Failed to save to localStorage:', error);
-      // Try to free up space by clearing old cache
-      this.clearOldCache();
-      try {
-        localStorage.setItem(this.prefix + key, JSON.stringify(item));
-      } catch (retryError) {
-        console.warn('Failed to save to localStorage after cleanup:', retryError);
-        // Don't throw error, just continue without caching
-      }
+      // SessionStorage failed, but memory cache still works
+      console.warn('SessionStorage failed, using memory only:', error);
     }
   }
   
   get<T>(key: string): T | null {
-    try {
-      const item = localStorage.getItem(this.prefix + key);
-      if (!item) return null;
-      
-      const parsed: CacheItem<T> = JSON.parse(item);
-      
-      // Check if expired
-      if (Date.now() > parsed.expiry) {
-        this.delete(key);
-        return null;
-      }
-      
-      return parsed.data;
-    } catch (error) {
-      console.warn('Failed to read from localStorage:', error);
-      this.delete(key);
-      return null;
+    // Check memory cache first
+    const item = this.cache.get(key);
+    if (item && Date.now() < item.expiry) {
+      return item.data;
     }
+    
+    // If not in memory, try sessionStorage
+    try {
+      const sessionItem = sessionStorage.getItem(`cache_${key}`);
+      if (sessionItem) {
+        const parsed = JSON.parse(sessionItem);
+        if (Date.now() < parsed.expiry) {
+          // Restore to memory cache
+          this.cache.set(key, {
+            data: parsed.data,
+            timestamp: Date.now(),
+            expiry: parsed.expiry
+          });
+          return parsed.data;
+        } else {
+          // Expired, remove it
+          sessionStorage.removeItem(`cache_${key}`);
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to read from sessionStorage:', error);
+    }
+    
+    // Clean up expired memory cache item
+    if (item) {
+      this.cache.delete(key);
+    }
+    
+    return null;
   }
   
   delete(key: string): void {
+    this.cache.delete(key);
     try {
-      localStorage.removeItem(this.prefix + key);
+      sessionStorage.removeItem(`cache_${key}`);
     } catch (error) {
-      console.warn('Failed to delete from localStorage:', error);
+      console.warn('Failed to delete from sessionStorage:', error);
     }
-  }
-
-  private getStorageSize(): number {
-    let total = 0;
-    for (let key in localStorage) {
-      if (localStorage.hasOwnProperty(key) && key.startsWith(this.prefix)) {
-        total += localStorage[key].length;
-      }
-    }
-    return total;
-  }
-
-  private clearOldCache(): void {
-    const keys = Object.keys(localStorage).filter(key => key.startsWith(this.prefix));
-    // Remove oldest 50% of cache items
-    const itemsToRemove = Math.ceil(keys.length / 2);
-    keys.slice(0, itemsToRemove).forEach(key => localStorage.removeItem(key));
   }
   
   clear(): void {
+    this.cache.clear();
     try {
-      const keys = Object.keys(localStorage);
+      // Clear only our cache items from sessionStorage
+      const keys = Object.keys(sessionStorage);
       keys.forEach(key => {
-        if (key.startsWith(this.prefix)) {
-          localStorage.removeItem(key);
+        if (key.startsWith('cache_')) {
+          sessionStorage.removeItem(key);
         }
       });
     } catch (error) {
-      console.warn('Failed to clear localStorage:', error);
+      console.warn('Failed to clear sessionStorage:', error);
     }
   }
   
-  clearExpired(): void {
-    try {
-      const keys = Object.keys(localStorage);
-      const now = Date.now();
-      
-      keys.forEach(key => {
-        if (key.startsWith(this.prefix)) {
-          try {
-            const item = localStorage.getItem(key);
-            if (item) {
-              const parsed: CacheItem<any> = JSON.parse(item);
-              if (now > parsed.expiry) {
-                localStorage.removeItem(key);
-              }
-            }
-          } catch (error) {
-            // If we can't parse it, remove it
-            localStorage.removeItem(key);
-          }
-        }
-      });
-    } catch (error) {
-      console.warn('Failed to clear expired items:', error);
+  private cleanupExpired(): void {
+    const now = Date.now();
+    for (const [key, item] of this.cache.entries()) {
+      if (now > item.expiry) {
+        this.cache.delete(key);
+      }
     }
+  }
+  
+  private getEssentialData(data: any): any {
+    // Only store essential fields to reduce storage size
+    if (Array.isArray(data)) {
+      return data.map(item => {
+        if (item && typeof item === 'object') {
+          // For player data, only store essential fields
+          return {
+            id: item.id,
+            name: item.name,
+            image_url: item.image_url,
+            status: item.status,
+            looks_rating: item.looks_rating,
+            totalMeetings: item.totalMeetings,
+            cpn: item.cpn,
+            averageRating: item.averageRating,
+            bench: item.bench
+          };
+        }
+        return item;
+      });
+    }
+    return data;
   }
   
   // Get cache info for debugging
-  getInfo(): { totalItems: number; totalSize: number } {
-    let totalItems = 0;
-    let totalSize = 0;
-    
+  getInfo(): { memoryItems: number; sessionItems: number } {
+    let sessionItems = 0;
     try {
-      const keys = Object.keys(localStorage);
-      keys.forEach(key => {
-        if (key.startsWith(this.prefix)) {
-          totalItems++;
-          const item = localStorage.getItem(key);
-          if (item) {
-            totalSize += item.length;
-          }
-        }
-      });
+      const keys = Object.keys(sessionStorage);
+      sessionItems = keys.filter(key => key.startsWith('cache_')).length;
     } catch (error) {
-      console.warn('Failed to get cache info:', error);
+      console.warn('Failed to get session storage info:', error);
     }
     
-    return { totalItems, totalSize };
+    return { 
+      memoryItems: this.cache.size, 
+      sessionItems 
+    };
   }
 }
 
-export const persistentCache = new PersistentCache();
+export const persistentCache = new MemoryCache();
 
 // Hook for using persistent cache with React
 export function usePersistentCache<T>(

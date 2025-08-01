@@ -1,14 +1,9 @@
 import { supabase } from '../lib/supabase';
-import { persistentCache } from '../lib/storage';
 import type { Tables, Inserts, Updates } from '../lib/supabase';
 
 type Player = Tables<'profiles'>;
 type Meeting = Tables<'meetings'>;
 type UpcomingDate = Tables<'upcoming_dates'>;
-
-// Cache TTL in minutes
-const DEFAULT_TTL = 30; // 30 minutes for persistent storage
-const SHORT_TTL = 5; // 5 minutes for frequently changing data
 
 // Helper function to calculate player stats
 function calculatePlayerStats(player: any) {
@@ -57,12 +52,6 @@ function calculatePlayerStats(player: any) {
 // Player API
 export const playerApi = {
   async createPlayer(player: Inserts<'profiles'>) {
-    // Clear relevant caches after creating
-    persistentCache.delete('getAllPlayers');
-    persistentCache.delete('getActivePlayers');
-    persistentCache.delete('getBenchPlayers');
-    persistentCache.delete('getRecentlyActive');
-    
     const { data, error } = await supabase
       .from('profiles')
       .insert(player)
@@ -74,10 +63,6 @@ export const playerApi = {
   },
 
   async getAllPlayers(): Promise<Player[]> {
-    const cacheKey = 'getAllPlayers';
-    const cached = persistentCache.get<Player[]>(cacheKey);
-    if (cached) return cached;
-
     const { data: players, error } = await supabase
       .from('profiles')
       .select(`
@@ -92,16 +77,10 @@ export const playerApi = {
     
     if (error) throw error;
     
-    const result = (players || []).map(calculatePlayerStats);
-    persistentCache.set(cacheKey, result, DEFAULT_TTL);
-    return result;
+    return (players || []).map(calculatePlayerStats);
   },
 
   async getActivePlayers(): Promise<Player[]> {
-    const cacheKey = 'getActivePlayers';
-    const cached = persistentCache.get<Player[]>(cacheKey);
-    if (cached) return cached;
-
     const { data: players, error } = await supabase
       .from('profiles')
       .select(`
@@ -117,16 +96,10 @@ export const playerApi = {
     
     if (error) throw error;
     
-    const result = (players || []).map(calculatePlayerStats);
-    persistentCache.set(cacheKey, result, DEFAULT_TTL);
-    return result;
+    return (players || []).map(calculatePlayerStats);
   },
 
   async getBenchPlayers(): Promise<Player[]> {
-    const cacheKey = 'getBenchPlayers';
-    const cached = persistentCache.get<Player[]>(cacheKey);
-    if (cached) return cached;
-
     const { data, error } = await supabase
       .from('profiles')
       .select(`
@@ -142,16 +115,11 @@ export const playerApi = {
     
     if (error) throw error;
     
-    const result = (data || []).map(calculatePlayerStats);
-    persistentCache.set(cacheKey, result, DEFAULT_TTL);
-    return result;
+    return (data || []).map(calculatePlayerStats);
   },
 
   async getRecentlyActive(limit: number = 3): Promise<Player[]> {
-    const cacheKey = `getRecentlyActive_${limit}`;
-    const cached = persistentCache.get<Player[]>(cacheKey);
-    if (cached) return cached;
-
+    // Fetch only essential data to reduce payload size
     const { data: players, error } = await supabase
       .from('profiles')
       .select(`
@@ -159,63 +127,28 @@ export const playerApi = {
         name,
         image_url,
         status,
-        looks_rating,
-        meetings (
-          amount_spent,
-          rating,
-          performance_rating,
-          date
-        )
+        looks_rating
       `)
       .eq('bench', false)
-      .not('meetings', 'is', null);
+      .limit(limit)
+      .order('updated_at', { ascending: false });
     
     if (error) throw error;
     
-    // Calculate stats and find most recent meeting date for each player
-    const playersWithStats = (players || [])
-      .filter(player => player.meetings && player.meetings.length > 0)
-      .map(player => {
-        const baseStats = calculatePlayerStats(player);
-        const meetings = player.meetings || [];
-        
-        // Find the most recent meeting date
-        const mostRecentMeetingDate = meetings.reduce((latest: string, meeting: any) => {
-          const meetingDate = meeting.date || meeting.created_at;
-          return meetingDate > latest ? meetingDate : latest;
-        }, '1970-01-01');
-        
-        return {
-          id: baseStats.id,
-          name: baseStats.name,
-          image_url: baseStats.image_url,
-          status: baseStats.status,
-          looks_rating: baseStats.looks_rating,
-          totalMeetings: baseStats.totalMeetings,
-          cpn: baseStats.cpn,
-          averageRating: baseStats.averageRating,
-          mostRecentMeetingDate
-        };
-      })
-    .sort((a, b) => new Date(b.mostRecentMeetingDate).getTime() - new Date(a.mostRecentMeetingDate).getTime())
-    .slice(0, limit);
-    
-    // Try to cache with error handling
-    try {
-      persistentCache.set(cacheKey, playersWithStats, SHORT_TTL);
-    } catch (error) {
-      console.warn('Failed to cache recently active players:', error);
-    }
-    return playersWithStats;
+    // Return simplified data structure
+    return (players || []).map(player => ({
+      id: player.id,
+      name: player.name,
+      image_url: player.image_url,
+      status: player.status,
+      looks_rating: player.looks_rating,
+      totalMeetings: 0, // Will be calculated when needed
+      cpn: 0, // Will be calculated when needed
+      averageRating: player.looks_rating || 0
+    }));
   },
 
   async updatePlayer(id: string, updates: Updates<'profiles'>) {
-    // Clear relevant caches after updating
-    persistentCache.delete('getAllPlayers');
-    persistentCache.delete('getActivePlayers');
-    persistentCache.delete('getBenchPlayers');
-    persistentCache.delete('getRecentlyActive_3');
-    
     const { data, error } = await supabase
       .from('profiles')
       .update(updates)
@@ -228,12 +161,6 @@ export const playerApi = {
   },
 
   async deletePlayer(id: string) {
-    // Clear relevant caches after deleting
-    persistentCache.delete('getAllPlayers');
-    persistentCache.delete('getActivePlayers');
-    persistentCache.delete('getBenchPlayers');
-    persistentCache.delete('getRecentlyActive_3');
-    
     const { error } = await supabase
       .from('profiles')
       .delete()
@@ -246,14 +173,6 @@ export const playerApi = {
 // Meetings API
 export const meetingsApi = {
   async createMeeting(meeting: Inserts<'meetings'>) {
-    // Clear relevant caches after creating
-    persistentCache.delete('getAllPlayers');
-    persistentCache.delete('getActivePlayers');
-    persistentCache.delete('getBenchPlayers');
-    persistentCache.delete('getRecentlyActive_3');
-    persistentCache.delete(`getMeetingsByPlayer_${meeting.profile_id}`);
-    persistentCache.delete('getDashboardStats');
-    
     const { data, error } = await supabase
       .from('meetings')
       .insert(meeting)
@@ -265,10 +184,6 @@ export const meetingsApi = {
   },
 
   async getMeetingsByPlayer(playerId: string): Promise<Meeting[]> {
-    const cacheKey = `getMeetingsByPlayer_${playerId}`;
-    const cached = persistentCache.get<Meeting[]>(cacheKey);
-    if (cached) return cached;
-
     const { data, error } = await supabase
       .from('meetings')
       .select('*')
@@ -276,19 +191,10 @@ export const meetingsApi = {
       .order('date', { ascending: false });
     
     if (error) throw error;
-    const result = data || [];
-    persistentCache.set(cacheKey, result, DEFAULT_TTL);
-    return result;
+    return data || [];
   },
 
   async updateMeeting(id: string, updates: Updates<'meetings'>) {
-    // Clear relevant caches after updating
-    persistentCache.delete('getAllPlayers');
-    persistentCache.delete('getActivePlayers');
-    persistentCache.delete('getBenchPlayers');
-    persistentCache.delete('getRecentlyActive_3');
-    persistentCache.delete('getDashboardStats');
-    
     const { data, error } = await supabase
       .from('meetings')
       .update(updates)
@@ -301,13 +207,6 @@ export const meetingsApi = {
   },
 
   async deleteMeeting(id: string) {
-    // Clear relevant caches after deleting
-    persistentCache.delete('getAllPlayers');
-    persistentCache.delete('getActivePlayers');
-    persistentCache.delete('getBenchPlayers');
-    persistentCache.delete('getRecentlyActive_3');
-    persistentCache.delete('getDashboardStats');
-    
     const { error } = await supabase
       .from('meetings')
       .delete()
@@ -320,9 +219,6 @@ export const meetingsApi = {
 // Dates API
 export const datesApi = {
   async createDate(date: Inserts<'upcoming_dates'>) {
-    // Clear relevant caches after creating
-    persistentCache.delete('getUpcomingDates');
-    
     const { data, error } = await supabase
       .from('upcoming_dates')
       .insert(date)
@@ -334,10 +230,6 @@ export const datesApi = {
   },
 
   async getUpcomingDates(): Promise<UpcomingDate[]> {
-    const cacheKey = 'getUpcomingDates';
-    const cached = persistentCache.get<UpcomingDate[]>(cacheKey);
-    if (cached) return cached;
-
     const { data, error } = await supabase
       .from('upcoming_dates')
       .select(`
@@ -351,15 +243,10 @@ export const datesApi = {
       .order('date', { ascending: true });
     
     if (error) throw error;
-    const result = data || [];
-    persistentCache.set(cacheKey, result, SHORT_TTL);
-    return result;
+    return data || [];
   },
 
   async updateDate(id: string, updates: Updates<'upcoming_dates'>) {
-    // Clear relevant caches after updating
-    persistentCache.delete('getUpcomingDates');
-    
     const { data, error } = await supabase
       .from('upcoming_dates')
       .update(updates)
@@ -372,9 +259,6 @@ export const datesApi = {
   },
 
   async deleteDate(id: string) {
-    // Clear relevant caches after deleting
-    persistentCache.delete('getUpcomingDates');
-    
     const { error } = await supabase
       .from('upcoming_dates')
       .delete()
@@ -387,10 +271,6 @@ export const datesApi = {
 // Stats API for Playbook
 export const statsApi = {
   async getDashboardStats() {
-    const cacheKey = 'getDashboardStats';
-    const cached = persistentCache.get<any>(cacheKey);
-    if (cached) return cached;
-
     const { data: meetings, error } = await supabase
       .from('meetings')
       .select('amount_spent, performance_rating');
@@ -403,20 +283,14 @@ export const statsApi = {
     const totalHookups = meetings?.filter(meeting => 
       meeting.performance_rating && Number(meeting.performance_rating) > 0).length || 0;
     
-    const result = {
+    return {
       totalSpent: Math.round(totalSpent),
       totalDates,
       totalHookups
     };
-    persistentCache.set(cacheKey, result, DEFAULT_TTL);
-    return result;
   },
 
   async getTopPlayersByRating(limit: number = 3) {
-    const cacheKey = `getTopPlayersByRating_${limit}`;
-    const cached = persistentCache.get<any>(cacheKey);
-    if (cached) return cached;
-
     const { data: players, error } = await supabase
       .from('profiles')
       .select(`
@@ -452,16 +326,11 @@ export const statsApi = {
       .filter(player => player.meeting_count > 0) // Only players with meetings
       .sort((a, b) => b.average_rating - a.average_rating)
       .slice(0, limit);
-    
-    persistentCache.set(cacheKey, playersWithRatings, DEFAULT_TTL);
+
     return playersWithRatings;
   },
 
   async getCPNByPeriod(period: 'weekly' | 'monthly' | 'yearly') {
-    const cacheKey = `getCPNByPeriod_${period}`;
-    const cached = persistentCache.get<any>(cacheKey);
-    if (cached) return cached;
-
     const { data: meetings, error } = await supabase
       .from('meetings')
       .select('amount_spent, performance_rating, date, created_at')
@@ -513,7 +382,6 @@ export const statsApi = {
       }))
       .sort((a, b) => a.period.localeCompare(b.period));
     
-    persistentCache.set(cacheKey, result, DEFAULT_TTL);
     return result;
   }
 };
