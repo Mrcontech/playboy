@@ -74,7 +74,7 @@ export default function LandingPage() {
                 onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
                 className="bg-green-500 hover:bg-green-600 text-black px-8 py-4 rounded-lg font-semibold text-lg transition-all transform hover:scale-105 flex items-center justify-center space-x-2"
               >
-                <span>Start Free Trial</span>
+                <span>Sign Up - $0.99/month</span>
                 <ArrowRight size={20} />
               </button>
               <button 
