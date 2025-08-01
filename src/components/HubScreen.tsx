@@ -101,14 +101,14 @@ export default function HubScreen({ onPlayerSelect }: HubScreenProps) {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8 mb-8">
           {/* Upcoming Dates Section */}
-          <section className="bg-black rounded-xl p-6">
+          <section className="bg-gray-800 rounded-xl p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-semibold text-white">Upcoming Dates</h2>
               <button 
                 onClick={() => setShowAddDateModal(true)}
                 className="bg-green-400 hover:bg-green-500 px-3 lg:px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
               >
-                <Plus className="text-black" size={20} />
+                <Plus className="text-white" size={20} />
                 <span className="text-black font-medium hidden sm:inline">Add Date</span>
               </button>
             </div>
@@ -132,10 +132,9 @@ export default function HubScreen({ onPlayerSelect }: HubScreenProps) {
           </section>
 
           {/* Recently Active Section */}
-          <section className="bg-black rounded-xl p-6">
+          <section className="bg-gray-800 rounded-xl p-6">
             <h2 className="text-2xl font-semibold text-white mb-6">Recently Active</h2>
-            <div className="flex flex-wrap justify-center gap-3 lg:gap-6">
-              {recentlyActive.map((player) => (
+              <MessageCircle className="text-green-400" size={24} />
                 <PlayerCard 
                   key={player.id}
                   player={{
@@ -161,10 +160,10 @@ export default function HubScreen({ onPlayerSelect }: HubScreenProps) {
         </div>
         
         {/* Chat Upload Section */}
-        <section className="bg-black rounded-xl p-6">
+        <section className="bg-gray-800 rounded-xl p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-semibold text-white">AI Chat Analysis</h2>
-            <MessageCircle className="text-green-400" size={24} />
+            <MessageCircle className="text-blue-400" size={24} />
           </div>
           <div 
             className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center hover:border-gray-500 transition-colors cursor-pointer"
