@@ -6,7 +6,10 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isNewUser, setIsNewUser] = useState(false);
+  const [isNewUser, setIsNewUser] = useState(() => {
+    // Check localStorage for new user flag
+    return localStorage.getItem('playboi_new_user') === 'true';
+  });
 
   useEffect(() => {
     // Get initial session
@@ -36,6 +39,10 @@ export function useAuth() {
   }, []);
 
   const signIn = async (email: string, password: string) => {
+    // Clear new user flag on sign in
+    localStorage.removeItem('playboi_new_user');
+    setIsNewUser(false);
+    
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -51,6 +58,7 @@ export function useAuth() {
     
     // Mark as new user if signup was successful
     if (!error && data.user) {
+      localStorage.setItem('playboi_new_user', 'true');
       setIsNewUser(true);
     }
     
@@ -58,6 +66,10 @@ export function useAuth() {
   };
 
   const signOut = async () => {
+    // Clear new user flag on sign out
+    localStorage.removeItem('playboi_new_user');
+    setIsNewUser(false);
+    
     const { error } = await supabase.auth.signOut();
     
     // If session doesn't exist, treat as successful logout
@@ -69,6 +81,7 @@ export function useAuth() {
   };
 
   const completeOnboarding = () => {
+    localStorage.removeItem('playboi_new_user');
     setIsNewUser(false);
   };
   return {
