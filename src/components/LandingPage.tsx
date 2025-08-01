@@ -74,7 +74,7 @@ export default function LandingPage() {
                 onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
                 className="bg-green-500 hover:bg-green-600 text-black px-8 py-4 rounded-lg font-semibold text-lg transition-all transform hover:scale-105 flex items-center justify-center space-x-2"
               >
-                <span>Sign Up - $0.99/month</span>
+                <span>Sign Up - $0.99/week</span>
                 <ArrowRight size={20} />
               </button>
               <button 
@@ -148,7 +148,7 @@ export default function LandingPage() {
               </div>
               <div className="text-center">
                 <div className="text-5xl font-bold text-white mb-2">$0.99</div>
-                <div className="text-gray-400 mb-6">per month</div>
+                <div className="text-gray-400 mb-6">per week</div>
                 <button 
                   onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
                   className="bg-purple-500 hover:bg-purple-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all transform hover:scale-105 w-full"

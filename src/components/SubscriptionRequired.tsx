@@ -77,7 +77,7 @@ export default function SubscriptionRequired() {
               <Crown className="text-white" size={32} />
             </div>
             <div className="text-5xl font-bold text-white mb-2">$0.99</div>
-            <div className="text-gray-400 text-lg">per month</div>
+            <div className="text-gray-400 text-lg">per week</div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">

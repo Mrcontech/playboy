@@ -56,7 +56,7 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
             <Crown className="text-white" size={32} />
           </div>
           <div className="text-4xl font-bold text-white mb-2">$0.99</div>
-          <div className="text-gray-400">per month</div>
+          <div className="text-gray-400">per week</div>
         </div>
 
         <div className="space-y-3 mb-8">

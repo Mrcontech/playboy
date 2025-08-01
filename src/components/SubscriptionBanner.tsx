@@ -38,9 +38,9 @@ export default function SubscriptionBanner() {
         </div>
         <button
           onClick={handleUpgrade}
-          className="bg-black/20 hover:bg-black/30 px-4 py-1 rounded-full text-sm font-medium transition-colors"
+          className="bg-black/20 hover:bg-black/30 px-3 py-1 rounded-full text-sm font-medium transition-colors"
         >
-          $0.99/month
+          $0.99/week
         </button>
       </div>
     </div>
