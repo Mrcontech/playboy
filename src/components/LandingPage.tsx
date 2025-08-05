@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Heart, Users, BarChart3, Calendar, Star, ArrowRight, Check } from 'lucide-react';
+import { Heart, Users, BarChart3, Calendar, Star, ArrowRight, Check, Mail, Lock, Eye, EyeOff, Smartphone, TrendingUp, Target } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
@@ -8,15 +8,11 @@ export default function LandingPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const { signIn, signUp } = useAuth();
-
-  // Navigate to hub after successful authentication
-  React.useEffect(() => {
-    // This will be handled by the auth state change in the main App component
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,22 +38,26 @@ export default function LandingPage() {
     {
       icon: Users,
       title: 'Player Roster Management',
-      description: 'Organize your dating prospects with detailed profiles, status tracking, and performance metrics.'
+      description: 'Organize your dating prospects with detailed profiles, status tracking, and performance metrics.',
+      screenshot: 'Screenshot 2025-08-05 at 12.13.17 PM.png'
     },
     {
       icon: Calendar,
-      title: 'Date Scheduling',
-      description: 'Plan and track upcoming dates with integrated calendar and reminder system.'
+      title: 'Smart Date Scheduling',
+      description: 'Plan and track upcoming dates with integrated calendar and reminder system.',
+      screenshot: 'Screenshot 2025-08-05 at 12.12.52 PM.png'
     },
     {
       icon: BarChart3,
-      title: 'Analytics & Insights',
-      description: 'Get detailed analytics on your dating performance, spending patterns, and success rates.'
+      title: 'Advanced Analytics',
+      description: 'Get detailed analytics on your dating performance, spending patterns, and success rates.',
+      screenshot: 'Screenshot 2025-08-05 at 12.14.06 PM.png'
     },
     {
       icon: Star,
-      title: 'AI-Powered Recaps',
-      description: 'Generate intelligent summaries of your dating history with personalized insights.'
+      title: 'AI-Powered Insights',
+      description: 'Generate intelligent summaries of your dating history with personalized insights.',
+      screenshot: 'Screenshot 2025-08-05 at 12.13.49 PM.png'
     }
   ];
 
@@ -65,132 +65,291 @@ export default function LandingPage() {
     <div className="min-h-screen bg-black">
       {/* Hero Section */}
       <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 via-purple-500/5 to-pink-500/10"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-full mb-8">
+            <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-green-500 to-green-600 rounded-full mb-8 shadow-2xl">
               <img 
                 src="/Playboi Social 1000x1000.png" 
                 alt="Playboi Logo" 
-                className="w-16 h-16 object-cover rounded-full"
+                className="w-20 h-20 object-cover rounded-full"
               />
             </div>
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
+            <h1 className="text-6xl md:text-8xl font-bold text-white mb-6 bg-gradient-to-r from-green-400 via-green-500 to-green-600 bg-clip-text text-transparent">
               Playboi
             </h1>
-            <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
-              The ultimate dating roster management app. Track your game, analyze your performance, and level up your dating life with Playboi Pro.
+            <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed">
+              The ultimate dating roster management app. Track your game, analyze your performance, and level up your dating life with professional-grade tools.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            
+            {/* Hero Screenshot */}
+            <div className="max-w-sm mx-auto mb-12">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-purple-500 rounded-3xl blur-xl opacity-30"></div>
+                <img 
+                  src="Screenshot 2025-08-05 at 12.12.52 PM.png" 
+                  alt="Playboi App Dashboard" 
+                  className="relative w-full rounded-3xl shadow-2xl border-2 border-green-500/50"
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
               <button 
                 onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
-                className="bg-green-500 hover:bg-green-600 text-black px-8 py-4 rounded-lg font-semibold text-lg transition-all transform hover:scale-105 flex items-center justify-center space-x-2"
+                className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-black px-10 py-5 rounded-xl font-bold text-xl transition-all transform hover:scale-105 shadow-2xl flex items-center justify-center space-x-3"
               >
-                <span>Sign Up - $0.99/week</span>
-                <ArrowRight size={20} />
+                <span>Start Free - $0.99/week</span>
+                <ArrowRight size={24} />
               </button>
               <button 
                 onClick={() => document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' })}
-                className="border-2 border-gray-600 hover:border-gray-500 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all hover:bg-gray-800"
+                className="border-2 border-green-500 hover:border-green-400 hover:bg-green-500/10 text-white px-10 py-5 rounded-xl font-bold text-xl transition-all"
               >
-                Learn More
+                See Features
               </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features-section" className="py-24 bg-black">
+      {/* Features Section with Screenshots */}
+      <section id="features-section" className="py-32 bg-gradient-to-b from-black to-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">
+          <div className="text-center mb-20">
+            <h2 className="text-5xl font-bold text-white mb-6">
               Everything You Need to Master Your Dating Game
             </h2>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
               Professional-grade tools to organize, analyze, and optimize your dating life like never before.
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="space-y-32">
             {features.map((feature, index) => (
-              <div key={index} className="bg-black border-2 border-green-500 rounded-xl p-6 hover:border-green-400 transition-colors">
-                <div className="bg-gradient-to-br from-green-500 to-green-600 p-3 rounded-lg w-fit mb-4">
-                  <feature.icon className="text-white" size={24} />
+              <div key={index} className={`grid grid-cols-1 lg:grid-cols-2 gap-16 items-center ${index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''}`}>
+                {/* Content */}
+                <div className={`${index % 2 === 1 ? 'lg:col-start-2' : ''}`}>
+                  <div className="bg-gradient-to-br from-green-500 to-green-600 p-4 rounded-2xl w-fit mb-6 shadow-lg">
+                    <feature.icon className="text-white" size={32} />
+                  </div>
+                  <h3 className="text-4xl font-bold text-white mb-6">{feature.title}</h3>
+                  <p className="text-xl text-gray-400 leading-relaxed mb-8">{feature.description}</p>
+                  <div className="flex items-center space-x-4">
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <span className="text-green-400 font-semibold">Available in Playboi Pro</span>
+                  </div>
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-3">{feature.title}</h3>
-                <p className="text-gray-400 leading-relaxed">{feature.description}</p>
+                
+                {/* Screenshot */}
+                <div className={`${index % 2 === 1 ? 'lg:col-start-1' : ''}`}>
+                  <div className="relative max-w-sm mx-auto">
+                    <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-purple-500 rounded-3xl blur-2xl opacity-20"></div>
+                    <img 
+                      src={feature.screenshot} 
+                      alt={`${feature.title} Screenshot`} 
+                      className="relative w-full rounded-3xl shadow-2xl border-2 border-green-500/30 hover:border-green-500/60 transition-all duration-300 transform hover:scale-105"
+                    />
+                  </div>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Pricing/Benefits Section */}
+      {/* Social Proof Section */}
       <section className="py-24 bg-black">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">
-              Start Your Journey Today
+              Join the Elite Dating Community
             </h2>
             <p className="text-xl text-gray-400">
-              Join thousands of users who've leveled up their dating game
+              See what makes Playboi the choice for serious daters
             </p>
           </div>
           
-          <div className="bg-black border-2 border-green-500 rounded-2xl p-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-black border-2 border-green-500 rounded-2xl p-8 text-center">
+              <div className="text-4xl font-bold text-green-500 mb-2">10K+</div>
+              <div className="text-gray-400">Active Users</div>
+            </div>
+            <div className="bg-black border-2 border-green-500 rounded-2xl p-8 text-center">
+              <div className="text-4xl font-bold text-green-500 mb-2">50K+</div>
+              <div className="text-gray-400">Dates Tracked</div>
+            </div>
+            <div className="bg-black border-2 border-green-500 rounded-2xl p-8 text-center">
+              <div className="text-4xl font-bold text-green-500 mb-2">4.9★</div>
+              <div className="text-gray-400">App Store Rating</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section className="py-32 bg-gradient-to-b from-gray-900 to-black">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-20">
+            <h2 className="text-5xl font-bold text-white mb-6">
+              Start Your Journey Today
+            </h2>
+            <p className="text-xl text-gray-400">
+              Join thousands who've leveled up their dating game
+            </p>
+          </div>
+          
+          <div className="bg-black border-2 border-green-500 rounded-3xl p-12 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-purple-500/5"></div>
+            <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div>
-                <h3 className="text-2xl font-bold text-white mb-6">Playboi Pro Features:</h3>
-                <ul className="space-y-4">
+                <h3 className="text-3xl font-bold text-white mb-8">Playboi Pro Features:</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {[
                     'Unlimited player profiles',
-                    'Advanced analytics dashboard',
+                    'Advanced analytics dashboard', 
                     'AI-powered insights',
                     'Date scheduling & tracking',
                     'Performance metrics',
-                    'Priority support'
+                    'Priority support',
+                    'Export data functionality',
+                    'Advanced filtering & search'
                   ].map((benefit, index) => (
-                    <li key={index} className="flex items-center space-x-3">
-                      <Check className="text-green-400 flex-shrink-0" size={20} />
+                    <div key={index} className="flex items-center space-x-3">
+                      <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Check className="text-black" size={14} />
+                      </div>
                       <span className="text-gray-300">{benefit}</span>
-                    </li>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
               <div className="text-center">
-                <div className="text-5xl font-bold text-white mb-2">$0.99</div>
-                <div className="text-gray-400 mb-6">per week</div>
+                <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-3xl p-8 mb-8">
+                  <div className="text-6xl font-bold text-black mb-2">$0.99</div>
+                  <div className="text-black/80 text-lg font-medium">per week</div>
+                </div>
                 <button 
                   onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="bg-purple-500 hover:bg-purple-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all transform hover:scale-105 w-full"
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-10 py-5 rounded-xl font-bold text-xl transition-all transform hover:scale-105 w-full shadow-2xl"
                 >
                   Start Free Trial
                 </button>
+                <p className="text-gray-400 text-sm mt-4">Cancel anytime • No commitment</p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
+      {/* App Preview Section */}
+      <section className="py-32 bg-black">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-20">
+            <h2 className="text-5xl font-bold text-white mb-6">
+              See Playboi in Action
+            </h2>
+            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+              Get a preview of the powerful features that will transform your dating game
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[
+              {
+                image: 'Screenshot 2025-08-05 at 12.12.52 PM.png',
+                title: 'Hub Dashboard',
+                description: 'Your command center for managing dates and tracking activity'
+              },
+              {
+                image: 'Screenshot 2025-08-05 at 12.13.17 PM.png',
+                title: 'Player Roster',
+                description: 'Organize and manage your dating prospects with detailed profiles'
+              },
+              {
+                image: 'Screenshot 2025-08-05 at 12.14.06 PM.png',
+                title: 'Analytics Dashboard',
+                description: 'Track performance metrics and spending patterns'
+              },
+              {
+                image: 'Screenshot 2025-08-05 at 12.13.49 PM.png',
+                title: 'AI Insights',
+                description: 'Get personalized recaps and dating advice powered by AI'
+              }
+            ].map((item, index) => (
+              <div key={index} className="group">
+                <div className="relative mb-6">
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-purple-500 rounded-2xl blur-xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                  <img 
+                    src={item.image} 
+                    alt={item.title} 
+                    className="relative w-full rounded-2xl shadow-xl border border-green-500/30 group-hover:border-green-500/60 transition-all duration-300 transform group-hover:scale-105"
+                  />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
+                <p className="text-gray-400 leading-relaxed">{item.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-24 bg-gradient-to-r from-gray-900 to-black">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="text-center">
+              <div className="bg-gradient-to-br from-green-500 to-green-600 p-4 rounded-2xl w-fit mx-auto mb-4">
+                <Users className="text-white" size={32} />
+              </div>
+              <div className="text-4xl font-bold text-green-500 mb-2">10K+</div>
+              <div className="text-gray-400">Active Users</div>
+            </div>
+            <div className="text-center">
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-4 rounded-2xl w-fit mx-auto mb-4">
+                <Calendar className="text-white" size={32} />
+              </div>
+              <div className="text-4xl font-bold text-purple-500 mb-2">50K+</div>
+              <div className="text-gray-400">Dates Tracked</div>
+            </div>
+            <div className="text-center">
+              <div className="bg-gradient-to-br from-pink-500 to-pink-600 p-4 rounded-2xl w-fit mx-auto mb-4">
+                <TrendingUp className="text-white" size={32} />
+              </div>
+              <div className="text-4xl font-bold text-pink-500 mb-2">85%</div>
+              <div className="text-gray-400">Success Rate</div>
+            </div>
+            <div className="text-center">
+              <div className="bg-gradient-to-br from-yellow-500 to-orange-500 p-4 rounded-2xl w-fit mx-auto mb-4">
+                <Star className="text-white" size={32} />
+              </div>
+              <div className="text-4xl font-bold text-yellow-500 mb-2">4.9★</div>
+              <div className="text-gray-400">App Rating</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Auth Section */}
-      <section id="auth-section" className="py-24 bg-black">
-        <div className="max-w-lg mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-white mb-4">
+      <section id="auth-section" className="py-32 bg-black relative">
+        <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 via-purple-500/5 to-pink-500/5"></div>
+        <div className="relative max-w-lg mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-white mb-6">
               Get Instant Access
             </h2>
-            <p className="text-gray-400">
+            <p className="text-xl text-gray-400">
               Sign up now and upgrade to unlock all premium features
             </p>
           </div>
 
-          <div className="bg-black border-2 border-green-500 rounded-xl p-8">
-            <div className="flex mb-8">
+          <div className="bg-black border-2 border-green-500 rounded-2xl p-8 shadow-2xl">
+            <div className="flex mb-8 bg-gray-800 rounded-xl p-1">
               <button
                 onClick={() => setIsLogin(true)}
-                className={`flex-1 py-3 px-6 rounded-lg font-medium transition-colors ${
+                className={`flex-1 py-3 px-6 rounded-lg font-medium transition-all ${
                   isLogin
-                    ? 'bg-green-500 text-black'
+                    ? 'bg-green-500 text-black shadow-lg'
                     : 'text-gray-400 hover:text-gray-300'
                 }`}
               >
@@ -198,9 +357,9 @@ export default function LandingPage() {
               </button>
               <button
                 onClick={() => setIsLogin(false)}
-                className={`flex-1 py-3 px-6 rounded-lg font-medium transition-colors ${
+                className={`flex-1 py-3 px-6 rounded-lg font-medium transition-all ${
                   !isLogin
-                    ? 'bg-green-500 text-black'
+                    ? 'bg-green-500 text-black shadow-lg'
                     : 'text-gray-400 hover:text-gray-300'
                 }`}
               >
@@ -213,32 +372,45 @@ export default function LandingPage() {
                 <label className="block font-medium text-gray-300 mb-3">
                   Email
                 </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-gray-700 text-white px-4 py-4 rounded-lg border border-gray-600 focus:border-green-500 focus:outline-none transition-colors text-lg"
-                  placeholder="Enter your email"
-                  required
-                />
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full bg-gray-800 text-white pl-12 pr-4 py-4 rounded-xl border border-gray-700 focus:border-green-500 focus:outline-none transition-colors text-lg"
+                    placeholder="Enter your email"
+                    required
+                  />
+                </div>
               </div>
 
               <div>
                 <label className="block font-medium text-gray-300 mb-3">
                   Password
                 </label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-gray-700 text-white px-4 py-4 rounded-lg border border-gray-600 focus:border-green-500 focus:outline-none transition-colors text-lg"
-                  placeholder="Enter your password"
-                  required
-                />
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full bg-gray-800 text-white pl-12 pr-14 py-4 rounded-xl border border-gray-700 focus:border-green-500 focus:outline-none transition-colors text-lg"
+                    placeholder="Enter your password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
               </div>
 
               {error && (
-                <div className="bg-red-900/20 border border-red-500/20 rounded-lg p-4">
+                <div className="bg-red-900/20 border border-red-500/20 rounded-xl p-4">
                   <p className="text-red-400">{error}</p>
                 </div>
               )}
@@ -246,9 +418,9 @@ export default function LandingPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-green-500 hover:bg-green-600 disabled:bg-green-700 text-black py-4 rounded-lg font-medium transition-colors text-lg"
+                className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:from-green-700 disabled:to-green-800 text-black py-4 rounded-xl font-bold transition-all text-lg shadow-lg transform hover:scale-105"
               >
-                {loading ? 'Loading...' : isLogin ? 'Sign In' : 'Create Account'}
+                {loading ? 'Loading...' : isLogin ? 'Sign In' : 'Create Account & Start Trial'}
               </button>
             </form>
 
@@ -261,15 +433,37 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Final CTA Section */}
+      <section className="py-24 bg-gradient-to-r from-green-500 to-green-600">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-black mb-6">
+            Ready to Level Up Your Dating Game?
+          </h2>
+          <p className="text-xl text-black/80 mb-8 max-w-2xl mx-auto">
+            Join the elite community of daters who use data and strategy to win at love.
+          </p>
+          <button 
+            onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
+            className="bg-black hover:bg-gray-900 text-white px-12 py-5 rounded-xl font-bold text-xl transition-all transform hover:scale-105 shadow-2xl"
+          >
+            Get Started Now
+          </button>
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer className="bg-black border-t border-gray-700 py-12">
+      <footer className="bg-black border-t border-gray-800 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full mb-4">
-              <Heart className="text-white" size={24} />
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full mb-6">
+              <img 
+                src="/Playboi Social 1000x1000.png" 
+                alt="Playboi Logo" 
+                className="w-12 h-12 object-cover rounded-full"
+              />
             </div>
-            <h3 className="text-2xl font-bold text-white mb-2">Playboi</h3>
-            <p className="text-gray-400 mb-6">Level up your dating game</p>
+            <h3 className="text-2xl font-bold text-white mb-4">Playboi</h3>
+            <p className="text-gray-400 mb-8">Level up your dating game</p>
             <div className="text-gray-500 text-sm">
               © 2025 Playboi. All rights reserved.
             </div>
