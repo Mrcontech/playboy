@@ -14,7 +14,7 @@ export function useAuth() {
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session }, error }) => {
-      if (error) {
+      if (error || !session) {
         // Clear stale authentication data if refresh token is invalid
         supabase.auth.signOut();
         setSession(null);
