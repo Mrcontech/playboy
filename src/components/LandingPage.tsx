@@ -39,7 +39,7 @@ export default function LandingPage() {
       icon: Users,
       title: 'Player Roster Management',
       description: 'Organize your dating prospects with detailed profiles, status tracking, and performance metrics.',
-      screenshot: 'https://ygrmtbgwqdfkcwagukpa.supabase.co/storage/v1/object/public/landingpage/roster-view.png'
+      screenshot: 'https://ygrmtbgwqdfkcwagukpa.supabase.co/storage/v1/object/public/landingpage//Screenshot%202025-08-05%20at%2012.13.17%20PM.png'
     },
     {
       icon: Calendar,
@@ -51,7 +51,7 @@ export default function LandingPage() {
       icon: BarChart3,
       title: 'Advanced Analytics & AI Insights',
       description: 'Track your performance with detailed analytics and get AI-powered player insights.',
-      screenshot: 'https://ygrmtbgwqdfkcwagukpa.supabase.co/storage/v1/object/public/landingpage/playbook-analytics.png'
+      screenshot: 'https://ygrmtbgwqdfkcwagukpa.supabase.co/storage/v1/object/public/landingpage//Screenshot%202025-08-05%20at%2012.13.49%20PM.png'
     }
   ];
 
@@ -140,7 +140,7 @@ export default function LandingPage() {
                   <div className="relative max-w-sm mx-auto">
                     <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-purple-500 rounded-3xl blur-2xl opacity-20"></div>
                     <img 
-                      src="https://ygrmtbgwqdfkcwagukpa.supabase.co/storage/v1/object/public/landingpage//Screenshot%202025-08-05%20at%2012.13.17%20PM.png" 
+                      src={feature.screenshot}
                       alt={`${feature.title} Screenshot`} 
                       className="relative w-full rounded-3xl shadow-2xl border-2 border-green-500/30 hover:border-green-500/60 transition-all duration-300 transform hover:scale-105"
                     />
