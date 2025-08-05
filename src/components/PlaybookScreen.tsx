@@ -98,7 +98,7 @@ const PlaybookScreen = memo(function PlaybookScreen({ onPlayerSelect }: Playbook
 
     const maxCPN = Math.max(...cpnData.map(d => d.cpn));
     const minCPN = 0; // Always start from $0
-    const range = maxCPN - minCPN;
+    const range = maxCPN; // Range from 0 to max
     const padding = maxCPN * 0.1; // Add 10% padding to the top
     const chartHeight = 300;
     const chartWidth = 600;
@@ -109,7 +109,7 @@ const PlaybookScreen = memo(function PlaybookScreen({ onPlayerSelect }: Playbook
           {/* Grid lines */}
           {[0, 0.25, 0.5, 0.75, 1].map((ratio, index) => {
             const y = chartHeight - (ratio * (chartHeight - 40)) - 20;
-            const value = minCPN - padding + (ratio * (range + 2 * padding));
+            const value = ratio * (maxCPN + padding);
             return (
               <g key={index}>
                 <line
@@ -157,7 +157,7 @@ const PlaybookScreen = memo(function PlaybookScreen({ onPlayerSelect }: Playbook
               <path
                 d={`M ${cpnData.map((d, i) => {
                   const x = 60 + (i * (chartWidth - 100)) / (cpnData.length - 1);
-                  const y = chartHeight - 20 - ((d.cpn - (minCPN - padding)) / (range + 2 * padding)) * (chartHeight - 40);
+                  const y = chartHeight - 20 - (d.cpn / (maxCPN + padding)) * (chartHeight - 40);
                   return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
                 }).join(' ')} L ${60 + (chartWidth - 100)} ${chartHeight - 20} L 60 ${chartHeight - 20} Z`}
                 fill="url(#cpnGradient)"
@@ -167,7 +167,7 @@ const PlaybookScreen = memo(function PlaybookScreen({ onPlayerSelect }: Playbook
               <path
                 d={cpnData.map((d, i) => {
                   const x = 60 + (i * (chartWidth - 100)) / (cpnData.length - 1);
-                  const y = chartHeight - 20 - ((d.cpn - (minCPN - padding)) / (range + 2 * padding)) * (chartHeight - 40);
+                  const y = chartHeight - 20 - (d.cpn / (maxCPN + padding)) * (chartHeight - 40);
                   return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
                 }).join(' ')}
                 stroke="#10b981"
@@ -182,7 +182,7 @@ const PlaybookScreen = memo(function PlaybookScreen({ onPlayerSelect }: Playbook
           {/* Data points */}
           {cpnData.map((d, i) => {
             const x = 60 + (i * (chartWidth - 100)) / (cpnData.length - 1);
-            const y = chartHeight - 20 - ((d.cpn - (minCPN - padding)) / (range + 2 * padding)) * (chartHeight - 40);
+            const y = chartHeight - 20 - (d.cpn / (maxCPN + padding)) * (chartHeight - 40);
             
             return (
               <g key={i}>
