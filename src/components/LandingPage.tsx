@@ -39,25 +39,19 @@ export default function LandingPage() {
       icon: Users,
       title: 'Player Roster Management',
       description: 'Organize your dating prospects with detailed profiles, status tracking, and performance metrics.',
-      screenshot: 'Screenshot 2025-08-05 at 12.13.17 PM.png'
+      screenshot: 'Screenshot 2025-08-05 at 12.46.43 PM.png'
     },
     {
       icon: Calendar,
       title: 'Smart Date Scheduling',
       description: 'Plan and track upcoming dates with integrated calendar and reminder system.',
-      screenshot: 'Screenshot 2025-08-05 at 12.12.52 PM.png'
+      screenshot: 'Screenshot 2025-08-05 at 12.46.54 PM.png'
     },
     {
       icon: BarChart3,
-      title: 'Advanced Analytics',
-      description: 'Get detailed analytics on your dating performance, spending patterns, and success rates.',
-      screenshot: 'Screenshot 2025-08-05 at 12.14.06 PM.png'
-    },
-    {
-      icon: Star,
-      title: 'AI-Powered Insights',
-      description: 'Generate intelligent summaries of your dating history with personalized insights.',
-      screenshot: 'Screenshot 2025-08-05 at 12.13.49 PM.png'
+      title: 'AI-Powered Player Insights',
+      description: 'Get detailed AI-generated summaries and insights about your dating prospects.',
+      screenshot: 'Screenshot 2025-08-05 at 12.47.10 PM.png'
     }
   ];
 
@@ -72,7 +66,7 @@ export default function LandingPage() {
               <img 
                 src="/Playboi Social 1000x1000.png" 
                 alt="Playboi Logo" 
-                className="w-20 h-20 object-cover rounded-full"
+                className="w-16 h-16 object-cover rounded-full"
               />
             </div>
             <h1 className="text-6xl md:text-8xl font-bold text-white mb-6 bg-gradient-to-r from-green-400 via-green-500 to-green-600 bg-clip-text text-transparent">
@@ -87,7 +81,7 @@ export default function LandingPage() {
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-purple-500 rounded-3xl blur-xl opacity-30"></div>
                 <img 
-                  src="Screenshot 2025-08-05 at 12.12.52 PM.png" 
+                  src="Screenshot 2025-08-05 at 12.46.43 PM.png" 
                   alt="Playboi App Dashboard" 
                   className="relative w-full rounded-3xl shadow-2xl border-2 border-green-500/50"
                 />
@@ -158,35 +152,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Social Proof Section */}
-      <section className="py-24 bg-black">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">
-              Join the Elite Dating Community
-            </h2>
-            <p className="text-xl text-gray-400">
-              See what makes Playboi the choice for serious daters
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-black border-2 border-green-500 rounded-2xl p-8 text-center">
-              <div className="text-4xl font-bold text-green-500 mb-2">10K+</div>
-              <div className="text-gray-400">Active Users</div>
-            </div>
-            <div className="bg-black border-2 border-green-500 rounded-2xl p-8 text-center">
-              <div className="text-4xl font-bold text-green-500 mb-2">50K+</div>
-              <div className="text-gray-400">Dates Tracked</div>
-            </div>
-            <div className="bg-black border-2 border-green-500 rounded-2xl p-8 text-center">
-              <div className="text-4xl font-bold text-green-500 mb-2">4.9★</div>
-              <div className="text-gray-400">App Store Rating</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Pricing Section */}
       <section className="py-32 bg-gradient-to-b from-gray-900 to-black">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -237,94 +202,6 @@ export default function LandingPage() {
                 </button>
                 <p className="text-gray-400 text-sm mt-4">Cancel anytime • No commitment</p>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* App Preview Section */}
-      <section className="py-32 bg-black">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-20">
-            <h2 className="text-5xl font-bold text-white mb-6">
-              See Playboi in Action
-            </h2>
-            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              Get a preview of the powerful features that will transform your dating game
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              {
-                image: 'Screenshot 2025-08-05 at 12.12.52 PM.png',
-                title: 'Hub Dashboard',
-                description: 'Your command center for managing dates and tracking activity'
-              },
-              {
-                image: 'Screenshot 2025-08-05 at 12.13.17 PM.png',
-                title: 'Player Roster',
-                description: 'Organize and manage your dating prospects with detailed profiles'
-              },
-              {
-                image: 'Screenshot 2025-08-05 at 12.14.06 PM.png',
-                title: 'Analytics Dashboard',
-                description: 'Track performance metrics and spending patterns'
-              },
-              {
-                image: 'Screenshot 2025-08-05 at 12.13.49 PM.png',
-                title: 'AI Insights',
-                description: 'Get personalized recaps and dating advice powered by AI'
-              }
-            ].map((item, index) => (
-              <div key={index} className="group">
-                <div className="relative mb-6">
-                  <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-purple-500 rounded-2xl blur-xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
-                  <img 
-                    src={item.image} 
-                    alt={item.title} 
-                    className="relative w-full rounded-2xl shadow-xl border border-green-500/30 group-hover:border-green-500/60 transition-all duration-300 transform group-hover:scale-105"
-                  />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
-                <p className="text-gray-400 leading-relaxed">{item.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="py-24 bg-gradient-to-r from-gray-900 to-black">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="bg-gradient-to-br from-green-500 to-green-600 p-4 rounded-2xl w-fit mx-auto mb-4">
-                <Users className="text-white" size={32} />
-              </div>
-              <div className="text-4xl font-bold text-green-500 mb-2">10K+</div>
-              <div className="text-gray-400">Active Users</div>
-            </div>
-            <div className="text-center">
-              <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-4 rounded-2xl w-fit mx-auto mb-4">
-                <Calendar className="text-white" size={32} />
-              </div>
-              <div className="text-4xl font-bold text-purple-500 mb-2">50K+</div>
-              <div className="text-gray-400">Dates Tracked</div>
-            </div>
-            <div className="text-center">
-              <div className="bg-gradient-to-br from-pink-500 to-pink-600 p-4 rounded-2xl w-fit mx-auto mb-4">
-                <TrendingUp className="text-white" size={32} />
-              </div>
-              <div className="text-4xl font-bold text-pink-500 mb-2">85%</div>
-              <div className="text-gray-400">Success Rate</div>
-            </div>
-            <div className="text-center">
-              <div className="bg-gradient-to-br from-yellow-500 to-orange-500 p-4 rounded-2xl w-fit mx-auto mb-4">
-                <Star className="text-white" size={32} />
-              </div>
-              <div className="text-4xl font-bold text-yellow-500 mb-2">4.9★</div>
-              <div className="text-gray-400">App Rating</div>
             </div>
           </div>
         </div>
@@ -430,24 +307,6 @@ export default function LandingPage() {
               </p>
             )}
           </div>
-        </div>
-      </section>
-
-      {/* Final CTA Section */}
-      <section className="py-24 bg-gradient-to-r from-green-500 to-green-600">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-black mb-6">
-            Ready to Level Up Your Dating Game?
-          </h2>
-          <p className="text-xl text-black/80 mb-8 max-w-2xl mx-auto">
-            Join the elite community of daters who use data and strategy to win at love.
-          </p>
-          <button 
-            onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
-            className="bg-black hover:bg-gray-900 text-white px-12 py-5 rounded-xl font-bold text-xl transition-all transform hover:scale-105 shadow-2xl"
-          >
-            Get Started Now
-          </button>
         </div>
       </section>
 
