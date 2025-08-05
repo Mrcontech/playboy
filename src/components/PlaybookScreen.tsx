@@ -294,7 +294,7 @@ const PlaybookScreen = memo(function PlaybookScreen() {
           {/* CPN Chart */}
           <div className="bg-black border-2 border-green-500 rounded-xl p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold text-white">Average Cost Per Night</h2>
+              <h2 className="text-2xl font-semibold text-white">Average Cost Per Nut</h2>
               <div className="flex bg-gray-700 rounded-lg p-1 text-xs lg:text-sm">
                 {(['weekly', 'monthly', 'yearly'] as const).map((period) => (
                   <button
