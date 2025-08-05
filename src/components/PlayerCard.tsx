@@ -70,7 +70,7 @@ const PlayerCard = memo(function PlayerCard({ player, onClick, size = 'medium' }
             </div>
           )}
           
-          {/* CPN (Cost Per Nut) */}
+          {/* CPN (Cost Per Night) */}
           {player.cpn !== undefined && (
             <div className="flex items-center space-x-1">
               <span>💰</span>
