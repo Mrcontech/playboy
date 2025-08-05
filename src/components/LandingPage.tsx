@@ -49,9 +49,9 @@ export default function LandingPage() {
     },
     {
       icon: BarChart3,
-      title: 'Advanced Analytics & AI Insights',
-      description: 'Track your performance with detailed analytics and get AI-powered player insights.',
-      screenshot: 'https://ygrmtbgwqdfkcwagukpa.supabase.co/storage/v1/object/public/landingpage//Screenshot%202025-08-05%20at%2012.13.49%20PM.png'
+      title: 'Performance Statistics & Analytics',
+      description: 'Track your dating performance with detailed statistics, CPN analysis, and comprehensive performance metrics.',
+      screenshot: 'https://ygrmtbgwqdfkcwagukpa.supabase.co/storage/v1/object/public/landingpage//Screenshot%202025-08-05%20at%2012.14.06%20PM.png'
     }
   ];
 
