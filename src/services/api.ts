@@ -111,6 +111,13 @@ export const playerApi = {
       `)
       .eq('bench', true)
       .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    
+    return (data || []).map(calculatePlayerStats);
+  },
+
+  async getRecentPlayers(limit: number = 5): Promise<Player[]> {
     const { data: players, error } = await supabase
       .from('profiles')
       .select(`
@@ -359,6 +366,17 @@ export const statsApi = {
       if (!groupedData[periodKey]) {
         groupedData[periodKey] = { totalSpent: 0, hookups: 0 };
       }
-    return (players || []).map(calculatePlayerStats);
+      
+      groupedData[periodKey].totalSpent += Number(meeting.amount_spent) || 0;
+      groupedData[periodKey].hookups += 1;
+    });
+    
+    // Convert to array and calculate CPN
+    return Object.entries(groupedData).map(([period, data]) => ({
+      period,
+      cpn: data.hookups > 0 ? Math.round(data.totalSpent / data.hookups) : 0,
+      totalSpent: data.totalSpent,
+      hookups: data.hookups
+    })).sort((a, b) => a.period.localeCompare(b.period));
   }
 };
