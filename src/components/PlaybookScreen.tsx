@@ -71,6 +71,10 @@ const PlaybookScreen = memo(function PlaybookScreen() {
   const loading = cpnLoading || playersLoading || statsLoading;
 
   const formatPeriodLabel = useCallback((period: string) => {
+    if (!period || typeof period !== 'string') {
+      return 'N/A';
+    }
+    
     if (selectedPeriod === 'weekly') {
       return new Date(period).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     } else if (selectedPeriod === 'monthly') {
