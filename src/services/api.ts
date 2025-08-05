@@ -13,7 +13,7 @@ function calculatePlayerStats(player: any) {
   const totalMeetings = meetings.length;
   const hookups = meetings.filter((meeting: any) => 
     meeting.performance_rating && Number(meeting.performance_rating) > 0).length;
-  const cpn = hookups > 0 ? totalSpent / hookups : 0;
+  const cpn = hookups > 0 ? totalSpent / hookups : 0; // Cost Per Nut
   
   const ratingsSum = meetings.reduce((sum: number, meeting: any) => 
     sum + (Number(meeting.rating) || 0), 0);
