@@ -49,9 +49,9 @@ export default function LandingPage() {
     },
     {
       icon: BarChart3,
-      title: 'AI-Powered Player Insights',
-      description: 'Get detailed AI-generated summaries and insights about your dating prospects.',
-      screenshot: '/player-profile.png'
+      title: 'Advanced Analytics & AI Insights',
+      description: 'Track your performance with detailed analytics and get AI-powered player insights.',
+      screenshot: '/playbook-analytics.png'
     }
   ];
 
