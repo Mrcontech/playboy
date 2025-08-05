@@ -22,10 +22,10 @@ interface DashboardStats {
   totalSpent: number;
   totalDates: number;
   totalHookups: number;
-  averageCPN: number;
+  onPlayerSelect: (player: Player) => void;
 }
 
-const PlaybookScreen = memo(function PlaybookScreen() {
+const PlaybookScreen = memo(function PlaybookScreen({ onPlayerSelect }: PlaybookScreenProps) {
   const [selectedPeriod, setSelectedPeriod] = useState<'weekly' | 'monthly' | 'yearly'>('monthly');
 
   // Load data with persistent caching
