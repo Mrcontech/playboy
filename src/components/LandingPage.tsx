@@ -68,7 +68,11 @@ export default function LandingPage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-full mb-8">
-              <Heart className="text-white" size={40} />
+              <img 
+                src="/Playboi Social 1000x1000.png" 
+                alt="Playboi Logo" 
+                className="w-12 h-12 object-contain"
+              />
             </div>
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
               Playboi
