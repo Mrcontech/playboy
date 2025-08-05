@@ -63,11 +63,12 @@ export default function LandingPage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-green-500 to-green-600 rounded-full mb-8 shadow-2xl">
-              <img 
-                src="/Playboi Social 1000x1000.png" 
-                alt="Playboi Logo" 
-                className="w-16 h-16 object-cover rounded-full"
-              />
+              <svg className="w-16 h-16 text-black" viewBox="0 0 100 100" fill="currentColor">
+                <circle cx="50" cy="50" r="45" fill="currentColor"/>
+                <circle cx="35" cy="40" r="3" fill="white"/>
+                <circle cx="65" cy="40" r="3" fill="white"/>
+                <path d="M30 65 Q50 80 70 65" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round"/>
+              </svg>
             </div>
             <h1 className="text-6xl md:text-8xl font-bold text-white mb-6 bg-gradient-to-r from-green-400 via-green-500 to-green-600 bg-clip-text text-transparent">
               Playboi
@@ -315,11 +316,12 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full mb-6">
-              <img 
-                src="/Playboi Social 1000x1000.png" 
-                alt="Playboi Logo" 
-                className="w-12 h-12 object-cover rounded-full"
-              />
+              <svg className="w-12 h-12 text-black" viewBox="0 0 100 100" fill="currentColor">
+                <circle cx="50" cy="50" r="45" fill="currentColor"/>
+                <circle cx="35" cy="40" r="3" fill="white"/>
+                <circle cx="65" cy="40" r="3" fill="white"/>
+                <path d="M30 65 Q50 80 70 65" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round"/>
+              </svg>
             </div>
             <h3 className="text-2xl font-bold text-white mb-4">Playboi</h3>
             <p className="text-gray-400 mb-8">Level up your dating game</p>
