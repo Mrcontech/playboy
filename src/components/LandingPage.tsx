@@ -71,7 +71,7 @@ export default function LandingPage() {
               <img 
                 src="/Playboi Social 1000x1000.png" 
                 alt="Playboi Logo" 
-                className="w-12 h-12 object-contain"
+                className="w-16 h-16 object-cover rounded-full"
               />
             </div>
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
