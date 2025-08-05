@@ -38,8 +38,8 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
     data: recentlyActive, 
     loading: playersLoading 
   } = useDataLoader({
-    key: 'getRecentlyActive_3',
-    fetcher: () => playerApi.getRecentlyActive(3),
+    key: 'getRecentPlayers_3',
+    fetcher: () => playerApi.getRecentPlayers(3),
     ttlMinutes: 10
   });
 
