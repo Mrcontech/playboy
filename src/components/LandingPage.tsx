@@ -81,7 +81,7 @@ export default function LandingPage() {
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-purple-500 rounded-3xl blur-xl opacity-30"></div>
                 <img 
-                  src="https://ygrmtbgwqdfkcwagukpa.supabase.co/storage/v1/object/public/landingpage/hub-dashboard.png" 
+                  src="https://ygrmtbgwqdfkcwagukpa.supabase.co/storage/v1/object/public/landingpage/Screenshot%202025-08-05%20at%2012.12.52%20PM.png" 
                   alt="Playboi App Dashboard" 
                   className="relative w-full rounded-3xl shadow-2xl border-2 border-green-500/50"
                 />
