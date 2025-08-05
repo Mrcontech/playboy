@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Heart, Users, BarChart3, Calendar, Star, ArrowRight, Check, Mail, Lock, Eye, EyeOff, Smartphone, TrendingUp, Target } from 'lucide-react';
+import { Heart, Users, BarChart3, Calendar, Star, ArrowRight, Check, Mail, Lock, Eye, EyeOff, Smartphone, TrendingUp, Target, Brain } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
@@ -42,10 +42,10 @@ export default function LandingPage() {
       screenshot: 'https://ygrmtbgwqdfkcwagukpa.supabase.co/storage/v1/object/public/landingpage//Screenshot%202025-08-05%20at%2012.13.17%20PM.png'
     },
     {
-      icon: Calendar,
-      title: 'Smart Date Scheduling',
-      description: 'Plan and track upcoming dates with integrated calendar and reminder system.',
-      screenshot: 'https://ygrmtbgwqdfkcwagukpa.supabase.co/storage/v1/object/public/landingpage/hub-dashboard.png'
+      icon: Brain,
+      title: 'AI Recaps',
+      description: 'Never forget something about your player. Get intelligent summaries and insights about each person in your roster.',
+      screenshot: 'https://ygrmtbgwqdfkcwagukpa.supabase.co/storage/v1/object/public/landingpage//Screenshot%202025-08-05%20at%2012.13.49%20PM.png'
     },
     {
       icon: BarChart3,
