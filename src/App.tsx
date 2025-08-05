@@ -83,7 +83,7 @@ const AppContent = memo(function AppContent() {
                 <Route path="/" element={<HubScreen onPlayerSelect={handlePlayerSelect} />} />
                 <Route path="/hub" element={<HubScreen onPlayerSelect={handlePlayerSelect} />} />
                 <Route path="/roster" element={<RosterScreen onPlayerSelect={handlePlayerSelect} />} />
-                <Route path="/playbook" element={<PlaybookScreen />} />
+                <Route path="/playbook" element={<PlaybookScreen onPlayerSelect={handlePlayerSelect} />} />
                 <Route path="/settings" element={<SettingsScreen />} />
               </Routes>
             </Suspense>

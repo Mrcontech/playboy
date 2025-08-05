@@ -323,7 +323,18 @@ const PlaybookScreen = memo(function PlaybookScreen({ onPlayerSelect }: Playbook
             <div className="space-y-4">
               {topPlayers && topPlayers.length > 0 ? (
                 topPlayers.map((player, index) => (
-                  <div key={player.id} className="bg-black border-2 border-green-500 rounded-lg p-4 hover:border-green-400 transition-colors">
+                  <div 
+                    key={player.id} 
+                    className="bg-black border-2 border-green-500 rounded-lg p-4 hover:border-green-400 transition-colors cursor-pointer"
+                    onClick={() => onPlayerSelect({
+                      id: player.id,
+                      name: player.name,
+                      image_url: player.image_url,
+                      user_id: '',
+                      created_at: '',
+                      updated_at: ''
+                    } as Player)}
+                  >
                     <div className="flex items-center space-x-4">
                       <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold text-sm">
                         {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
