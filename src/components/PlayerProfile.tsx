@@ -62,7 +62,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
       const hookups = meetings?.filter(meeting => 
         meeting.performance_rating && Number(meeting.performance_rating) > 0).length || 0;
       
-      // Calculate CPN based on hookups, not total meetings
+      // Calculate CPN (Cost Per Nut) based on hookups, not total meetings
       const cpn = hookups > 0 ? totalSpent / hookups : 0;
       
       // Calculate date experience rating (average of all meeting ratings)
