@@ -39,19 +39,19 @@ export default function LandingPage() {
       icon: Users,
       title: 'Player Roster Management',
       description: 'Organize your dating prospects with detailed profiles, status tracking, and performance metrics.',
-      screenshot: 'Screenshot 2025-08-05 at 12.46.43 PM.png'
+      screenshot: '/roster-view.png'
     },
     {
       icon: Calendar,
       title: 'Smart Date Scheduling',
       description: 'Plan and track upcoming dates with integrated calendar and reminder system.',
-      screenshot: 'Screenshot 2025-08-05 at 12.46.54 PM.png'
+      screenshot: '/hub-dashboard.png'
     },
     {
       icon: BarChart3,
       title: 'AI-Powered Player Insights',
       description: 'Get detailed AI-generated summaries and insights about your dating prospects.',
-      screenshot: 'Screenshot 2025-08-05 at 12.47.10 PM.png'
+      screenshot: '/player-profile.png'
     }
   ];
 
@@ -81,7 +81,7 @@ export default function LandingPage() {
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-purple-500 rounded-3xl blur-xl opacity-30"></div>
                 <img 
-                  src="Screenshot 2025-08-05 at 12.46.43 PM.png" 
+                  src="/hub-dashboard.png" 
                   alt="Playboi App Dashboard" 
                   className="relative w-full rounded-3xl shadow-2xl border-2 border-green-500/50"
                 />
