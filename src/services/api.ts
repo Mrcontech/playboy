@@ -1,5 +1,4 @@
 import { supabase } from '../lib/supabase';
-import type { Tables, Inserts, Updates } from '../lib/supabase';
 
 type Player = Tables<'profiles'>;
 type Meeting = Tables<'meetings'>;
@@ -112,22 +111,15 @@ export const playerApi = {
       `)
       .eq('bench', true)
       .order('created_at', { ascending: false });
-    
-    if (error) throw error;
-    
-    return (data || []).map(calculatePlayerStats);
-  },
-
-  async getRecentlyActive(limit: number = 3): Promise<Player[]> {
-    // Fetch only essential data to reduce payload size
     const { data: players, error } = await supabase
       .from('profiles')
       .select(`
-        id,
-        name,
-        image_url,
-        status,
-        looks_rating
+        *,
+        meetings (
+          amount_spent,
+          rating,
+          performance_rating
+        )
       `)
       .eq('bench', false)
       .limit(limit)
@@ -367,21 +359,6 @@ export const statsApi = {
       if (!groupedData[periodKey]) {
         groupedData[periodKey] = { totalSpent: 0, hookups: 0 };
       }
-      
-      groupedData[periodKey].totalSpent += Number(meeting.amount_spent) || 0;
-      groupedData[periodKey].hookups += 1;
-    });
-    
-    // Convert to array and calculate CPN
-    const result = Object.entries(groupedData)
-      .map(([period, data]) => ({
-        period,
-        cpn: data.hookups > 0 ? data.totalSpent / data.hookups : 0,
-        totalSpent: data.totalSpent,
-        hookups: data.hookups
-      }))
-      .sort((a, b) => a.period.localeCompare(b.period));
-    
-    return result;
+    return (players || []).map(calculatePlayerStats);
   }
 };
