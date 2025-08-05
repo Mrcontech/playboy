@@ -97,9 +97,9 @@ const PlaybookScreen = memo(function PlaybookScreen({ onPlayerSelect }: Playbook
     }
 
     const maxCPN = Math.max(...cpnData.map(d => d.cpn));
-    const minCPN = Math.min(...cpnData.map(d => d.cpn));
+    const minCPN = 0; // Always start from $0
     const range = maxCPN - minCPN;
-    const padding = range * 0.1;
+    const padding = maxCPN * 0.1; // Add 10% padding to the top
     const chartHeight = 300;
     const chartWidth = 600;
 
