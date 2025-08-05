@@ -198,7 +198,7 @@ export default function LandingPage() {
                   onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
                   className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-10 py-5 rounded-xl font-bold text-xl transition-all transform hover:scale-105 w-full shadow-2xl"
                 >
-                  Start Free Trial
+                  Get Started Now
                 </button>
                 <p className="text-gray-400 text-sm mt-4">Cancel anytime • No commitment</p>
               </div>
