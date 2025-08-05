@@ -39,19 +39,19 @@ export default function LandingPage() {
       icon: Users,
       title: 'Player Roster Management',
       description: 'Organize your dating prospects with detailed profiles, status tracking, and performance metrics.',
-      screenshot: '/roster-view.png'
+      screenshot: 'https://ygrmtbgwqdfkcwagukpa.supabase.co/storage/v1/object/public/landingpage/roster-view.png'
     },
     {
       icon: Calendar,
       title: 'Smart Date Scheduling',
       description: 'Plan and track upcoming dates with integrated calendar and reminder system.',
-      screenshot: '/hub-dashboard.png'
+      screenshot: 'https://ygrmtbgwqdfkcwagukpa.supabase.co/storage/v1/object/public/landingpage/hub-dashboard.png'
     },
     {
       icon: BarChart3,
       title: 'Advanced Analytics & AI Insights',
       description: 'Track your performance with detailed analytics and get AI-powered player insights.',
-      screenshot: '/playbook-analytics.png'
+      screenshot: 'https://ygrmtbgwqdfkcwagukpa.supabase.co/storage/v1/object/public/landingpage/playbook-analytics.png'
     }
   ];
 
@@ -81,7 +81,7 @@ export default function LandingPage() {
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-purple-500 rounded-3xl blur-xl opacity-30"></div>
                 <img 
-                  src="/hub-dashboard.png" 
+                  src="https://ygrmtbgwqdfkcwagukpa.supabase.co/storage/v1/object/public/landingpage/hub-dashboard.png" 
                   alt="Playboi App Dashboard" 
                   className="relative w-full rounded-3xl shadow-2xl border-2 border-green-500/50"
                 />
