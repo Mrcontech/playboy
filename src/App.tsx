@@ -97,6 +97,11 @@ const AppContent = memo(function AppContent() {
 
 export default function App() {
   const { user, loading } = useAuth();
+  const location = useLocation();
+  
+  // Check if this is a password reset link
+  const isPasswordReset = location.pathname === '/reset-password' || 
+    (location.search.includes('access_token') && location.search.includes('refresh_token'));
 
   // Show loading screen while checking auth
   if (loading) {
@@ -113,10 +118,10 @@ export default function App() {
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/success" element={<SuccessPage />} />
       <Route path="/cancel" element={<CancelPage />} />
-      {!user ? (
+      {!user && !isPasswordReset ? (
         <Route path="/*" element={<LandingPage />} />
       ) : (
-        <Route path="/*" element={<AppContent />} />
+        <Route path="/*" element={user ? <AppContent /> : <ResetPasswordPage />} />
       )}
     </Routes>
   );
