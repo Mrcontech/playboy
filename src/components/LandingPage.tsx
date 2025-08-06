@@ -303,7 +303,7 @@ export default function LandingPage() {
                 <div className="text-center mt-4">
                   <button
                     type="button"
-                    onClick={() => window.location.href = '/reset-password'}
+                    onClick={() => navigate('/reset-password')}
                     className="text-green-400 hover:text-green-300 text-sm font-medium transition-colors"
                   >
                     Forgot Password?

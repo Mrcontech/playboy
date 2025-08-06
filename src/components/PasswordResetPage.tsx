@@ -16,7 +16,7 @@ export default function PasswordResetPage() {
   const [debugInfo, setDebugInfo] = useState('');
 
   useEffect(() => {
-    const checkTokens = async () => {
+    const checkTokens = () => {
       // Log debug info
       const urlParams = new URLSearchParams(window.location.search);
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
@@ -27,6 +27,7 @@ export default function PasswordResetPage() {
         hash: window.location.hash,
         searchParams: Object.fromEntries(urlParams.entries()),
         hashParams: Object.fromEntries(hashParams.entries()),
+        pathname: window.location.pathname,
       };
       
       setDebugInfo(JSON.stringify(debugData, null, 2));
@@ -41,12 +42,10 @@ export default function PasswordResetPage() {
       
       if (accessToken && refreshToken && type === 'recovery') {
         console.log('Setting session with tokens...');
-        try {
-          const { error } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken
-          });
-          
+        supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken
+        }).then(({ error }) => {
           if (error) {
             console.error('Error setting session:', error);
             setError(`Invalid or expired reset link: ${error.message}`);
@@ -54,19 +53,19 @@ export default function PasswordResetPage() {
             console.log('Session set successfully');
             setIsValidToken(true);
           }
-        } catch (err) {
+        }).catch(err => {
           console.error('Exception setting session:', err);
           setError('Failed to validate reset link');
-        }
+        });
       } else {
         console.log('No valid tokens found');
-        setError('Invalid reset link. Please request a new password reset.');
+        setError('Invalid reset link. The email link may be expired or malformed. Please request a new password reset.');
       }
     };
 
     checkTokens();
 
-    // Listen for hash changes
+    // Listen for hash changes in case tokens come later
     const handleHashChange = () => {
       checkTokens();
     };
