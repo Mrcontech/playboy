@@ -109,6 +109,7 @@ export default function App() {
 
   return (
     <Routes>
+      {/* Reset password should be accessible regardless of auth status */}
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/success" element={<SuccessPage />} />
       <Route path="/cancel" element={<CancelPage />} />
