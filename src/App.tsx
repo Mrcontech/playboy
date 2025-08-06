@@ -101,7 +101,10 @@ export default function App() {
   
   // Check if this is a password reset link
   const isPasswordReset = location.pathname === '/reset-password' || 
-    (location.search.includes('access_token') && location.search.includes('refresh_token'));
+    location.search.includes('access_token') || 
+    location.hash.includes('access_token') ||
+    location.search.includes('type=recovery') ||
+    location.hash.includes('type=recovery');
 
   // Show loading screen while checking auth
   if (loading) {

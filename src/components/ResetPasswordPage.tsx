@@ -17,10 +17,69 @@ export default function ResetPasswordPage() {
 
   // Check if we have access token from email link
   React.useEffect(() => {
-    const accessToken = searchParams.get('access_token');
-    const refreshToken = searchParams.get('refresh_token');
+    // Check both URL search params and hash fragments
+    const accessToken = searchParams.get('access_token') || getHashParam('access_token');
+    const refreshToken = searchParams.get('refresh_token') || getHashParam('refresh_token');
+    const type = searchParams.get('type') || getHashParam('type');
     
-    if (accessToken && refreshToken) {
+    if (accessToken && refreshToken && type === 'recovery') {
+      // Set the session with the tokens from the email
+      supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken
+      }).then(({ error }) => {
+        if (error) {
+          console.error('Error setting session:', error);
+          setError('Invalid or expired reset link');
+        } else {
+          setStep('reset');
+        }
+      });
+    }
+  }, [searchParams]);
+
+  // Helper function to get parameters from URL hash
+  const getHashParam = (param: string): string | null => {
+    if (typeof window === 'undefined') return null;
+    
+    const hash = window.location.hash.substring(1);
+    const params = new URLSearchParams(hash);
+    return params.get(param);
+  };
+
+  // Also check on component mount for hash parameters
+  React.useEffect(() => {
+    const checkHashParams = () => {
+      const accessToken = getHashParam('access_token');
+      const refreshToken = getHashParam('refresh_token');
+      const type = getHashParam('type');
+      
+      if (accessToken && refreshToken && type === 'recovery') {
+        supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken
+        }).then(({ error }) => {
+          if (error) {
+            console.error('Error setting session:', error);
+            setError('Invalid or expired reset link');
+          } else {
+            setStep('reset');
+          }
+        });
+      }
+    };
+
+    // Check immediately
+    checkHashParams();
+
+    // Also listen for hash changes
+    const handleHashChange = () => {
+      checkHashParams();
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
       setStep('reset');
     }
   }, [searchParams]);
