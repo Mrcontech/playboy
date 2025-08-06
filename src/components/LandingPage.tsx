@@ -295,7 +295,7 @@ export default function LandingPage() {
                 disabled={loading}
                 className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:from-green-700 disabled:to-green-800 text-black py-4 rounded-xl font-bold transition-all text-lg shadow-lg transform hover:scale-105"
               >
-                {loading ? 'Loading...' : isLogin ? 'Sign In' : 'Create Account & Start Trial'}
+                {loading ? 'Loading...' : isLogin ? 'Sign In' : 'Create Account'}
               </button>
             </form>
 
