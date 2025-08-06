@@ -291,14 +291,6 @@ export default function LandingPage() {
                 </div>
               )}
 
-              {!isLogin && (
-                <div className="bg-blue-900/20 border border-blue-500/20 rounded-xl p-4">
-                  <p className="text-blue-400 text-sm">
-                    📧 After signing up, check your email to confirm your account before signing in.
-                  </p>
-                </div>
-              )}
-
               <button
                 type="submit"
                 disabled={loading}
