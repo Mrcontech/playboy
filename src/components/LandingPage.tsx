@@ -291,25 +291,6 @@ export default function LandingPage() {
                 </div>
               )}
 
-              {resetMessage && (
-                <div className="bg-green-900/20 border border-green-500/20 rounded-xl p-4">
-                  <p className="text-green-400">{resetMessage}</p>
-                </div>
-              )}
-
-              {isLogin && (
-                <div className="text-center">
-                  <button
-                    type="button"
-                    onClick={handleForgotPassword}
-                    disabled={resetLoading}
-                    className="text-green-400 hover:text-green-300 text-sm font-medium transition-colors"
-                  >
-                    {resetLoading ? 'Sending...' : 'Forgot Password?'}
-                  </button>
-                </div>
-              )}
-
               <button
                 type="submit"
                 disabled={loading}

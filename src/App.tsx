@@ -7,7 +7,6 @@ import LeftSidebar from './components/LeftSidebar';
 import MobileHeader from './components/MobileHeader';
 import SuccessPage from './components/SuccessPage';
 import CancelPage from './components/CancelPage';
-import ResetPasswordPage from './components/ResetPasswordPage';
 import LoadingSpinner from './components/LoadingSpinner';
 import { useAuth } from './hooks/useAuth';
 import type { Tables } from './lib/supabase';
@@ -116,7 +115,6 @@ export default function App() {
     <Routes>
       <Route path="/success" element={<SuccessPage />} />
       <Route path="/cancel" element={<CancelPage />} />
-      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/*" element={<AppContent />} />
     </Routes>
   );
