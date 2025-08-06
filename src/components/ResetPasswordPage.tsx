@@ -14,30 +14,10 @@ export default function ResetPasswordPage() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [step, setStep] = useState<'request' | 'reset'>('request');
-  const [debugInfo, setDebugInfo] = useState('');
 
-  // Debug function to show what we're receiving
-  const logDebugInfo = () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    
-    const debugData = {
-      fullUrl: window.location.href,
-      search: window.location.search,
-      hash: window.location.hash,
-      searchParams: Object.fromEntries(urlParams.entries()),
-      hashParams: Object.fromEntries(hashParams.entries()),
-    };
-    
-    setDebugInfo(JSON.stringify(debugData, null, 2));
-    console.log('Reset Password Debug Info:', debugData);
-  };
 
   // Check if we have access token from email link
   React.useEffect(() => {
-    // Log debug info
-    logDebugInfo();
-    
     // Check both URL search params and hash fragments
     const accessToken = searchParams.get('access_token') || getHashParam('access_token');
     const refreshToken = searchParams.get('refresh_token') || getHashParam('refresh_token');
@@ -195,16 +175,6 @@ export default function ResetPasswordPage() {
               : 'Enter your new password below'
             }
           </p>
-          
-          {/* Debug info - remove this after testing */}
-          {debugInfo && (
-            <details className="mt-4 text-left">
-              <summary className="text-gray-400 text-sm cursor-pointer">Debug Info (click to expand)</summary>
-              <pre className="text-xs text-gray-500 mt-2 bg-gray-900 p-2 rounded overflow-auto max-h-40">
-                {debugInfo}
-              </pre>
-            </details>
-          )}
         </div>
 
         <div className="bg-black border-2 border-green-500 rounded-2xl p-8 shadow-2xl">

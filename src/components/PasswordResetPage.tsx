@@ -13,26 +13,9 @@ export default function PasswordResetPage() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [isValidToken, setIsValidToken] = useState(false);
-  const [debugInfo, setDebugInfo] = useState('');
 
   useEffect(() => {
     const checkTokensAndSession = async () => {
-      // Log debug info
-      const urlParams = new URLSearchParams(window.location.search);
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      
-      const debugData = {
-        fullUrl: window.location.href,
-        search: window.location.search,
-        hash: window.location.hash,
-        searchParams: Object.fromEntries(urlParams.entries()),
-        hashParams: Object.fromEntries(hashParams.entries()),
-        pathname: window.location.pathname,
-      };
-      
-      setDebugInfo(JSON.stringify(debugData, null, 2));
-      console.log('Password Reset Debug Info:', debugData);
-
       // Check if this is a verified session (from auth callback)
       const verified = searchParams.get('verified');
       if (verified === 'true') {
@@ -174,14 +157,6 @@ export default function PasswordResetPage() {
           </div>
           <h1 className="text-4xl font-bold text-white mb-3">Set New Password</h1>
           <p className="text-gray-400 text-lg">Enter your new password below</p>
-          
-          {/* Debug info */}
-          <details className="mt-4 text-left">
-            <summary className="text-gray-400 text-sm cursor-pointer">Debug Info (click to expand)</summary>
-            <pre className="text-xs text-gray-500 mt-2 bg-gray-900 p-2 rounded overflow-auto max-h-40">
-              {debugInfo}
-            </pre>
-          </details>
         </div>
 
         <div className="bg-black border-2 border-green-500 rounded-2xl p-8 shadow-2xl">
