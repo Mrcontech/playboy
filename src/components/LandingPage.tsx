@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Heart, Users, BarChart3, Calendar, Star, ArrowRight, Check, Mail, Lock, Eye, EyeOff, Smartphone, TrendingUp, Target, Brain } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { supabase } from '../lib/supabase';
 
 export default function LandingPage() {
   const navigate = useNavigate();
