@@ -107,17 +107,16 @@ export default function App() {
     );
   }
 
-  // Show landing page if not authenticated
-  if (!user) {
-    return <LandingPage />;
-  }
-
   return (
     <Routes>
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/success" element={<SuccessPage />} />
       <Route path="/cancel" element={<CancelPage />} />
-      <Route path="/reset-password" element={<ResetPasswordPage />} />
-      <Route path="/*" element={<AppContent />} />
+      {!user ? (
+        <Route path="/*" element={<LandingPage />} />
+      ) : (
+        <Route path="/*" element={<AppContent />} />
+      )}
     </Routes>
   );
 }
