@@ -154,6 +154,14 @@ export default function LoginScreen() {
               </div>
             )}
 
+            {!isLogin && (
+              <div className="bg-blue-900/20 border border-blue-500/20 rounded-lg p-4">
+                <p className="text-blue-400 text-sm">
+                  📧 After signing up, check your email to confirm your account before signing in.
+                </p>
+              </div>
+            )}
+
             {isLogin && (
               <div className="text-center">
                 <button
