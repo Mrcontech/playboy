@@ -176,9 +176,7 @@ export default function LandingPage() {
                     'AI-powered insights',
                     'Date scheduling & tracking',
                     'Performance metrics',
-                    'Priority support',
-                    'Export data functionality',
-                    'Advanced filtering & search'
+                    'Priority support'
                   ].map((benefit, index) => (
                     <div key={index} className="flex items-center space-x-3">
                       <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
