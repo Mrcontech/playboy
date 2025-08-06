@@ -14,15 +14,39 @@ export default function ResetPasswordPage() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [step, setStep] = useState<'request' | 'reset'>('request');
+  const [debugInfo, setDebugInfo] = useState('');
+
+  // Debug function to show what we're receiving
+  const logDebugInfo = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    
+    const debugData = {
+      fullUrl: window.location.href,
+      search: window.location.search,
+      hash: window.location.hash,
+      searchParams: Object.fromEntries(urlParams.entries()),
+      hashParams: Object.fromEntries(hashParams.entries()),
+    };
+    
+    setDebugInfo(JSON.stringify(debugData, null, 2));
+    console.log('Reset Password Debug Info:', debugData);
+  };
 
   // Check if we have access token from email link
   React.useEffect(() => {
+    // Log debug info
+    logDebugInfo();
+    
     // Check both URL search params and hash fragments
     const accessToken = searchParams.get('access_token') || getHashParam('access_token');
     const refreshToken = searchParams.get('refresh_token') || getHashParam('refresh_token');
     const type = searchParams.get('type') || getHashParam('type');
     
+    console.log('Tokens found:', { accessToken: !!accessToken, refreshToken: !!refreshToken, type });
+    
     if (accessToken && refreshToken && type === 'recovery') {
+      console.log('Setting session with tokens...');
       // Set the session with the tokens from the email
       supabase.auth.setSession({
         access_token: accessToken,
@@ -30,11 +54,14 @@ export default function ResetPasswordPage() {
       }).then(({ error }) => {
         if (error) {
           console.error('Error setting session:', error);
-          setError('Invalid or expired reset link');
+          setError(`Invalid or expired reset link: ${error.message}`);
         } else {
+          console.log('Session set successfully, switching to reset step');
           setStep('reset');
         }
       });
+    } else {
+      console.log('No valid tokens found, staying on request step');
     }
   }, [searchParams]);
 
@@ -89,13 +116,13 @@ export default function ResetPasswordPage() {
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `https://playboi.co.uk/reset-password`,
       });
 
       if (error) {
         setError(error.message);
       } else {
-        setMessage('Password reset email sent! Check your inbox and click the link to reset your password.');
+        setMessage(`Password reset email sent to ${email}! Check your inbox and click the link to reset your password.`);
       }
     } catch (err) {
       setError('Failed to send reset email');
@@ -168,6 +195,16 @@ export default function ResetPasswordPage() {
               : 'Enter your new password below'
             }
           </p>
+          
+          {/* Debug info - remove this after testing */}
+          {debugInfo && (
+            <details className="mt-4 text-left">
+              <summary className="text-gray-400 text-sm cursor-pointer">Debug Info (click to expand)</summary>
+              <pre className="text-xs text-gray-500 mt-2 bg-gray-900 p-2 rounded overflow-auto max-h-40">
+                {debugInfo}
+              </pre>
+            </details>
+          )}
         </div>
 
         <div className="bg-black border-2 border-green-500 rounded-2xl p-8 shadow-2xl">
