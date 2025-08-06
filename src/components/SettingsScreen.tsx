@@ -135,6 +135,26 @@ export default function SettingsScreen() {
           </div>
 
           {/* Sign Out */}
+          {/* Contact */}
+          <div className="bg-black border-2 border-green-500 rounded-xl p-6">
+            <a
+              href="mailto:info@playboi.co.uk"
+              className="w-full flex items-center justify-between hover:bg-gray-800 p-4 rounded-lg transition-colors"
+            >
+              <div className="flex items-center space-x-4">
+                <div className="bg-blue-500 p-3 rounded-lg">
+                  <Mail className="text-white" size={20} />
+                </div>
+                <div className="text-left">
+                  <div className="text-white font-medium">Contact Support</div>
+                  <div className="text-gray-400 text-sm">Get help or send feedback</div>
+                </div>
+              </div>
+              <div className="text-gray-400">→</div>
+            </a>
+          </div>
+
+          {/* Sign Out */}
           <div className="bg-black border-2 border-green-500 rounded-xl p-6">
             <button
               onClick={handleSignOut}
