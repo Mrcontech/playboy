@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Heart, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { supabase } from '../lib/supabase';
 
 export default function LoginScreen() {
   const [isLogin, setIsLogin] = useState(true);
@@ -9,13 +10,43 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetMessage, setResetMessage] = useState('');
 
   const { signIn, signUp } = useAuth();
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      setError('Please enter your email address first');
+      return;
+    }
+
+    setResetLoading(true);
+    setError('');
+    setResetMessage('');
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) {
+        setError(error.message);
+      } else {
+        setResetMessage('Password reset email sent! Check your inbox.');
+      }
+    } catch (err) {
+      setError('Failed to send reset email');
+    } finally {
+      setResetLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setResetMessage('');
 
     try {
       const { error } = isLogin 
@@ -111,9 +142,28 @@ export default function LoginScreen() {
               </div>
             </div>
 
+            {resetMessage && (
+              <div className="bg-green-900/20 border border-green-500/20 rounded-lg p-4">
+                <p className="text-green-400">{resetMessage}</p>
+              </div>
+            )}
+
             {error && (
               <div className="bg-red-900/20 border border-red-500/20 rounded-lg p-4">
                 <p className="text-red-400">{error}</p>
+              </div>
+            )}
+
+            {isLogin && (
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  disabled={resetLoading}
+                  className="text-green-400 hover:text-green-300 text-sm font-medium transition-colors"
+                >
+                  {resetLoading ? 'Sending...' : 'Forgot Password?'}
+                </button>
               </div>
             )}
 
