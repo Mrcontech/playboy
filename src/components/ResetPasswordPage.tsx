@@ -116,7 +116,7 @@ export default function ResetPasswordPage() {
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `https://playboi.co.uk/reset-password`,
+        redirectTo: `https://playboi.co.uk/password-reset`,
       });
 
       if (error) {
