@@ -9,6 +9,7 @@ import SuccessPage from './components/SuccessPage';
 import CancelPage from './components/CancelPage';
 import ResetPasswordPage from './components/ResetPasswordPage';
 import PasswordResetPage from './components/PasswordResetPage';
+import AuthCallback from './components/AuthCallback';
 import LoadingSpinner from './components/LoadingSpinner';
 import { useAuth } from './hooks/useAuth';
 import type { Tables } from './lib/supabase';
@@ -121,6 +122,7 @@ export default function App() {
       {/* Reset password should be accessible regardless of auth status */}
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/password-reset" element={<PasswordResetPage />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/success" element={<SuccessPage />} />
       <Route path="/cancel" element={<CancelPage />} />
       {!user && !isPasswordReset ? (

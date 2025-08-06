@@ -16,7 +16,7 @@ export default function PasswordResetPage() {
   const [debugInfo, setDebugInfo] = useState('');
 
   useEffect(() => {
-    const checkTokens = () => {
+    const checkTokensAndSession = async () => {
       // Log debug info
       const urlParams = new URLSearchParams(window.location.search);
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
@@ -33,10 +33,32 @@ export default function PasswordResetPage() {
       setDebugInfo(JSON.stringify(debugData, null, 2));
       console.log('Password Reset Debug Info:', debugData);
 
+      // Check if this is a verified session (from auth callback)
+      const verified = searchParams.get('verified');
+      if (verified === 'true') {
+        // Check if we have a valid session
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (session && !sessionError) {
+          console.log('Valid session found from auth callback');
+          setIsValidToken(true);
+          return;
+        }
+      }
+
       // Check for tokens in both URL search params and hash fragments
       const accessToken = searchParams.get('access_token') || getHashParam('access_token');
       const refreshToken = searchParams.get('refresh_token') || getHashParam('refresh_token');
       const type = searchParams.get('type') || getHashParam('type');
+      
+      // Also check for error parameters
+      const error = searchParams.get('error') || getHashParam('error');
+      const errorDescription = searchParams.get('error_description') || getHashParam('error_description');
+      
+      if (error) {
+        console.error('Auth error:', error, errorDescription);
+        setError(`Authentication error: ${errorDescription || error}`);
+        return;
+      }
       
       console.log('Tokens found:', { accessToken: !!accessToken, refreshToken: !!refreshToken, type });
       
@@ -57,21 +79,33 @@ export default function PasswordResetPage() {
           console.error('Exception setting session:', err);
           setError('Failed to validate reset link');
         });
+      } else if (type === 'recovery' && (!accessToken || !refreshToken)) {
+        console.log('Recovery type found but missing tokens');
+        setError('Reset link is missing authentication tokens. Please request a new password reset.');
       } else {
-        console.log('No valid tokens found');
-        setError('Invalid reset link. The email link may be expired or malformed. Please request a new password reset.');
+        console.log('No valid recovery tokens found');
+        // Don't show error immediately - user might be navigating directly to this page
+        // Only show error after a brief delay to allow for redirects
+        setTimeout(() => {
+          setError('Invalid reset link. The email link may be expired or malformed. Please request a new password reset.');
+        }, 1000);
       }
     };
 
-    checkTokens();
+    checkTokensAndSession();
 
-    // Listen for hash changes in case tokens come later
-    const handleHashChange = () => {
-      checkTokens();
+    // Listen for both hash and search parameter changes
+    const handleUrlChange = () => {
+      checkTokensAndSession();
     };
 
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    window.addEventListener('hashchange', handleUrlChange);
+    window.addEventListener('popstate', handleUrlChange);
+    
+    return () => {
+      window.removeEventListener('hashchange', handleUrlChange);
+      window.removeEventListener('popstate', handleUrlChange);
+    };
   }, [searchParams]);
 
   // Helper function to get parameters from URL hash
