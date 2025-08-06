@@ -23,7 +23,7 @@ export default function LandingPage() {
     try {
       const { error } = isLogin 
         ? await signIn(email, password)
-        redirectTo: `${window.location.origin}/reset-password`,
+        : await signUp(email, password);
 
       if (error) {
         setError(error.message);
