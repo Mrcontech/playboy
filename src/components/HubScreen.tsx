@@ -91,8 +91,8 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
 
   if (loading) {
     return (
-      <div className="p-4 pb-20">
-        <div className="text-center text-white">Loading...</div>
+      <div className="p-4 lg:p-8">
+        <LoadingSpinner variant="detailed" text="Loading your hub dashboard" />
       </div>
     );
   }

@@ -3,6 +3,7 @@ import { Users, Plus } from 'lucide-react';
 import SearchBar from './SearchBar';
 import PlayerCard from './PlayerCard';
 import AddPlayerModal from './AddPlayerModal';
+import LoadingSpinner from './LoadingSpinner';
 import { useDataLoader } from '../hooks/useDataLoader';
 import { playerApi } from '../services/api';
 import type { Tables } from '../lib/supabase';
@@ -59,8 +60,8 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
 
   if (loading) {
     return (
-      <div className="p-4 pb-20">
-        <div className="text-center text-white">Loading players...</div>
+      <div className="p-4 lg:p-8">
+        <LoadingSpinner variant="detailed" text="Loading your player roster" />
       </div>
     );
   }

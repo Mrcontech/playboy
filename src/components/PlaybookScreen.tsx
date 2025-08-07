@@ -1,5 +1,6 @@
 import React, { useState, useEffect, memo, useCallback } from 'react';
 import { TrendingUp, Users, DollarSign, Calendar, BarChart3, Target } from 'lucide-react';
+import LoadingSpinner from './LoadingSpinner';
 import { useDataLoader } from '../hooks/useDataLoader';
 import { statsApi } from '../services/api';
 
@@ -222,10 +223,8 @@ const PlaybookScreen = memo(function PlaybookScreen({ onPlayerSelect }: Playbook
 
   if (loading) {
     return (
-      <div className="p-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center text-white">Loading playbook data...</div>
-        </div>
+      <div className="p-4 lg:p-8">
+        <LoadingSpinner variant="detailed" text="Loading your playbook analytics" />
       </div>
     );
   }
