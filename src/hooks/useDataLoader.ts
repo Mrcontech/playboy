@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { persistentCache } from '../lib/storage';
 import { playerApi, statsApi, datesApi } from '../services/api';
+import { playerService } from '../services/playerService';
 
 interface UseDataLoaderOptions<T> {
   key: string;

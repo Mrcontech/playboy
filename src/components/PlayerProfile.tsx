@@ -305,7 +305,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 space-y-2 sm:space-y-0">
                         <div className="flex items-center space-x-2 flex-wrap">
                           <span className="bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                            {meeting.type.charAt(0).toUpperCase() + meeting.type.slice(1)}
+                            {meeting.type ? meeting.type.charAt(0).toUpperCase() + meeting.type.slice(1) : 'N/A'}
                           </span>
                           {meeting.amount_spent && meeting.amount_spent > 0 && (
                             <span className="text-green-500 font-medium text-sm">
