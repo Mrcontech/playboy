@@ -107,16 +107,8 @@ export const playerApi = {
     console.log('🔍 Fetching detailed data for player:', playerId);
     const { data: player, error } = await supabase
       .from('profiles')
-      .select(`
-        id, name, image_url, status, looks_rating, bench, created_at, updated_at, user_id, likes, dislikes, notes,
-        meetings (
-          amount_spent,
-          rating,
-          performance_rating,
-          type,
-          date,
-          created_at
-        )
+      .select(`*,
+        meetings (*)
       `)
       .eq('id', playerId)
       .single();
@@ -128,6 +120,11 @@ export const playerApi = {
     }
     
     console.log('✅ Detailed player data loaded for:', player.name);
+    console.log('📋 Player details:', { 
+      likes: player.likes, 
+      dislikes: player.dislikes, 
+      notes: player.notes 
+    });
     return calculatePlayerStats(player, true);
   },
 

@@ -7,6 +7,8 @@ interface PlayerCardProps {
     name: string;
     avatar: string;
     status?: string;
+    position?: string;
+    jerseyNumber?: string;
     totalMeetings?: number;
     cpn?: number;
     averageRating?: number;
@@ -15,9 +17,16 @@ interface PlayerCardProps {
   onClick?: () => void;
   size?: 'small' | 'medium' | 'large';
   isLoading?: boolean;
+  showBasicInfo?: boolean;
 }
 
-const PlayerCard = memo(function PlayerCard({ player, onClick, size = 'medium', isLoading = false }: PlayerCardProps) {
+const PlayerCard = memo(function PlayerCard({ 
+  player, 
+  onClick, 
+  size = 'medium', 
+  isLoading = false,
+  showBasicInfo = true 
+}: PlayerCardProps) {
   const sizeClasses = {
     small: 'w-36',
     medium: 'w-40',
@@ -65,12 +74,26 @@ const PlayerCard = memo(function PlayerCard({ player, onClick, size = 'medium', 
             <User className="text-white" size={size === 'small' ? 20 : size === 'medium' ? 24 : 32} />
           </div>
         )}
+        
+        {/* Jersey Number Overlay (if provided) */}
+        {player.jerseyNumber && (
+          <div className="absolute top-1 right-1 bg-green-500 text-black text-xs font-bold px-1.5 py-0.5 rounded">
+            #{player.jerseyNumber}
+          </div>
+        )}
       </div>
       
       {/* Content Section */}
       <div className="p-2">
         {/* Name */}
         <h3 className="text-white font-semibold text-center mb-1 truncate text-xs">{player.name}</h3>
+        
+        {/* Position (if provided) */}
+        {player.position && (
+          <div className="text-center mb-1">
+            <span className="text-gray-400 text-xs font-medium">{player.position}</span>
+          </div>
+        )}
         
         {/* Status Badge */}
         {player.status && (
@@ -84,32 +107,34 @@ const PlayerCard = memo(function PlayerCard({ player, onClick, size = 'medium', 
           </div>
         )}
 
-        {/* Stats Row */}
-        <div className="flex items-center justify-center space-x-1 text-xs">
-          {/* Dates Count */}
-          {player.totalMeetings !== undefined && (
-            <div className="flex items-center space-x-1">
-              <span>📅</span>
-              <span className="text-white font-bold">{player.totalMeetings}</span>
-            </div>
-          )}
-          
-          {/* CPN (Cost Per Night) */}
-          {player.cpn !== undefined && (
-            <div className="flex items-center space-x-1">
-              <span>💰</span>
-              <span className="text-green-500 font-bold text-xs">${player.cpn > 999 ? Math.round(player.cpn/1000) + 'k' : player.cpn}</span>
-            </div>
-          )}
-          
-          {/* Average Rating */}
-          {player.averageRating !== undefined && (
-            <div className="flex items-center space-x-1">
-              <span>⭐</span>
-              <span className="text-white font-bold text-xs">{player.averageRating}</span>
-            </div>
-          )}
-        </div>
+        {/* Stats Row - Only show if basic info is enabled and stats are available */}
+        {showBasicInfo && (
+          <div className="flex items-center justify-center space-x-1 text-xs">
+            {/* Dates Count */}
+            {player.totalMeetings !== undefined && (
+              <div className="flex items-center space-x-1">
+                <span>📅</span>
+                <span className="text-white font-bold">{player.totalMeetings}</span>
+              </div>
+            )}
+            
+            {/* CPN (Cost Per Night) */}
+            {player.cpn !== undefined && (
+              <div className="flex items-center space-x-1">
+                <span>💰</span>
+                <span className="text-green-500 font-bold text-xs">${player.cpn > 999 ? Math.round(player.cpn/1000) + 'k' : player.cpn}</span>
+              </div>
+            )}
+            
+            {/* Average Rating */}
+            {player.averageRating !== undefined && (
+              <div className="flex items-center space-x-1">
+                <span>⭐</span>
+                <span className="text-white font-bold text-xs">{player.averageRating}</span>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -266,9 +266,12 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                !player.notes && (
                 <div className="text-center py-8">
                   <div className="text-gray-400 mb-4">
-                    {loading ? 'Loading player data...' : 'No additional information available'}
+                    {loading ? 'Loading player details...' : 'No profile details added yet'}
                   </div>
-                  <button className="bg-purple-500 hover:bg-purple-600 px-4 py-2 rounded-lg text-white font-medium transition-colors">
+                  <button 
+                    onClick={() => setShowEditModal(true)}
+                    className="bg-purple-500 hover:bg-purple-600 px-4 py-2 rounded-lg text-white font-medium transition-colors"
+                  >
                     Add Details
                   </button>
                 </div>
