@@ -82,9 +82,13 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
 
   // Generate calendar dates for the next 7 days
   const calendarDates = useMemo(() => {
-    // Always generate calendar structure, even if data is loading
     const dates = [];
     const today = new Date();
+    
+    // Only generate calendar if we have data or are not loading
+    if (datesLoading) {
+      return null; // Return null while loading to show skeleton
+    }
     
     console.log('📅 Generating calendar with upcoming dates:', upcomingDates?.length || 0, 'dates found');
     
@@ -92,8 +96,8 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
       
-      // Find matching upcoming date (only if data is loaded)
-      const dateInfo = (!datesLoading && upcomingDates) ? upcomingDates.find(d => {
+      // Find matching upcoming date
+      const dateInfo = upcomingDates ? upcomingDates.find(d => {
         const scheduledDate = new Date(d.date);
         
         // Use UTC dates to avoid timezone issues
@@ -156,7 +160,7 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
             </div>
             
             <div className="grid grid-cols-7 gap-2">
-              {datesLoading || !upcomingDates ? (
+              {datesLoading || !calendarDates ? (
                 // Loading skeleton for calendar dates
                 Array.from({ length: 7 }).map((_, index) => (
                   <div

@@ -152,6 +152,7 @@ export function usePreloader() {
         case 'hub':
           await Promise.all([
             preloadData('getRecentPlayers_3', () => playerApi.getRecentPlayers(3), 15),
+            preloadData('getUpcomingDates', () => datesApi.getUpcomingDates(), 10),
           ]);
           break;
           
