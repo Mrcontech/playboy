@@ -339,43 +339,6 @@ export const statsApi = {
       };
     }
   },
-    
-    console.log('Raw meetings data (total count):', meetings?.length || 0);
-    console.log('All meetings:', meetings);
-    
-    const totalSpent = meetings?.reduce((sum, meeting) => 
-      sum + (Number(meeting.amount_spent) || 0), 0) || 0;
-    const totalDates = meetings?.length || 0;
-    
-    // More detailed hookup detection
-    const hookupMeetings = meetings?.filter(meeting => {
-      const hasPerformanceRating = meeting.performance_rating !== null && meeting.performance_rating !== undefined;
-      const ratingValue = Number(meeting.performance_rating);
-      const isValidRating = hasPerformanceRating && ratingValue > 0;
-      
-      if (hasPerformanceRating) {
-        console.log(`Meeting ${meeting.id}: performance_rating = ${meeting.performance_rating}, parsed = ${ratingValue}, isValid = ${isValidRating}`);
-      }
-      
-      return isValidRating;
-    }) || [];
-    
-    const totalHookups = hookupMeetings.length;
-    
-    console.log('Detailed stats calculation:', {
-      totalSpent,
-      totalDates,
-      totalHookups,
-      hookupMeetings: hookupMeetings.map(m => ({ id: m.id, type: m.type, performance_rating: m.performance_rating })),
-      allMeetingsWithPerformanceData: meetings?.filter(m => m.performance_rating !== null && m.performance_rating !== undefined).map(m => ({ id: m.id, type: m.type, performance_rating: m.performance_rating })) || []
-    });
-    
-    return {
-      totalSpent: Math.round(totalSpent),
-      totalDates,
-      totalHookups
-    };
-  },
 
   async getTopPlayersByRating(limit: number = 3) {
     const { data: players, error } = await supabase
