@@ -111,7 +111,19 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
       let dateInfo = null;
       if (upcomingDates && !datesLoading) {
         dateInfo = upcomingDates.find(d => {
-          const scheduledDateStr = new Date(d.date).toISOString().split('T')[0];
+          // Validate date before processing
+          if (!d.date || typeof d.date !== 'string') {
+            console.warn('⚠️ Invalid date found:', d.date);
+            return false;
+          }
+          
+          const scheduledDate = new Date(d.date);
+          if (isNaN(scheduledDate.getTime())) {
+            console.warn('⚠️ Invalid date format found:', d.date);
+            return false;
+          }
+          
+          const scheduledDateStr = scheduledDate.toISOString().split('T')[0];
           const matches = scheduledDateStr === currentDateStr;
           
           if (matches) {

@@ -43,10 +43,13 @@ export default function AddDateModal({ isOpen, onClose, onDateAdded }: AddDateMo
     setLoading(true);
     
     try {
+      // Ensure date is in proper ISO format
+      const dateToStore = new Date(formData.date).toISOString();
+      
       await datesApi.createDate({
         profile_id: formData.profile_id || null,
         type: formData.type,
-        date: formData.date,
+        date: dateToStore,
         notes: formData.notes || null,
       });
       
