@@ -45,6 +45,17 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('🔄 PlayerProfile mounted for player:', player.name);
+    console.log('📋 Initial player data:', {
+      id: player.id,
+      name: player.name,
+      likes: player.likes,
+      dislikes: player.dislikes,
+      notes: player.notes,
+      hasLikes: Array.isArray(player.likes) && player.likes.length > 0,
+      hasDislikes: Array.isArray(player.dislikes) && player.dislikes.length > 0,
+      hasNotes: Boolean(player.notes && player.notes.trim())
+    });
     loadPlayerStats();
   }, [player.id]);
 
@@ -221,61 +232,71 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
               </div>
               
               {/* Likes Section */}
-              {player.likes && player.likes.length > 0 && (
+              {Array.isArray(player.likes) && player.likes.length > 0 ? (
                 <div className="mb-6">
                   <h4 className="text-green-500 font-medium mb-3">Likes</h4>
                   <div className="flex flex-wrap gap-2">
                     {player.likes.map((like, index) => (
-                      <span key={index} className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm">
+                      <span key={index} className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm border border-green-500/30">
                         {like}
                       </span>
                     ))}
                   </div>
                 </div>
+              ) : (
+                <div className="mb-6">
+                  <h4 className="text-gray-500 font-medium mb-3">Likes</h4>
+                  <div className="text-gray-400 text-sm italic">No likes added yet</div>
+                </div>
               )}
               
               {/* Dislikes Section */}
-              {player.dislikes && player.dislikes.length > 0 && (
+              {Array.isArray(player.dislikes) && player.dislikes.length > 0 ? (
                 <div className="mb-6">
                   <h4 className="text-red-500 font-medium mb-3">Dislikes</h4>
                   <div className="flex flex-wrap gap-2">
                     {player.dislikes.map((dislike, index) => (
-                      <span key={index} className="bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-sm">
+                      <span key={index} className="bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-sm border border-red-500/30">
                         {dislike}
                       </span>
                     ))}
                   </div>
                 </div>
+              ) : (
+                <div className="mb-6">
+                  <h4 className="text-gray-500 font-medium mb-3">Dislikes</h4>
+                  <div className="text-gray-400 text-sm italic">No dislikes added yet</div>
+                </div>
               )}
               
               {/* Notes Section */}
-              {player.notes && (
+              {player.notes && player.notes.trim() ? (
                 <div className="mb-6">
                   <h4 className="text-purple-500 font-medium mb-3">Notes</h4>
-                  <div className="bg-gray-800 rounded-lg p-4">
+                  <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
                     <p className="text-gray-300 leading-relaxed">
                       {player.notes}
                     </p>
                   </div>
                 </div>
-              )}
-              
-              {/* Fallback message */}
-              {(!player.likes || player.likes.length === 0) && 
-               (!player.dislikes || player.dislikes.length === 0) && 
-               !player.notes && (
-                <div className="text-center py-8">
-                  <div className="text-gray-400 mb-4">
-                    {loading ? 'Loading player details...' : 'No profile details added yet'}
-                  </div>
-                  <button 
-                    onClick={() => setShowEditModal(true)}
-                    className="bg-purple-500 hover:bg-purple-600 px-4 py-2 rounded-lg text-white font-medium transition-colors"
-                  >
-                    Add Details
-                  </button>
+              ) : (
+                <div className="mb-6">
+                  <h4 className="text-gray-500 font-medium mb-3">Notes</h4>
+                  <div className="text-gray-400 text-sm italic">No notes added yet</div>
                 </div>
               )}
+              
+              {/* Action button to add/edit details */}
+              <div className="text-center pt-4 border-t border-gray-700">
+                <button 
+                  onClick={() => setShowEditModal(true)}
+                  className="bg-purple-500 hover:bg-purple-600 px-6 py-3 rounded-lg text-white font-medium transition-colors"
+                >
+                  {(Array.isArray(player.likes) && player.likes.length > 0) || 
+                   (Array.isArray(player.dislikes) && player.dislikes.length > 0) || 
+                   (player.notes && player.notes.trim()) ? 'Edit Details' : 'Add Details'}
+                </button>
+              </div>
             </div>
 
             {/* Meetings & Expenses History */}
