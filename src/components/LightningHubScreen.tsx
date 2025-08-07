@@ -19,6 +19,7 @@ import { useRecentPlayerCards, useLightningOptimization } from '../hooks/useLigh
 import { useDataLoader } from '../hooks/useDataLoader';
 import { datesApi } from '../services/api';
 import { lightningService } from '../services/lightningService';
+import { isSupabaseConfigured } from '../lib/supabase';
 import type { PlayerComplete } from '../services/lightningService';
 import type { Tables } from '../lib/supabase';
 
@@ -155,6 +156,13 @@ const LightningHubScreen = memo(function LightningHubScreen({ onPlayerSelect }: 
                 </span>
               )}
             </div>
+            {!isSupabaseConfigured && (
+              <div className="bg-yellow-900/20 border border-yellow-500 rounded-lg p-4 mb-4">
+                <p className="text-yellow-400 text-sm">
+                  ⚠️ Supabase not connected. Click "Connect to Supabase" in the top right to enable full functionality.
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
