@@ -34,45 +34,48 @@ const AppContent = memo(function AppContent() {
   
   // Preload data for all screens to improve initial load times
   useEffect(() => {
-    const preloadDataOptimized = async () => {
+    const preloadCriticalData = async () => {
       try {
-        console.log('Starting optimized data preloading...');
+        console.log('Loading critical data for initial screen...');
         
-        // Critical data for the initial Hub screen
+        // Only load essential data for Hub screen to show UI quickly
         const criticalPreloadPromises = [
-          // Hub screen data
           preloadData('getUpcomingDates', () => datesApi.getUpcomingDates(), 10),
           preloadData('getRecentPlayers_3', () => playerApi.getRecentPlayers(3), 15),
         ];
         
-        // Await critical data to ensure Hub screen loads quickly
+        // Wait for critical data before showing the UI
         await Promise.allSettled(criticalPreloadPromises);
-        console.log('Critical data preloading completed.');
+        console.log('Critical data loaded, UI ready to render');
 
-        // Non-critical data for other screens, load in background
-        const backgroundPreloadPromises = [
-          // Roster screen data
-          preloadData('getActivePlayers', () => playerApi.getActivePlayers(), 30),
-          preloadData('getBenchPlayers', () => playerApi.getBenchPlayers(), 30),
+        // Start background loading after a short delay to not interfere with UI
+        setTimeout(() => {
+          console.log('Starting background data loading...');
           
-          // Playbook screen data
-          preloadData('getCPNByPeriod_monthly', () => statsApi.getCPNByPeriod('monthly'), 30),
-          preloadData('getTopPlayersByRating_3', () => statsApi.getTopPlayersByRating(3), 30),
-          preloadData('getDashboardStats', () => statsApi.getDashboardStats(), 30),
-        ];
+          const backgroundPromises = [
+            // Roster screen data
+            preloadData('getActivePlayers', () => playerApi.getActivePlayers(), 30),
+            preloadData('getBenchPlayers', () => playerApi.getBenchPlayers(), 30),
+            
+            // Playbook screen data  
+            preloadData('getCPNByPeriod_monthly', () => statsApi.getCPNByPeriod('monthly'), 30),
+            preloadData('getTopPlayersByRating_3', () => statsApi.getTopPlayersByRating(3), 30),
+            preloadData('getDashboardStats', () => statsApi.getDashboardStats(), 30),
+          ];
+          
+          Promise.allSettled(backgroundPromises)
+            .then(() => console.log('Background data loading completed'))
+            .catch(error => console.error('Background data loading error:', error));
+        }, 500); // 500ms delay to let UI render first
         
-        // Do not await these, let them run in the background
-        Promise.allSettled(backgroundPreloadPromises)
-          .then(() => console.log('Background data preloading completed.'))
-          .catch(error => console.error('Error during background data preloading:', error));
       } catch (error) {
-        console.error('Error during data preloading:', error);
-        // Don't block the UI if preloading fails
+        console.error('Error during critical data loading:', error);
+        // Don't block the UI if critical data fails
       }
     };
     
-    // Start optimized preloading after a short delay to not interfere with initial render
-    const timer = setTimeout(preloadDataOptimized, 100);
+    // Start critical data loading immediately
+    const timer = setTimeout(preloadCriticalData, 50);
     return () => clearTimeout(timer);
   }, []);
   

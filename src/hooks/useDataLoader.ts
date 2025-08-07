@@ -31,15 +31,18 @@ export function useDataLoader<T>({
       if (useCache) {
         const cached = persistentCache.get<T>(key);
         if (cached) {
+          console.log(`Cache hit for key: ${key}`);
           setData(cached);
           setLoading(false);
           return cached;
         }
+        console.log(`Cache miss for key: ${key}`);
       }
 
       // If not in cache or cache disabled, fetch fresh data
       setLoading(true);
       setError(null);
+      console.log(`Fetching fresh data for key: ${key}`);
       
       const freshData = await fetcher();
       
@@ -47,13 +50,14 @@ export function useDataLoader<T>({
       persistentCache.set(key, freshData, ttlMinutes);
       setData(freshData);
       setLoading(false);
+      console.log(`Successfully loaded data for key: ${key}`);
       
       return freshData;
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Unknown error');
       setError(error);
       setLoading(false);
-      console.error(`Error loading data for key ${key}:`, err);
+      console.error(`Error loading data for key ${key}:`, error.message);
       throw error;
     }
   }, [key, fetcher, ttlMinutes, enabled]);
