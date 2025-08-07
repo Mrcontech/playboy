@@ -15,6 +15,7 @@ import AddPlayerModal from './AddPlayerModal';
 import LoadingSpinner from './LoadingSpinner';
 import { usePlayerCards, useLightningOptimization } from '../hooks/useLightningLoader';
 import { lightningService } from '../services/lightningService';
+import { isSupabaseConfigured } from '../lib/supabase';
 import type { PlayerComplete } from '../services/lightningService';
 
 interface LightningRosterScreenProps {
@@ -102,15 +103,24 @@ const LightningRosterScreen = memo(function LightningRosterScreen({ onPlayerSele
     return (
       <div className="p-4 lg:p-8">
         <div className="max-w-6xl mx-auto">
-          <div className="bg-red-900/20 border-2 border-red-500 rounded-xl p-8 text-center">
-            <h2 className="text-xl font-bold text-red-400 mb-4">Failed to Load Roster</h2>
-            <p className="text-red-300 mb-6">{error.message}</p>
-            <button 
-              onClick={refetch}
-              className="bg-red-500 hover:bg-red-600 px-6 py-3 rounded-lg text-white font-medium transition-colors"
-            >
-              Retry Loading
-            </button>
+          <div className="bg-yellow-900/20 border-2 border-yellow-500 rounded-xl p-8 text-center">
+            <h2 className="text-xl font-bold text-yellow-400 mb-4">
+              {isSupabaseConfigured ? 'Connection Error' : 'Supabase Not Connected'}
+            </h2>
+            <p className="text-yellow-300 mb-6">
+              {isSupabaseConfigured 
+                ? `Network error: ${error.message}. Please check your connection and try again.`
+                : 'Please click the "Connect to Supabase" button in the top right to set up your database connection.'
+              }
+            </p>
+            {isSupabaseConfigured && (
+              <button 
+                onClick={refetch}
+                className="bg-yellow-500 hover:bg-yellow-600 px-6 py-3 rounded-lg text-black font-medium transition-colors"
+              >
+                Retry Loading
+              </button>
+            )}
           </div>
         </div>
       </div>

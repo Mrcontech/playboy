@@ -3,11 +3,28 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
+// Check for valid Supabase configuration
+const hasValidSupabaseConfig = supabaseUrl && 
+  supabaseAnonKey && 
+  supabaseUrl.startsWith('https://') && 
+  supabaseUrl.includes('.supabase.co') &&
+  supabaseAnonKey.length > 20;
+
+if (!hasValidSupabaseConfig) {
+  console.warn('⚠️ Supabase not configured properly. Please connect to Supabase to enable full functionality.');
+  console.warn('Missing or invalid environment variables:', {
+    VITE_SUPABASE_URL: supabaseUrl ? 'Present' : 'Missing',
+    VITE_SUPABASE_ANON_KEY: supabaseAnonKey ? 'Present' : 'Missing'
+  });
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Create client with fallback for missing config
+export const supabase = hasValidSupabaseConfig 
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : createClient('https://placeholder.supabase.co', 'placeholder-key');
+
+// Export configuration status
+export const isSupabaseConfigured = hasValidSupabaseConfig;
 
 // Database types matching your existing schema
 export interface Database {

@@ -14,6 +14,7 @@
  */
 
 import { supabase } from '../lib/supabase';
+import { isSupabaseConfigured } from '../lib/supabase';
 import type { Tables, Inserts, Updates } from '../lib/supabase';
 
 type Player = Tables<'profiles'>;
@@ -140,6 +141,12 @@ export const lightningService = {
    * Uses pre-computed database stats for maximum speed
    */
   async getPlayerCards(forceRefresh = false): Promise<PlayerCard[]> {
+    // Check if Supabase is configured
+    if (!isSupabaseConfigured) {
+      console.warn('⚠️ Supabase not configured, returning mock data');
+      return this.getMockPlayerCards();
+    }
+
     const cacheKey = 'lightning_player_cards';
     
     if (!forceRefresh) {
@@ -175,6 +182,11 @@ export const lightningService = {
    * No real-time calculations - uses database computed columns
    */
   async getPlayersWithStats(forceRefresh = false): Promise<PlayerWithPrecomputedStats[]> {
+    if (!isSupabaseConfigured) {
+      console.warn('⚠️ Supabase not configured, returning mock data');
+      return this.getMockPlayersWithStats();
+    }
+
     const cacheKey = 'lightning_players_stats';
     
     if (!forceRefresh) {
@@ -241,6 +253,11 @@ export const lightningService = {
    * INSTANT: Get recent players for hub
    */
   async getRecentPlayerCards(limit: number = 3, forceRefresh = false): Promise<PlayerCard[]> {
+    if (!isSupabaseConfigured) {
+      console.warn('⚠️ Supabase not configured, returning mock data');
+      return this.getMockPlayerCards().slice(0, limit);
+    }
+
     const cacheKey = `lightning_recent_${limit}`;
     
     if (!forceRefresh) {
@@ -271,6 +288,11 @@ export const lightningService = {
    * Only loads when user actually views profile
    */
   async getPlayerComplete(playerId: string, forceRefresh = false): Promise<PlayerComplete> {
+    if (!isSupabaseConfigured) {
+      console.warn('⚠️ Supabase not configured, returning mock data');
+      return this.getMockPlayerComplete(playerId);
+    }
+
     const cacheKey = `lightning_complete_${playerId}`;
     
     if (!forceRefresh) {
@@ -423,5 +445,67 @@ export const lightningService = {
    */
   clearAllCaches() {
     lightningCache.clear();
+  },
+
+  /**
+   * Mock data for when Supabase is not configured
+   */
+  getMockPlayerCards(): PlayerCard[] {
+    return [
+      {
+        id: 'mock-1',
+        name: 'Connect to Supabase',
+        image_url: undefined,
+        status: 'prospect',
+        bench: false
+      },
+      {
+        id: 'mock-2', 
+        name: 'To See Your Players',
+        image_url: undefined,
+        status: 'dating',
+        bench: false
+      },
+      {
+        id: 'mock-3',
+        name: 'Click Connect Button',
+        image_url: undefined,
+        status: 'situationship',
+        bench: false
+      }
+    ];
+  },
+
+  getMockPlayersWithStats(): PlayerWithPrecomputedStats[] {
+    return this.getMockPlayerCards().map(player => ({
+      ...player,
+      meeting_count: 0,
+      total_spent: 0,
+      average_rating: 0,
+      hookup_count: 0,
+      cpn: 0,
+      last_activity: new Date().toISOString()
+    }));
+  },
+
+  getMockPlayerComplete(playerId: string): PlayerComplete {
+    const mockCard = this.getMockPlayerCards().find(p => p.id === playerId) || this.getMockPlayerCards()[0];
+    return {
+      ...mockCard,
+      looks_rating: 0,
+      likes: [],
+      dislikes: [],
+      notes: 'Please connect to Supabase to see real player data',
+      user_id: 'mock-user',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      meetings: [],
+      meeting_count: 0,
+      total_spent: 0,
+      average_rating: 0,
+      hookup_count: 0,
+      cpn: 0,
+      last_activity: new Date().toISOString()
+    };
   }
 };

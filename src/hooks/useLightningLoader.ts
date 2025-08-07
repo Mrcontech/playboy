@@ -9,6 +9,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { lightningService } from '../services/lightningService';
+import { isSupabaseConfigured } from '../lib/supabase';
 import type { PlayerCard, PlayerWithPrecomputedStats, PlayerComplete } from '../services/lightningService';
 
 interface LightningLoaderState<T> {
@@ -64,7 +65,14 @@ export function useLightningLoader<T>(
       
     } catch (error) {
       const loadTime = performance.now() - loadStartTime.current;
-      const err = error instanceof Error ? error : new Error('Unknown error');
+      const err = error instanceof Error ? error : new Error(`Failed to load ${key}`);
+      
+      // Add context for debugging
+      console.error(`❌ Error loading ${key}:`, {
+        error: err.message,
+        supabaseConfigured: isSupabaseConfigured,
+        loadTime: Math.round(loadTime)
+      });
       
       setState({
         data: null,
@@ -73,8 +81,6 @@ export function useLightningLoader<T>(
         loadTime: Math.round(loadTime),
         cacheHit: false
       });
-      
-      console.error(`❌ Error loading ${key}:`, err);
     }
   }, [key, fetcher, enabled]);
 
