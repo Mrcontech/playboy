@@ -45,20 +45,13 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log('🔄 PlayerProfile mounted for player:', player.name);
-    console.log('📋 PLAYER PROFILE DATA RECEIVED:', JSON.stringify(player, null, 2));
-    console.log('📋 Likes:', player.likes, 'Type:', typeof player.likes);
-    console.log('📋 Dislikes:', player.dislikes, 'Type:', typeof player.dislikes);
-    console.log('📋 Notes:', player.notes, 'Type:', typeof player.notes);
-    console.log('📋 DETAILED FIELD ANALYSIS:');
-    console.log('  - Likes field exists:', 'likes' in player);
-    console.log('  - Likes is array:', Array.isArray(player.likes));
-    console.log('  - Likes length:', player.likes?.length);
-    console.log('  - Dislikes field exists:', 'dislikes' in player);
-    console.log('  - Dislikes is array:', Array.isArray(player.dislikes));
-    console.log('  - Dislikes length:', player.dislikes?.length);
-    console.log('  - Notes field exists:', 'notes' in player);
-    console.log('  - Notes has content:', !!player.notes?.trim());
+    console.log('🚨 EMERGENCY DEBUG - PlayerProfile component received player data:');
+    console.log('Player object:', player);
+    console.log('All player keys:', Object.keys(player));
+    console.log('Likes value:', player.likes);
+    console.log('Dislikes value:', player.dislikes);
+    console.log('Notes value:', player.notes);
+    console.log('Raw player object stringified:', JSON.stringify(player, null, 2));
     loadPlayerStats();
   }, [player.id]);
 
@@ -237,15 +230,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
               {/* Likes Section */}
               <div className="mb-6">
                 <h4 className="text-green-500 font-medium mb-3">Likes</h4>
-                {(() => {
-                  console.log('🔍 LIKES RENDERING CHECK:', {
-                    exists: !!player.likes,
-                    isArray: Array.isArray(player.likes),
-                    length: player.likes?.length,
-                    value: player.likes
-                  });
-                  return player.likes && Array.isArray(player.likes) && player.likes.length > 0;
-                })() ? (
+                {player.likes && Array.isArray(player.likes) && player.likes.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {player.likes.map((like, index) => (
                       <span key={index} className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm border border-green-500/30">
@@ -255,12 +240,9 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                   </div>
                 ) : (
                   <div className="text-gray-400 text-sm italic">
-                    {(() => {
-                      if (!player.likes) return 'No likes field in database';
-                      if (!Array.isArray(player.likes)) return `Likes field is ${typeof player.likes}, expected array`;
-                      if (player.likes.length === 0) return 'No likes added yet';
-                      return 'Likes data format issue';
-                    })()}
+                    {!player.likes ? 'No likes field in database' : 
+                     !Array.isArray(player.likes) ? `Likes field is ${typeof player.likes}, expected array` :
+                     player.likes.length === 0 ? 'No likes added yet' : 'Likes data format issue'}
                   </div>
                 )}
               </div>
@@ -268,15 +250,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
               {/* Dislikes Section */}
               <div className="mb-6">
                 <h4 className="text-red-500 font-medium mb-3">Dislikes</h4>
-                {(() => {
-                  console.log('🔍 DISLIKES RENDERING CHECK:', {
-                    exists: !!player.dislikes,
-                    isArray: Array.isArray(player.dislikes),
-                    length: player.dislikes?.length,
-                    value: player.dislikes
-                  });
-                  return player.dislikes && Array.isArray(player.dislikes) && player.dislikes.length > 0;
-                })() ? (
+                {player.dislikes && Array.isArray(player.dislikes) && player.dislikes.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {player.dislikes.map((dislike, index) => (
                       <span key={index} className="bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-sm border border-red-500/30">
@@ -286,12 +260,9 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                   </div>
                 ) : (
                   <div className="text-gray-400 text-sm italic">
-                    {(() => {
-                      if (!player.dislikes) return 'No dislikes field in database';
-                      if (!Array.isArray(player.dislikes)) return `Dislikes field is ${typeof player.dislikes}, expected array`;
-                      if (player.dislikes.length === 0) return 'No dislikes added yet';
-                      return 'Dislikes data format issue';
-                    })()}
+                    {!player.dislikes ? 'No dislikes field in database' : 
+                     !Array.isArray(player.dislikes) ? `Dislikes field is ${typeof player.dislikes}, expected array` :
+                     player.dislikes.length === 0 ? 'No dislikes added yet' : 'Dislikes data format issue'}
                   </div>
                 )}
               </div>
@@ -299,15 +270,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
               {/* Notes Section */}
               <div className="mb-6">
                 <h4 className="text-purple-500 font-medium mb-3">Notes</h4>
-                {(() => {
-                  console.log('🔍 NOTES RENDERING CHECK:', {
-                    exists: !!player.notes,
-                    type: typeof player.notes,
-                    hasContent: !!player.notes?.trim(),
-                    value: player.notes
-                  });
-                  return player.notes && typeof player.notes === 'string' && player.notes.trim();
-                })() ? (
+                {player.notes && typeof player.notes === 'string' && player.notes.trim() ? (
                   <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
                     <p className="text-gray-300 leading-relaxed">
                       {player.notes}
@@ -315,12 +278,9 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                   </div>
                 ) : (
                   <div className="text-gray-400 text-sm italic">
-                    {(() => {
-                      if (!player.notes) return 'No notes field in database';
-                      if (typeof player.notes !== 'string') return `Notes field is ${typeof player.notes}, expected string`;
-                      if (!player.notes.trim()) return 'Notes field is empty';
-                      return 'Notes data format issue';
-                    })()}
+                    {!player.notes ? 'No notes field in database' : 
+                     typeof player.notes !== 'string' ? `Notes field is ${typeof player.notes}, expected string` :
+                     !player.notes.trim() ? 'Notes field is empty' : 'Notes data format issue'}
                   </div>
                 )}
               </div>
