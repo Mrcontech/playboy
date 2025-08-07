@@ -292,7 +292,7 @@ export const statsApi = {
         *,
         meetings (
           amount_spent,
-          rating
+          rating,
           performance_rating
         )
       `);
