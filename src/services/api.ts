@@ -226,6 +226,12 @@ export const datesApi = {
 
   async getUpcomingDates(): Promise<UpcomingDate[]> {
     console.log('Fetching upcoming dates...');
+    
+    // Get current date in UTC to ensure consistent timezone handling
+    const now = new Date();
+    const currentDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+    console.log('Current date for comparison:', currentDate);
+    
     const { data, error } = await supabase
       .from('upcoming_dates')
       .select(`
@@ -235,10 +241,19 @@ export const datesApi = {
           image_url
         )
       `)
-      .gte('date', new Date().toISOString())
+      .gte('date', currentDate)
       .order('date', { ascending: true });
     
     console.log('Upcoming dates query result:', { data, error });
+    if (data) {
+      console.log('Found upcoming dates:', data.map(d => ({ 
+        id: d.id, 
+        date: d.date, 
+        type: d.type,
+        profile_name: (d as any).profiles?.name 
+      })));
+    }
+    
     if (error) throw error;
     return data || [];
   },
