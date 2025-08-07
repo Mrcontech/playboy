@@ -332,7 +332,7 @@ export const statsApi = {
       
       if (error) {
         console.error('Supabase error fetching meetings for stats:', error);
-        throw new Error(\`Database error: ${error.message}`);
+        throw new Error(`Database error: ${error.message}`);
       }
       
       if (!meetings) {
