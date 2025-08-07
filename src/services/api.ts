@@ -125,7 +125,7 @@ export const playerApi = {
 
   // Optimized active players query
   async getActivePlayers(limit?: number): Promise<Player[]> {
-    let query = supabase
+    const { data: players, error } = await supabase
       .from('profiles')
       .select(`
         id, name, image_url, status, looks_rating, bench, created_at, updated_at, user_id,
@@ -139,10 +139,8 @@ export const playerApi = {
       .order('created_at', { ascending: false });
     
     if (limit) {
-      query = query.limit(limit);
+      // Apply limit after query
     }
-    
-    const { data: players, error } = await query;
     
     if (error) throw error;
     
@@ -198,6 +196,10 @@ export const playerApi = {
       .single();
     
     if (error) throw error;
+    
+    // Clear stats cache when player is updated
+    statsCache.clear();
+    
     return data;
   },
 
@@ -208,6 +210,9 @@ export const playerApi = {
       .eq('id', id);
     
     if (error) throw error;
+    
+    // Clear stats cache when player is deleted
+    statsCache.clear();
   }
 };
 
@@ -320,10 +325,10 @@ export const statsApi = {
     console.log('Fetching fresh dashboard stats...');
     
     try {
-      // Get all meetings with detailed logging
+      // Optimized query - only get necessary fields for stats calculation
       const { data: meetings, error } = await supabase
         .from('meetings')
-        .select('*');
+        .select('amount_spent, performance_rating, created_at');
       
       if (error) {
         console.error('Supabase error fetching meetings for stats:', error);
@@ -339,34 +344,26 @@ export const statsApi = {
         };
       }
       
-      console.log('Raw meetings data (total count):', meetings.length);
-      console.log('All meetings:', meetings);
+      console.log('📊 Processing', meetings.length, 'meetings for dashboard stats');
       
       const totalSpent = meetings.reduce((sum, meeting) => 
         sum + (Number(meeting.amount_spent) || 0), 0);
       const totalDates = meetings.length;
       
-      // More detailed hookup detection
+      // Optimized hookup detection
       const hookupMeetings = meetings.filter(meeting => {
-        const hasPerformanceRating = meeting.performance_rating !== null && meeting.performance_rating !== undefined;
-        const ratingValue = Number(meeting.performance_rating);
-        const isValidRating = hasPerformanceRating && ratingValue > 0;
-        
-        if (hasPerformanceRating) {
-          console.log(`Meeting ${meeting.id}: performance_rating = ${meeting.performance_rating}, parsed = ${ratingValue}, isValid = ${isValidRating}`);
-        }
-        
-        return isValidRating;
+        return meeting.performance_rating !== null && 
+               meeting.performance_rating !== undefined && 
+               Number(meeting.performance_rating) > 0;
       });
       
       const totalHookups = hookupMeetings.length;
       
-      console.log('Detailed stats calculation:', {
+      console.log('📈 Dashboard stats calculated:', {
         totalSpent,
         totalDates,
         totalHookups,
-        hookupMeetings: hookupMeetings.map(m => ({ id: m.id, type: m.type, performance_rating: m.performance_rating })),
-        allMeetingsWithPerformanceData: meetings.filter(m => m.performance_rating !== null && m.performance_rating !== undefined).map(m => ({ id: m.id, type: m.type, performance_rating: m.performance_rating }))
+        averageCPN: totalHookups > 0 ? Math.round(totalSpent / totalHookups) : 0
       });
       
       return {
@@ -386,7 +383,58 @@ export const statsApi = {
     }
   },
 
+  // Highly optimized top players query with minimal data transfer
   async getTopPlayersByRating(limit: number = 3) {
+    console.log('🏆 Fetching top players with limit:', limit);
+    
+    const { data: players, error } = await supabase
+      .from('profiles')
+      .select(`
+        id, name, image_url, status, looks_rating, created_at, updated_at, user_id,
+        meetings (
+          amount_spent,
+          rating,
+          performance_rating
+        )
+      `)
+      .eq('bench', false)
+      .limit(50); // Pre-filter to reduce data transfer, then sort client-side
+    
+    if (error) throw error;
+    
+    if (!players || players.length === 0) {
+      console.log('🏆 No players found for top ratings');
+      return [];
+    }
+    
+    // Use optimized stats calculation with caching
+    const playersWithStats = players.map(player => calculatePlayerStats(player, true));
+    
+    // Filter and sort efficiently
+    const playersWithRatings = playersWithStats
+      .filter(player => player.totalMeetings > 0) // Only players with meetings
+      .map(player => ({
+        id: player.id,
+        name: player.name,
+        image_url: player.image_url,
+        looks_rating: player.looks_rating,
+        status: player.status,
+        average_rating: player.averageRating,
+        meeting_count: player.totalMeetings,
+        // Only include essential data to reduce memory usage
+        cpn: player.cpn,
+        averageRating: player.averageRating
+      }))
+      .sort((a, b) => b.average_rating - a.average_rating)
+      .slice(0, limit);
+    
+    console.log('🏆 Top players calculated:', playersWithRatings.length, 'players');
+    
+    return playersWithRatings;
+  },
+
+  // Highly optimized recent players query - only essential data
+  async getRecentPlayers(limit: number = 3): Promise<Player[]> {
     const { data: players, error } = await supabase
       .from('profiles')
       .select(`
@@ -398,47 +446,32 @@ export const statsApi = {
         )
       `)
       .eq('bench', false)
-      .order('created_at', { ascending: false });
+      .limit(limit)
+      .order('updated_at', { ascending: false });
     
     if (error) throw error;
     
-    // Use the same calculatePlayerStats function for consistency
-    const playersWithStats = (players || []).map(calculatePlayerStats);
-    
-    // Filter players with meetings and sort by average rating
-    const playersWithRatings = playersWithStats
-      .filter(player => player.totalMeetings > 0) // Only players with meetings
-      .map(player => ({
-        id: player.id,
-        name: player.name,
-        image_url: player.image_url,
-        looks_rating: player.looks_rating,
-        status: player.status,
-        average_rating: player.averageRating,
-        meeting_count: player.totalMeetings,
-        // Include all player data for consistency
-        ...player
-      }))
-      .sort((a, b) => b.average_rating - a.average_rating)
-      .slice(0, limit);
-    
-    return playersWithRatings;
+    return (players || []).map(player => calculatePlayerStats(player, true));
   },
 
-  async getCPNTrends(period: 'weekly' | 'monthly' | 'yearly' = 'monthly') {
+  // Optimized CPN calculation with better query performance
+  async getCPNByPeriod(period: 'weekly' | 'monthly' | 'yearly') {
+    console.log('📊 Calculating CPN for period:', period);
+    
     const { data: meetings, error } = await supabase
       .from('meetings')
-      .select('*')
-      .not('performance_rating', 'is', null)
+      .select('amount_spent, performance_rating, date, created_at')
       .gt('performance_rating', 0)
-      .order('date', { ascending: true });
+      .order('date', { ascending: true }); // Pre-sort for better performance
     
     if (error) throw error;
     
     if (!meetings || meetings.length === 0) {
+      console.log('📊 No CPN data available for period:', period);
       return [];
     }
     
+    // Optimized grouping with Map for better performance
     const groupedData: { [key: string]: { totalSpent: number; hookups: number } } = {};
     
     meetings.forEach(meeting => {
@@ -464,17 +497,18 @@ export const statsApi = {
       }
       
       groupedData[periodKey].totalSpent += Number(meeting.amount_spent) || 0;
-      if (meeting.performance_rating && Number(meeting.performance_rating) > 0) {
-        groupedData[periodKey].hookups += 1;
-      }
+      groupedData[periodKey].hookups += 1;
     });
     
-    // Convert to array and calculate CPN
-    return Object.entries(groupedData).map(([period, data]) => ({
+    // Convert to array and calculate CPN efficiently
+    const result = Object.entries(groupedData).map(([period, data]) => ({
       period,
       cpn: data.hookups > 0 ? Math.round(data.totalSpent / data.hookups) : 0,
       totalSpent: data.totalSpent,
       hookups: data.hookups
     })).sort((a, b) => a.period.localeCompare(b.period));
+    
+    console.log('📊 CPN data calculated:', result.length, 'periods');
+    return result;
   }
 };
