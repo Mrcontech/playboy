@@ -148,7 +148,7 @@ export const playerService = {
       }
     }
 
-    console.log('🔄 Fetching basic players from Supabase...');
+    console.log('🚀 OPTIMIZED: Fetching basic players from Supabase...');
     
     const { data: players, error } = await supabase
       .from('profiles')
@@ -172,7 +172,7 @@ export const playerService = {
     const basicPlayers = players || [];
     playerCache.setBasicPlayers(cacheKey, basicPlayers);
     
-    console.log('✅ Basic players loaded:', basicPlayers.length);
+    console.log('⚡ OPTIMIZED: Basic players loaded in record time:', basicPlayers.length);
     return basicPlayers;
   },
 

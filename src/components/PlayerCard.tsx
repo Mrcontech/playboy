@@ -13,6 +13,7 @@ interface PlayerCardProps {
     cpn?: number;
     averageRating?: number;
     isActive?: boolean;
+    image_url?: string;
   };
   onClick?: () => void;
   size?: 'small' | 'medium' | 'large';
@@ -49,13 +50,14 @@ const PlayerCard = memo(function PlayerCard({
       onClick={onClick}
     >
       {/* Image Section */}
-      <div className={`${avatarSizes[size]} w-full overflow-hidden bg-black`}>
-        {player.avatar ? (
+      <div className={`${avatarSizes[size]} w-full overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900`}>
+        {(player.avatar || player.image_url) ? (
           <img 
-            src={player.avatar} 
+            src={player.avatar || player.image_url} 
             alt={player.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-opacity duration-200"
             loading="lazy"
+            decoding="async"
             onError={(e) => {
               // Fallback to default avatar on image load error
               e.currentTarget.style.display = 'none';

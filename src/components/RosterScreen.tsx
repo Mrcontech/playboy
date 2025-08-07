@@ -4,8 +4,7 @@ import SearchBar from './SearchBar';
 import PlayerCard from './PlayerCard';
 import AddPlayerModal from './AddPlayerModal';
 import LoadingSpinner from './LoadingSpinner';
-import { useDataLoader } from '../hooks/useDataLoader';
-import { playerApi } from '../services/api';
+import { playerService } from '../services/playerService';
 import type { Tables } from '../lib/supabase';
 
 type Player = Tables<'profiles'>;
@@ -19,41 +18,72 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
   const [showAddPlayerModal, setShowAddPlayerModal] = useState(false);
   const [loadingPlayerDetails, setLoadingPlayerDetails] = useState<string | null>(null);
 
-  // Load only basic player data initially for faster performance
-  const { 
-    data: basicPlayers, 
-    loading: basicLoading,
-    refetch: refetchBasic,
-    forceRefresh: forceRefreshBasic
-  } = useDataLoader({
-    key: 'getPlayersBasic',
-    fetcher: () => playerApi.getPlayersBasic(),
-    ttlMinutes: 30 // Balanced cache time for basic data
-  });
+  // Use optimized player service with instant loading
+  const [players, setPlayers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const loading = basicLoading;
+  // Load players with optimized service
+  React.useEffect(() => {
+    let isMounted = true;
+    
+    const loadPlayers = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        console.log('🚀 Loading roster with optimized service...');
+        const startTime = performance.now();
+        
+        const playersData = await playerService.getPlayersBasic();
+        
+        if (isMounted) {
+          setPlayers(playersData);
+          const endTime = performance.now();
+          console.log(`✅ Roster loaded in ${Math.round(endTime - startTime)}ms`);
+        }
+      } catch (err) {
+        console.error('❌ Error loading roster:', err);
+        if (isMounted) {
+          setError(err instanceof Error ? err.message : 'Failed to load roster');
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+    
+    loadPlayers();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
-  const loadPlayers = useCallback(async () => {
+  const refreshPlayers = useCallback(async () => {
     try {
-      console.log('Refreshing player data...');
-      await forceRefreshBasic();
-      console.log('Player data refreshed successfully');
+      console.log('🔄 Force refreshing roster...');
+      const playersData = await playerService.getPlayersBasic(true); // Force refresh
+      setPlayers(playersData);
+      console.log('✅ Roster refreshed successfully');
     } catch (error) {
-      console.error('Error refreshing players:', error);
+      console.error('❌ Error refreshing roster:', error);
+      setError(error instanceof Error ? error.message : 'Failed to refresh roster');
     }
-  }, [forceRefreshBasic]);
+  }, []);
 
   // Listen for focus events to refresh data when returning to roster
   React.useEffect(() => {
     const handleFocus = () => {
       console.log('🔄 Window focused, checking for roster updates...');
-      forceRefreshBasic();
+      refreshPlayers();
     };
 
     const handleVisibilityChange = () => {
       if (!document.hidden) {
         console.log('🔄 Page visible again, refreshing roster...');
-        forceRefreshBasic();
+        refreshPlayers();
       }
     };
 
@@ -64,7 +94,7 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
       window.removeEventListener('focus', handleFocus);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [forceRefreshBasic]);
+  }, [refreshPlayers]);
 
   // Handle player selection with lazy loading of detailed data
   const handlePlayerSelect = useCallback(async (player: Partial<Player>) => {
@@ -73,7 +103,7 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
     setLoadingPlayerDetails(player.id);
     try {
       console.log('🔍 Loading detailed data for:', player.name);
-      const detailedPlayer = await playerApi.getPlayerDetails(player.id);
+      const detailedPlayer = await playerService.getPlayerDetailed(player.id);
       console.log('✅ Detailed data loaded, navigating to profile');
       onPlayerSelect(detailedPlayer);
     } catch (error) {
@@ -86,12 +116,12 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
 
   // Separate active and bench players from basic data
   const { activePlayers, benchPlayers } = React.useMemo(() => {
-    const players = basicPlayers || [];
+    const allPlayers = players || [];
     return {
-      activePlayers: players.filter(player => !player.bench),
-      benchPlayers: players.filter(player => player.bench)
+      activePlayers: allPlayers.filter(player => !player.bench),
+      benchPlayers: allPlayers.filter(player => player.bench)
     };
-  }, [basicPlayers]);
+  }, [players]);
 
   // Memoized filtered players for better performance
   const filteredActivePlayers = React.useMemo(() => activePlayers.filter(player =>
@@ -275,7 +305,7 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
       <AddPlayerModal
         isOpen={showAddPlayerModal}
         onClose={() => setShowAddPlayerModal(false)}
-        onPlayerAdded={loadPlayers}
+        onPlayerAdded={refreshPlayers}
       />
     </div>
   );
