@@ -156,29 +156,35 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
             </div>
             
             <div className="grid grid-cols-7 gap-2">
-              {calendarDates.map((date, index) => (
-                <div
-                  key={index}
-                  className={`p-2 lg:p-4 rounded-lg text-center transition-colors ${
-                    date.active 
-                      ? 'bg-green-500 text-black shadow-lg cursor-pointer hover:bg-green-400'
-                      : datesLoading 
-                        ? 'bg-gray-800 text-gray-300 animate-pulse cursor-default'
+              {datesLoading ? (
+                // Loading skeleton for calendar dates
+                Array.from({ length: 7 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className="p-2 lg:p-4 rounded-lg text-center bg-gray-800 animate-pulse cursor-default"
+                  >
+                    <div className="bg-gray-700 h-3 w-8 rounded mx-auto mb-2"></div>
+                    <div className="bg-gray-700 h-4 lg:h-6 w-6 lg:w-8 rounded mx-auto"></div>
+                  </div>
+                ))
+              ) : (
+                calendarDates.map((date, index) => (
+                  <div
+                    key={index}
+                    className={`p-2 lg:p-4 rounded-lg text-center transition-colors ${
+                      date.active 
+                        ? 'bg-green-500 text-black shadow-lg cursor-pointer hover:bg-green-400'
                         : 'bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-default'
-                  }`}
-                  onClick={() => handleDateClick(date.dateInfo)}
-                >
-                  <div className="text-xs font-medium mb-1">{date.day}</div>
-                  <div className="text-sm lg:text-lg font-bold">{date.date}</div>
-                </div>
-              ))}
+                    }`}
+                    onClick={() => handleDateClick(date.dateInfo)}
+                  >
+                    <div className="text-xs font-medium mb-1">{date.day}</div>
+                    <div className="text-sm lg:text-lg font-bold">{date.date}</div>
+                  </div>
+                ))
+              )}
             </div>
             
-            {datesLoading && (
-              <div className="text-center mt-4">
-                <div className="text-gray-400 text-sm">Loading upcoming dates...</div>
-              </div>
-            )}
           </section>
 
           {/* Recently Active Section */}
