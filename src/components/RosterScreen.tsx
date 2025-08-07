@@ -20,7 +20,7 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
   // Load data with persistent caching
   const { 
     data: activePlayers, 
-    loading: activeLoading, 
+    loading: activeLoading,
     refetch: refetchActive 
   } = useDataLoader({
     key: 'getActivePlayers',
@@ -30,7 +30,7 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
 
   const { 
     data: benchPlayers, 
-    loading: benchLoading 
+    loading: benchLoading
   } = useDataLoader({
     key: 'getBenchPlayers',
     fetcher: () => playerApi.getBenchPlayers(),

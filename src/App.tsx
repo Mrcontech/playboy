@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { Suspense, memo } from 'react';
+import { useEffect } from 'react';
 import LandingPage from './components/LandingPage';
 import AuthWrapper from './components/AuthWrapper';
 import LeftSidebar from './components/LeftSidebar';
@@ -12,6 +13,8 @@ import PasswordResetPage from './components/PasswordResetPage';
 import AuthCallback from './components/AuthCallback';
 import LoadingSpinner from './components/LoadingSpinner';
 import { useAuth } from './hooks/useAuth';
+import { preloadData } from './hooks/useDataLoader';
+import { playerApi, statsApi, datesApi } from './services/api';
 import type { Tables } from './lib/supabase';
 
 // Lazy load heavy components
@@ -28,6 +31,42 @@ const AppContent = memo(function AppContent() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  
+  // Preload data for all screens to improve initial load times
+  useEffect(() => {
+    const preloadAllData = async () => {
+      try {
+        console.log('Starting data preloading...');
+        
+        // Preload data for all screens in parallel
+        const preloadPromises = [
+          // Hub screen data
+          preloadData('getUpcomingDates', () => datesApi.getUpcomingDates(), 5),
+          preloadData('getRecentPlayers_3', () => playerApi.getRecentPlayers(3), 10),
+          
+          // Roster screen data
+          preloadData('getActivePlayers', () => playerApi.getActivePlayers(), 30),
+          preloadData('getBenchPlayers', () => playerApi.getBenchPlayers(), 30),
+          
+          // Playbook screen data
+          preloadData('getCPNByPeriod_monthly', () => statsApi.getCPNByPeriod('monthly'), 30),
+          preloadData('getTopPlayersByRating_3', () => statsApi.getTopPlayersByRating(3), 30),
+          preloadData('getDashboardStats', () => statsApi.getDashboardStats(), 30),
+        ];
+        
+        // Execute all preloads in parallel
+        await Promise.allSettled(preloadPromises);
+        console.log('Data preloading completed');
+      } catch (error) {
+        console.error('Error during data preloading:', error);
+        // Don't block the UI if preloading fails
+      }
+    };
+    
+    // Start preloading after a short delay to not interfere with initial render
+    const timer = setTimeout(preloadAllData, 100);
+    return () => clearTimeout(timer);
+  }, []);
   
   // Get current tab from URL
   const getCurrentTab = () => {

@@ -93,12 +93,19 @@ export function useDataLoader<T>({
 
 // Preload data function for critical paths
 export function preloadData<T>(key: string, fetcher: () => Promise<T>, ttlMinutes = 30) {
+  console.log(`Preloading data for key: ${key}`);
+  
   // Check if already cached
   const cached = persistentCache.get<T>(key);
-  if (cached) return Promise.resolve(cached);
+  if (cached) {
+    console.log(`Data already cached for key: ${key}`);
+    return Promise.resolve(cached);
+  }
 
   // Fetch and cache in background
+  console.log(`Fetching fresh data for key: ${key}`);
   return fetcher().then(data => {
+    console.log(`Successfully preloaded data for key: ${key}`);
     persistentCache.set(key, data, ttlMinutes);
     return data;
   }).catch(error => {

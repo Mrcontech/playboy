@@ -26,7 +26,7 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
   // Load data with persistent caching
   const { 
     data: upcomingDates, 
-    loading: datesLoading, 
+    loading: datesLoading,
     refetch: refetchDates 
   } = useDataLoader({
     key: 'getUpcomingDates',
@@ -36,7 +36,7 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
 
   const { 
     data: recentlyActive, 
-    loading: playersLoading 
+    loading: playersLoading
   } = useDataLoader({
     key: 'getRecentPlayers_3',
     fetcher: () => playerApi.getRecentPlayers(3),

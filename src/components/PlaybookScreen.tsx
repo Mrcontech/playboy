@@ -31,7 +31,7 @@ const PlaybookScreen = memo(function PlaybookScreen({ onPlayerSelect }: Playbook
   // Load data with persistent caching
   const { 
     data: cpnData, 
-    loading: cpnLoading 
+    loading: cpnLoading
   } = useDataLoader({
     key: `getCPNByPeriod_${selectedPeriod}`,
     fetcher: () => statsApi.getCPNByPeriod(selectedPeriod),
@@ -41,7 +41,7 @@ const PlaybookScreen = memo(function PlaybookScreen({ onPlayerSelect }: Playbook
 
   const { 
     data: topPlayers, 
-    loading: playersLoading 
+    loading: playersLoading
   } = useDataLoader({
     key: 'getTopPlayersByRating_3',
     fetcher: () => statsApi.getTopPlayersByRating(3),
@@ -50,7 +50,7 @@ const PlaybookScreen = memo(function PlaybookScreen({ onPlayerSelect }: Playbook
 
   const { 
     data: rawStats, 
-    loading: statsLoading 
+    loading: statsLoading
   } = useDataLoader({
     key: 'getDashboardStats',
     fetcher: () => statsApi.getDashboardStats(),
