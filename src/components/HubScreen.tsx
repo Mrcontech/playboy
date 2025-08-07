@@ -1,5 +1,5 @@
 import React, { memo, useCallback } from 'react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Plus, MessageCircle } from 'lucide-react';
 import PlayerCard from './PlayerCard';
 import LoadingSpinner from './LoadingSpinner';
@@ -28,18 +28,16 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
   const { 
     data: upcomingDates, 
     loading: datesLoading,
-    error: datesError,
     refetch: refetchDates 
   } = useDataLoader({
     key: 'getUpcomingDates',
     fetcher: () => datesApi.getUpcomingDates(),
-    ttlMinutes: 0 // No caching for dates to ensure fresh data
+    ttlMinutes: 5 // Short cache to prevent constant refetching
   });
 
   const { 
     data: recentlyActive, 
-    loading: playersLoading,
-    error: playersError
+    loading: playersLoading
   } = useDataLoader({
     key: 'getRecentPlayers_3',
     fetcher: () => playerApi.getRecentPlayers(3),
@@ -49,12 +47,11 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
   const loading = datesLoading || playersLoading;
 
   const loadData = useCallback(async () => {
-    console.log('Refreshing upcoming dates data...');
     await refetchDates();
   }, [refetchDates]);
 
   // Generate calendar dates for the next 7 days
-  const getUpcomingCalendarDates = useCallback(() => {
+  const calendarDates = useMemo(() => {
     const dates = [];
     const today = new Date();
     
@@ -62,12 +59,12 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
       
-      // Simple date comparison using just the date part
+      // More robust date comparison
       const dateInfo = upcomingDates?.find(d => {
         const scheduledDate = new Date(d.date);
-        return scheduledDate.getDate() === date.getDate() &&
-               scheduledDate.getMonth() === date.getMonth() &&
-               scheduledDate.getFullYear() === date.getFullYear();
+        const scheduledDateStr = scheduledDate.toDateString();
+        const currentDateStr = date.toDateString();
+        return scheduledDateStr === currentDateStr;
       });
       
       dates.push({
@@ -102,7 +99,6 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
     );
   }
 
-  const calendarDates = getUpcomingCalendarDates();
 
   return (
     <div className="p-4 lg:p-8">
@@ -141,6 +137,13 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
                 </div>
               ))}
             </div>
+            
+            {/* Debug info - remove after testing */}
+            {upcomingDates && upcomingDates.length > 0 && (
+              <div className="mt-4 text-xs text-gray-500">
+                Found {upcomingDates.length} upcoming dates
+              </div>
+            )}
           </section>
 
           {/* Recently Active Section */}
@@ -164,14 +167,9 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
                 />
               ))}
             </div>
-            {(!recentlyActive || recentlyActive.length === 0) && !playersLoading && !playersError && (
+            {(!recentlyActive || recentlyActive.length === 0) && !playersLoading && (
               <div className="text-center py-8 text-gray-400">
                 No recently active players
-              </div>
-            )}
-            {(playersLoading || playersError) && (
-              <div className="text-center py-8 text-gray-400">
-                {playersLoading ? 'Loading players...' : 'Error loading players'}
               </div>
             )}
           </section>
