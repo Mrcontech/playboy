@@ -177,15 +177,13 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
                       name: player.name!,
                       avatar: player.image_url || '',
                       status: player.status,
-                      // Show placeholder values for stats that will load on-demand
-                      totalMeetings: 0,
-                      cpn: 0,
-                      averageRating: player.looks_rating || 0,
+                      // Only show basic info for roster cards - no stats initially
                       isActive: !player.bench
                     }}
                     onClick={() => handlePlayerSelect(player)}
                     size="small"
                     isLoading={loadingPlayerDetails === player.id}
+                    showBasicInfo={false}
                   />
                   {loadingPlayerDetails === player.id && (
                     <div className="absolute inset-0 bg-black bg-opacity-75 rounded-xl flex items-center justify-center">
@@ -225,15 +223,13 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
                       name: player.name!,
                       avatar: player.image_url || '',
                       status: player.status,
-                      // Show placeholder values for stats that will load on-demand
-                      totalMeetings: 0,
-                      cpn: 0,
-                      averageRating: player.looks_rating || 0,
+                      // Only show basic info for roster cards - no stats initially
                       isActive: !player.bench
                     }}
                     onClick={() => handlePlayerSelect(player)}
                     size="small"
                     isLoading={loadingPlayerDetails === player.id}
+                    showBasicInfo={false}
                   />
                   {loadingPlayerDetails === player.id && (
                     <div className="absolute inset-0 bg-black bg-opacity-75 rounded-xl flex items-center justify-center">
