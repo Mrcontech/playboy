@@ -51,13 +51,18 @@ function calculatePlayerStats(player: any) {
 // Player API
 export const playerApi = {
   async createPlayer(player: Inserts<'profiles'>) {
+    console.log('API: Creating player with data:', player);
     const { data, error } = await supabase
       .from('profiles')
       .insert(player)
       .select()
       .single();
     
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase error creating player:', error);
+      throw error;
+    }
+    console.log('API: Player created successfully:', data);
     return data;
   },
 

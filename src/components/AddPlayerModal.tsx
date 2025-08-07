@@ -63,6 +63,17 @@ export default function AddPlayerModal({ isOpen, onClose, onPlayerAdded }: AddPl
 
     setLoading(true);
     try {
+      console.log('Creating player with data:', {
+        name: formData.name,
+        image_url: formData.image_url || null,
+        status: formData.status,
+        looks_rating: formData.looks_rating,
+        likes: formData.likes ? formData.likes.split(',').map(s => s.trim()) : [],
+        dislikes: formData.dislikes ? formData.dislikes.split(',').map(s => s.trim()) : [],
+        notes: formData.notes || null,
+        user_id: user.id,
+      });
+
       await playerApi.createPlayer({
         name: formData.name,
         image_url: formData.image_url || null,
@@ -72,10 +83,16 @@ export default function AddPlayerModal({ isOpen, onClose, onPlayerAdded }: AddPl
         dislikes: formData.dislikes ? formData.dislikes.split(',').map(s => s.trim()) : [],
         notes: formData.notes || null,
         user_id: user.id,
+        bench: false, // Ensure new players are not benched by default
       });
       
+      console.log('Player created successfully');
       onPlayerAdded();
       onClose();
+      
+      // Force a page refresh to ensure data is updated
+      window.location.reload();
+      
       setFormData({
         name: '',
         image_url: '',
@@ -87,6 +104,7 @@ export default function AddPlayerModal({ isOpen, onClose, onPlayerAdded }: AddPl
       });
     } catch (error) {
       console.error('Error creating player:', error);
+      alert('Failed to create player. Please try again.');
     } finally {
       setLoading(false);
     }

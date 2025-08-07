@@ -70,11 +70,13 @@ export function useDataLoader<T>({
 
   // Invalidate cache function
   const invalidate = useCallback(() => {
+    console.log(`Invalidating cache for key: ${key}`);
     persistentCache.delete(key);
   }, [key]);
 
   // Update cache function
   const updateCache = useCallback((newData: T) => {
+    console.log(`Updating cache for key: ${key}`);
     persistentCache.set(key, newData, ttlMinutes);
     setData(newData);
   }, [key, ttlMinutes]);

@@ -40,7 +40,13 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
   const loading = activeLoading || benchLoading;
 
   const loadPlayers = useCallback(async () => {
-    await refetchActive();
+    try {
+      console.log('Refreshing player data...');
+      await refetchActive();
+      console.log('Player data refreshed successfully');
+    } catch (error) {
+      console.error('Error refreshing players:', error);
+    }
   }, [refetchActive]);
 
   const filteredActivePlayers = (activePlayers || []).filter(player =>
