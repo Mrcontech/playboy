@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { X, Upload, Trash2 } from 'lucide-react';
 import { playerApi } from '../services/api';
 import { persistentCache } from '../lib/storage';
-import { persistentCache } from '../lib/storage';
 import type { Tables } from '../lib/supabase';
 
 type Player = Tables<'profiles'>;
