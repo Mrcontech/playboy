@@ -9,6 +9,7 @@ import ChatAnalysisModal from './ChatAnalysisModal';
 import SubscriptionBanner from './SubscriptionBanner';
 import { useDataLoader } from '../hooks/useDataLoader';
 import { datesApi, playerApi } from '../services/api';
+import { playerService } from '../services/playerService';
 import type { Tables } from '../lib/supabase';
 
 type Player = Tables<'profiles'>;
