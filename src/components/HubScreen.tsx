@@ -33,7 +33,7 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
   } = useDataLoader({
     key: 'getUpcomingDates',
     fetcher: () => datesApi.getUpcomingDates(),
-    ttlMinutes: 5 // Reduce cache time to ensure fresh data
+    ttlMinutes: 0 // No caching for dates to ensure fresh data
   });
 
   const { 
@@ -55,7 +55,6 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
 
   // Generate calendar dates for the next 7 days
   const getUpcomingCalendarDates = useCallback(() => {
-    console.log('Generating calendar dates. Upcoming dates data:', upcomingDates);
     const dates = [];
     const today = new Date();
     
@@ -63,21 +62,14 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
       
+      // Simple date comparison using just the date part
       const dateInfo = upcomingDates?.find(d => {
         const scheduledDate = new Date(d.date);
-        // More robust date comparison
-        const scheduledDateStr = scheduledDate.getFullYear() + '-' + 
-          String(scheduledDate.getMonth() + 1).padStart(2, '0') + '-' + 
-          String(scheduledDate.getDate()).padStart(2, '0');
-        const currentDateStr = date.getFullYear() + '-' + 
-          String(date.getMonth() + 1).padStart(2, '0') + '-' + 
-          String(date.getDate()).padStart(2, '0');
-        
-        console.log(`Comparing scheduled: ${scheduledDateStr} with current: ${currentDateStr}`);
-        return scheduledDateStr === currentDateStr;
+        return scheduledDate.getDate() === date.getDate() &&
+               scheduledDate.getMonth() === date.getMonth() &&
+               scheduledDate.getFullYear() === date.getFullYear();
       });
       
-      console.log(`Date ${date.getDate()} (${date.toDateString()}): ${dateInfo ? 'HAS DATE' : 'NO DATE'}`);
       dates.push({
         date: date.getDate(),
         day: date.toLocaleDateString('en-US', { weekday: 'short' }),
@@ -86,7 +78,6 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
       });
     }
     
-    console.log('Final calendar dates with active status:', dates.map(d => ({ date: d.date, active: d.active })));
     return dates;
   }, [upcomingDates]);
 
