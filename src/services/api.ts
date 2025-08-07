@@ -88,6 +88,49 @@ export const playerApi = {
     return data;
   },
 
+  // New lightweight query for initial roster load - only essential fields
+  async getPlayersBasic(): Promise<Partial<Player>[]> {
+    console.log('🚀 Fetching basic player data for roster...');
+    const { data: players, error } = await supabase
+      .from('profiles')
+      .select('id, name, image_url, status, looks_rating, bench, updated_at')
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    
+    console.log('✅ Basic player data loaded:', players?.length || 0, 'players');
+    return players || [];
+  },
+
+  // New method to get detailed player data on-demand
+  async getPlayerDetails(playerId: string): Promise<Player> {
+    console.log('🔍 Fetching detailed data for player:', playerId);
+    const { data: player, error } = await supabase
+      .from('profiles')
+      .select(`
+        *,
+        meetings (
+          amount_spent,
+          rating,
+          performance_rating,
+          type,
+          date,
+          created_at
+        )
+      `)
+      .eq('id', playerId)
+      .single();
+    
+    if (error) throw error;
+    
+    if (!player) {
+      throw new Error('Player not found');
+    }
+    
+    console.log('✅ Detailed player data loaded for:', player.name);
+    return calculatePlayerStats(player, true);
+  },
+
   // Optimized query with selective field loading
   async getAllPlayers(includeStats = true): Promise<Player[]> {
     const baseQuery = supabase

@@ -23,6 +23,7 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
   const [showDateInfoModal, setShowDateInfoModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState<UpcomingDate | null>(null);
   const [showChatAnalysis, setShowChatAnalysis] = useState(false);
+  const [loadingPlayerDetails, setLoadingPlayerDetails] = useState<string | null>(null);
 
   // Load data with persistent caching
   const { 
@@ -40,7 +41,7 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
     loading: playersLoading,
     refetch: refetchPlayers
   } = useDataLoader({
-    key: 'getRecentPlayers_4', // Increased to 4 for better display
+    key: 'getRecentPlayers_3',
     fetcher: () => playerApi.getRecentPlayers(3),
     ttlMinutes: 20 // Longer cache for recent players
   });
@@ -54,6 +55,30 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
       console.error('❌ Error refreshing hub data:', error);
     }
   }, [refetchDates, refetchPlayers]);
+
+  // Handle player selection with lazy loading
+  const handlePlayerSelect = useCallback(async (player: Player) => {
+    if (!player.id) return;
+    
+    // If player already has detailed stats, navigate directly
+    if (player.totalMeetings !== undefined) {
+      onPlayerSelect?.(player);
+      return;
+    }
+    
+    setLoadingPlayerDetails(player.id);
+    try {
+      console.log('🔍 Loading detailed data for recently active player:', player.name);
+      const detailedPlayer = await playerApi.getPlayerDetails(player.id);
+      console.log('✅ Detailed data loaded, navigating to profile');
+      onPlayerSelect?.(detailedPlayer);
+    } catch (error) {
+      console.error('❌ Error loading player details:', error);
+      alert('Failed to load player details. Please try again.');
+    } finally {
+      setLoadingPlayerDetails(null);
+    }
+  }, [onPlayerSelect]);
 
   // Generate calendar dates for the next 7 days
   const calendarDates = useMemo(() => {
@@ -176,20 +201,27 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
               <>
                 <div className="flex justify-start space-x-3 overflow-x-auto pb-2 px-1">
                   {recentlyActive?.map((player) => (
-                    <PlayerCard 
-                      key={player.id}
-                      player={{
-                        id: player.id,
-                        name: player.name,
-                        avatar: player.image_url || '',
-                        totalMeetings: player.totalMeetings || 0,
-                        cpn: player.cpn || 0,
-                        averageRating: player.averageRating || 0,
-                        status: player.status,
-                      }}
-                      onClick={() => onPlayerSelect?.(player)}
-                      size="small"
-                    />
+                    <div key={player.id} className="relative">
+                      <PlayerCard 
+                        player={{
+                          id: player.id,
+                          name: player.name,
+                          avatar: player.image_url || '',
+                          totalMeetings: player.totalMeetings || 0,
+                          cpn: player.cpn || 0,
+                          averageRating: player.averageRating || 0,
+                          status: player.status,
+                        }}
+                        onClick={() => handlePlayerSelect(player)}
+                        size="small"
+                        isLoading={loadingPlayerDetails === player.id}
+                      />
+                      {loadingPlayerDetails === player.id && (
+                        <div className="absolute inset-0 bg-black bg-opacity-75 rounded-xl flex items-center justify-center">
+                          <LoadingSpinner size="small" text="Loading..." />
+                        </div>
+                      )}
+                    </div>
                   ))}
                 </div>
                 {(!recentlyActive || recentlyActive.length === 0) && (

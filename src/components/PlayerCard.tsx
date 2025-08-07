@@ -14,9 +14,10 @@ interface PlayerCardProps {
   };
   onClick?: () => void;
   size?: 'small' | 'medium' | 'large';
+  isLoading?: boolean;
 }
 
-const PlayerCard = memo(function PlayerCard({ player, onClick, size = 'medium' }: PlayerCardProps) {
+const PlayerCard = memo(function PlayerCard({ player, onClick, size = 'medium', isLoading = false }: PlayerCardProps) {
   const sizeClasses = {
     small: 'w-36',
     medium: 'w-40',
@@ -31,7 +32,11 @@ const PlayerCard = memo(function PlayerCard({ player, onClick, size = 'medium' }
 
   return (
     <div
-      className={`${sizeClasses[size]} bg-black border-2 border-green-500 rounded-xl overflow-hidden cursor-pointer hover:border-green-400 transition-all duration-200 hover:scale-105 shadow-lg flex-shrink-0`}
+      className={`${sizeClasses[size]} bg-black border-2 border-green-500 rounded-xl overflow-hidden transition-all duration-200 shadow-lg flex-shrink-0 ${
+        isLoading 
+          ? 'cursor-wait opacity-75' 
+          : 'cursor-pointer hover:border-green-400 hover:scale-105'
+      }`}
       onClick={onClick}
     >
       {/* Image Section */}

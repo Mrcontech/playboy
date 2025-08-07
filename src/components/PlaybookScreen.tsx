@@ -36,6 +36,7 @@ interface PlaybookScreenProps {
 
 const PlaybookScreen = memo(function PlaybookScreen({ onPlayerSelect }: PlaybookScreenProps) {
   const [selectedPeriod, setSelectedPeriod] = useState<'weekly' | 'monthly' | 'yearly'>('monthly');
+  const [loadingPlayerDetails, setLoadingPlayerDetails] = useState<string | null>(null);
 
   // Optimized data loading with parallel fetching
   const { 
@@ -76,6 +77,22 @@ const PlaybookScreen = memo(function PlaybookScreen({ onPlayerSelect }: Playbook
       averageCPN: Math.round(averageCPN)
     };
   }, [rawStats]);
+
+  // Handle player selection with lazy loading for top players
+  const handleTopPlayerSelect = useCallback(async (player: TopPlayer) => {
+    setLoadingPlayerDetails(player.id);
+    try {
+      console.log('🔍 Loading detailed data for top player:', player.name);
+      const detailedPlayer = await playerApi.getPlayerDetails(player.id);
+      console.log('✅ Detailed data loaded, navigating to profile');
+      onPlayerSelect(detailedPlayer);
+    } catch (error) {
+      console.error('❌ Error loading top player details:', error);
+      alert('Failed to load player details. Please try again.');
+    } finally {
+      setLoadingPlayerDetails(null);
+    }
+  }, [onPlayerSelect]);
 
   const formatPeriodLabel = useCallback((period: string) => {
     if (!period || typeof period !== 'string') {
@@ -367,24 +384,67 @@ const PlaybookScreen = memo(function PlaybookScreen({ onPlayerSelect }: Playbook
               <div className="space-y-4">
                 {topPlayers && topPlayers.length > 0 ? (
                   topPlayers.map((player, index) => (
-                    <div 
-                      key={player.id} 
-                      className="bg-black border-2 border-green-500 rounded-lg p-4 hover:border-green-400 transition-colors cursor-pointer"
-                      onClick={() => onPlayerSelect({
-                        id: player.id,
-                        name: player.name,
-                        image_url: player.image_url,
-                        looks_rating: player.looks_rating,
-                        status: player.status,
-                        user_id: '',
-                        created_at: '',
-                        updated_at: '',
-                        // Include calculated stats
-                        totalMeetings: player.totalMeetings,
-                        cpn: player.cpn,
-                        averageRating: player.averageRating
-                      })}
-                    >
+                    <div key={player.id} className="relative">
+                      <div 
+                        className={`bg-black border-2 border-green-500 rounded-lg p-4 transition-colors ${
+                          loadingPlayerDetails === player.id 
+                            ? 'cursor-wait opacity-75' 
+                            : 'hover:border-green-400 cursor-pointer'
+                        }`}
+                        onClick={() => handleTopPlayerSelect(player)}
+                      >
+                        <div className="flex items-center space-x-4">
+                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold text-sm">
+                            {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
+                          </div>
+                          <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-green-500 to-green-600">
+                            {player.image_url ? (
+                              <img 
+                                src={player.image_url} 
+                                alt={player.name}
+                                className="w-full h-full object-cover"
+                                loading="lazy"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <User className="text-white" size={20} />
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-semibold text-white">{player.name}</div>
+                            <div className="text-sm text-gray-400">{player.meeting_count} meetings</div>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <span className="text-yellow-400">⭐</span>
+                            <span className="text-white font-bold">{player.average_rating.toFixed(1)}</span>
+                          </div>
+                        </div>
+                      </div>
+                      {loadingPlayerDetails === player.id && (
+                        <div className="absolute inset-0 bg-black bg-opacity-75 rounded-lg flex items-center justify-center">
+                          <LoadingSpinner size="small" text="Loading details..." />
+                        </div>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8">
+                    <Users className="mx-auto mb-4 text-gray-400" size={48} />
+                    <p className="text-gray-400 mb-2">No rated players yet</p>
+                    <p className="text-sm text-gray-500">Add some meetings with ratings to see your top performers</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+});
+
+export default PlaybookScreen;
                       <div className="flex items-center space-x-4">
                         <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold text-sm">
                           {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
