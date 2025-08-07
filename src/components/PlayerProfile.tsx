@@ -181,17 +181,17 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
             {/* Stats Grid */}
             <div className="grid grid-cols-3 gap-2 mb-6">
               <div className="bg-black border-2 border-green-500 p-4 rounded-xl text-center">
-                <Heart className="text-red-400 mx-auto mb-2" size={24} />
+                <div className="text-2xl mb-2">📅</div>
                 <div className="text-lg font-bold text-white">{detailedPlayer.totalMeetings}</div>
                 <div className="text-xs text-gray-400">Meetings</div>
               </div>
               <div className="bg-black border-2 border-green-500 p-4 rounded-xl text-center">
-                <DollarSign className="text-green-500 mx-auto mb-2" size={24} />
+                <div className="text-2xl mb-2">💰</div>
                 <div className="text-sm font-bold text-white">${detailedPlayer.cpn}</div>
                 <div className="text-xs text-gray-400">CPN</div>
               </div>
               <div className="bg-black border-2 border-green-500 p-4 rounded-xl text-center">
-                <Star className="text-purple-500 fill-current mx-auto mb-2" size={24} />
+                <div className="text-2xl mb-2">⭐</div>
                 <div className="text-lg font-bold text-white">{detailedPlayer.averageRating}</div>
                 <div className="text-xs text-gray-400">Avg</div>
               </div>
@@ -202,18 +202,18 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
           <div className="lg:col-span-2 space-y-4 lg:space-y-6">
             {/* Ratings */}
             <div className="bg-black border-2 border-green-500 rounded-xl p-6">
-              <h3 className="text-xl font-semibold text-white mb-6">Performance Ratings</h3>
+              <h3 className="text-xl font-semibold text-white mb-6">📊 Performance Ratings</h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-300 font-medium text-sm sm:text-base">Looks</span>
+                  <span className="text-gray-300 font-medium text-sm sm:text-base">👀 Looks</span>
                   <StarRating rating={detailedPlayer.looks_rating || 0} />
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-300 font-medium text-sm sm:text-base">Performance</span>
+                  <span className="text-gray-300 font-medium text-sm sm:text-base">🔥 Performance</span>
                   <StarRating rating={detailedPlayer.performanceRating} />
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-300 font-medium text-sm sm:text-base">Date Experience</span>
+                  <span className="text-gray-300 font-medium text-sm sm:text-base">💕 Date Experience</span>
                   <StarRating rating={detailedPlayer.dateRating} />
                 </div>
               </div>
@@ -222,18 +222,19 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
             {/* Profile Details - FIXED SECTION */}
             <div className="bg-black border-2 border-green-500 rounded-xl p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-white">Profile Details</h3>
+                <h3 className="text-xl font-semibold text-white">📝 Profile Details</h3>
                 <button 
                   onClick={() => setShowAIRecap(true)}
-                  className="bg-purple-500 hover:bg-purple-600 px-4 py-2 rounded-lg text-white text-sm font-medium transition-colors"
+                  className="bg-purple-500 hover:bg-purple-600 px-4 py-2 rounded-lg text-white text-sm font-medium transition-colors flex items-center space-x-2"
                 >
-                  AI Recap
+                  <span>🤖</span>
+                  <span>AI Recap</span>
                 </button>
               </div>
               
               {/* Likes Section - FIXED */}
               <div className="mb-6">
-                <h4 className="text-green-500 font-medium mb-3">Likes</h4>
+                <h4 className="text-green-500 font-medium mb-3">👍 Likes</h4>
                 {detailedPlayer.likes && Array.isArray(detailedPlayer.likes) && detailedPlayer.likes.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {detailedPlayer.likes.map((like, index) => (
@@ -251,7 +252,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
               
               {/* Dislikes Section - FIXED */}
               <div className="mb-6">
-                <h4 className="text-red-500 font-medium mb-3">Dislikes</h4>
+                <h4 className="text-red-500 font-medium mb-3">👎 Dislikes</h4>
                 {detailedPlayer.dislikes && Array.isArray(detailedPlayer.dislikes) && detailedPlayer.dislikes.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {detailedPlayer.dislikes.map((dislike, index) => (
@@ -269,7 +270,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
               
               {/* Notes Section - FIXED */}
               <div className="mb-6">
-                <h4 className="text-purple-500 font-medium mb-3">Notes</h4>
+                <h4 className="text-purple-500 font-medium mb-3">📋 Notes</h4>
                 {detailedPlayer.notes && typeof detailedPlayer.notes === 'string' && detailedPlayer.notes.trim() ? (
                   <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
                     <p className="text-gray-300 leading-relaxed">
@@ -297,7 +298,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
 
             {/* Meetings & Expenses History */}
             <div className="bg-black border-2 border-green-500 rounded-xl p-6">
-              <h3 className="text-xl font-semibold text-white mb-6">Meeting & Expense History</h3>
+              <h3 className="text-xl font-semibold text-white mb-6">📅 Meeting & Expense History</h3>
               {detailedPlayer.meetings && detailedPlayer.meetings.length > 0 ? (
                 <div className="space-y-4">
                   {detailedPlayer.meetings.map((meeting) => (
@@ -327,13 +328,13 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                       <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 mb-2">
                         {meeting.rating && (
                           <div className="flex items-center space-x-1 flex-wrap">
-                            <span className="text-gray-400 text-xs">Experience:</span>
+                            <span className="text-gray-400 text-xs">💕 Experience:</span>
                             <StarRating rating={meeting.rating} maxRating={10} size="small" />
                           </div>
                         )}
                         {meeting.performance_rating && (
                           <div className="flex items-center space-x-1 flex-wrap">
-                            <span className="text-gray-400 text-xs">Performance 😏:</span>
+                            <span className="text-gray-400 text-xs">🔥 Performance:</span>
                             <StarRating rating={meeting.performance_rating} maxRating={10} size="small" />
                           </div>
                         )}

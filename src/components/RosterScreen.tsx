@@ -23,7 +23,7 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Load players with TIER 1 minimal data for instant display
+  // Load players with minimal data for fast display
   React.useEffect(() => {
     let isMounted = true;
     
@@ -32,15 +32,23 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
         setLoading(true);
         setError(null);
         
-        console.log('🚀 TIER 1: Loading roster with minimal data...');
+        console.log('🚀 Loading roster with minimal data...');
         const startTime = performance.now();
         
-        const playersData = await playerService.getPlayersBasic();
+        // Simple, fast query - just get essential fields
+        const { data: playersData, error: playersError } = await supabase
+          .from('profiles')
+          .select('id, name, image_url, status, bench, updated_at')
+          .order('updated_at', { ascending: false });
+        
+        if (playersError) {
+          throw playersError;
+        }
         
         if (isMounted) {
-          setPlayers(playersData);
+          setPlayers(playersData || []);
           const endTime = performance.now();
-          console.log(`✅ TIER 1: Roster loaded instantly in ${Math.round(endTime - startTime)}ms`);
+          console.log(`✅ Roster loaded in ${Math.round(endTime - startTime)}ms`);
         }
       } catch (err) {
         console.error('❌ Error loading roster:', err);
@@ -63,10 +71,16 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
 
   const refreshPlayers = useCallback(async () => {
     try {
-      console.log('🔄 TIER 1: Force refreshing roster...');
-      const playersData = await playerService.getPlayersBasic(true); // Force refresh
-      setPlayers(playersData);
-      console.log('✅ TIER 1: Roster refreshed successfully');
+      console.log('🔄 Force refreshing roster...');
+      const { data: playersData, error } = await supabase
+        .from('profiles')
+        .select('id, name, image_url, status, bench, updated_at')
+        .order('updated_at', { ascending: false });
+      
+      if (error) throw error;
+      
+      setPlayers(playersData || []);
+      console.log('✅ Roster refreshed successfully');
     } catch (error) {
       console.error('❌ Error refreshing roster:', error);
       setError(error instanceof Error ? error.message : 'Failed to refresh roster');
@@ -76,13 +90,13 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
   // Listen for focus events to refresh data when returning to roster
   React.useEffect(() => {
     const handleFocus = () => {
-      console.log('🔄 TIER 1: Window focused, checking for roster updates...');
+      console.log('🔄 Window focused, checking for roster updates...');
       refreshPlayers();
     };
 
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        console.log('🔄 TIER 1: Page visible again, refreshing roster...');
+        console.log('🔄 Page visible again, refreshing roster...');
         refreshPlayers();
       }
     };
@@ -102,9 +116,9 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
     
     setLoadingPlayerDetails(player.id);
     try {
-      console.log('🔍 TIER 2: Loading detailed data for:', player.name);
-      const detailedPlayer = await playerService.getPlayerDetailed(player.id);
-      console.log('✅ TIER 2: Detailed data loaded, navigating to profile');
+      console.log('🔍 Loading detailed data for:', player.name);
+      const detailedPlayer = await playerApi.getPlayerDetails(player.id);
+      console.log('✅ Detailed data loaded, navigating to profile');
       onPlayerSelect(detailedPlayer);
     } catch (error) {
       console.error('❌ Error loading player details:', error);

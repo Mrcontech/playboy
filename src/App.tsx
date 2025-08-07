@@ -12,12 +12,11 @@ import PasswordResetPage from './components/PasswordResetPage';
 import AuthCallback from './components/AuthCallback';
 import LoadingSpinner from './components/LoadingSpinner';
 import { useAuth } from './hooks/useAuth';
-import { lightningService } from './services/lightningService';
 import type { Tables } from './lib/supabase';
 
 // Lazy load heavy components
-const HubScreen = React.lazy(() => import('./components/LightningHubScreen'));
-const RosterScreen = React.lazy(() => import('./components/LightningRosterScreen'));
+const HubScreen = React.lazy(() => import('./components/HubScreen'));
+const RosterScreen = React.lazy(() => import('./components/RosterScreen'));
 const PlaybookScreen = React.lazy(() => import('./components/PlaybookScreen'));
 const SettingsScreen = React.lazy(() => import('./components/SettingsScreen'));
 const PlayerProfile = React.lazy(() => import('./components/PlayerProfile'));
@@ -42,33 +41,6 @@ const AppContent = memo(function AppContent() {
 
   const activeTab = getCurrentTab();
 
-  // Lightning-fast initialization
-  useEffect(() => {
-    let isMounted = true;
-    
-    const lightningInit = async () => {
-      try {
-        console.log('⚡ Starting lightning initialization...');
-        
-        // Immediate cache warmup for instant loading
-        await lightningService.warmupCache();
-        
-        if (!isMounted) return;
-        
-        console.log('🚀 Lightning initialization complete');
-        
-      } catch (error) {
-        console.error('❌ Error during lightning initialization:', error);
-      }
-    };
-    
-    lightningInit();
-    
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
   const handlePlayerSelect = (player: Player) => {
     setSelectedPlayer(player);
     setIsMobileMenuOpen(false);
@@ -85,18 +57,13 @@ const AppContent = memo(function AppContent() {
     navigate(`/${tab === 'hub' ? '' : tab}`);
   };
 
-  // Enhanced loading fallback with route-specific content
+  // Simple loading fallback
   const LoadingFallback = memo(({ route }: { route?: string }) => (
     <div className="p-4 lg:p-8">
-      <LoadingSpinner 
-        variant="detailed" 
-        text={
-          route === 'playbook' ? 'Loading analytics dashboard...' :
-          route === 'roster' ? 'Loading player roster...' :
-          route === 'settings' ? 'Loading settings...' :
-          'Loading dashboard...'
-        } 
-      />
+      <div className="text-center py-16">
+        <div className="animate-spin w-8 h-8 border-2 border-green-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+        <p className="text-white">Loading...</p>
+      </div>
     </div>
   ));
 
@@ -153,7 +120,10 @@ export default function App() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <LoadingSpinner text="Loading..." />
+        <div className="text-center">
+          <div className="animate-spin w-8 h-8 border-2 border-green-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-white">Loading...</p>
+        </div>
       </div>
     );
   }

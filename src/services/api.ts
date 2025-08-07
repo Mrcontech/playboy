@@ -90,15 +90,22 @@ export const playerApi = {
 
   // New lightweight query for initial roster load - only essential fields
   async getPlayersBasic(): Promise<Partial<Player>[]> {
-    console.log('🚀 Fetching basic player data for roster...');
+    console.log('🚀 Fetching basic player data for roster (fast mode)...');
+    const startTime = performance.now();
+    
     const { data: players, error } = await supabase
       .from('profiles')
       .select('id, name, image_url, status, looks_rating, bench, updated_at')
       .order('created_at', { ascending: false });
     
-    if (error) throw error;
+    if (error) {
+      console.error('❌ Error fetching basic players:', error);
+      throw error;
+    }
     
-    console.log('✅ Basic player data loaded:', players?.length || 0, 'players');
+    const endTime = performance.now();
+    console.log(`✅ Basic player data loaded in ${Math.round(endTime - startTime)}ms:`, players?.length || 0, 'players');
+    
     return players || [];
   },
 

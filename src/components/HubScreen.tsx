@@ -42,9 +42,20 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
     loading: playersLoading,
     refetch: refetchPlayers
   } = useDataLoader({
-    key: 'getRecentPlayersBasic_3',
-    fetcher: () => playerService.getRecentPlayersBasic(3),
-    ttlMinutes: 15 // Shorter cache for faster updates
+    key: 'getRecentPlayers_3',
+    fetcher: async () => {
+      console.log('🚀 Loading recent players for hub...');
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, name, image_url, status, bench')
+        .eq('bench', false)
+        .limit(3)
+        .order('updated_at', { ascending: false });
+      
+      if (error) throw error;
+      return data || [];
+    },
+    ttlMinutes: 10
   });
 
   const loadData = useCallback(async () => {
