@@ -35,7 +35,7 @@ const PlayerCard = memo(function PlayerCard({ player, onClick, size = 'medium' }
       onClick={onClick}
     >
       {/* Image Section */}
-      <div className={`${avatarSizes[size]} w-full overflow-hidden bg-gradient-to-br from-green-400 to-green-600`}>
+      <div className={`${avatarSizes[size]} w-full overflow-hidden bg-black`}>
         {player.avatar ? (
           <img 
             src={player.avatar} 
