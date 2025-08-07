@@ -64,7 +64,7 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
   const refreshPlayers = useCallback(async () => {
     try {
       console.log('🔄 Force refreshing roster...');
-      const playersData = await playerService.getPlayersBasic(true); // Force refresh
+      const playersData = await playerService.getPlayersBasic(); // Use cache if available
       setPlayers(playersData);
       console.log('✅ Roster refreshed successfully');
     } catch (error) {

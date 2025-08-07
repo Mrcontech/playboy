@@ -61,14 +61,10 @@ const PlayerCard = memo(function PlayerCard({
             onError={(e) => {
               // Fallback to default avatar on image load error
               e.currentTarget.style.display = 'none';
-              e.currentTarget.parentElement!.innerHTML = `
-                <div class="w-full h-full flex items-center justify-center">
-                  <svg class="text-white" width="${size === 'small' ? 20 : size === 'medium' ? 24 : 32}" height="${size === 'small' ? 20 : size === 'medium' ? 24 : 32}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                  </svg>
-                </div>
-              `;
+              const fallbackDiv = document.createElement('div');
+              fallbackDiv.className = 'w-full h-full flex items-center justify-center';
+              fallbackDiv.innerHTML = `<svg class="text-white" width="${size === 'small' ? 20 : size === 'medium' ? 24 : 32}" height="${size === 'small' ? 20 : size === 'medium' ? 24 : 32}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
+              e.currentTarget.parentElement!.appendChild(fallbackDiv);
             }}
           />
         ) : (

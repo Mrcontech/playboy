@@ -217,7 +217,7 @@ export const playerService = {
       // Step 2: Get meetings data separately
       const { data: meetings, error: meetingsError } = await supabase
         .from('meetings')
-        .select('*')
+        .select('amount_spent, rating, performance_rating, date, created_at, id, type, base, notes')
         .eq('profile_id', playerId)
         .order('date', { ascending: false });
       
