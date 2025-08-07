@@ -156,7 +156,7 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
             </div>
             
             <div className="grid grid-cols-7 gap-2">
-              {datesLoading ? (
+              {datesLoading || !upcomingDates ? (
                 // Loading skeleton for calendar dates
                 Array.from({ length: 7 }).map((_, index) => (
                   <div
