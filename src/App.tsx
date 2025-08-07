@@ -12,13 +12,12 @@ import PasswordResetPage from './components/PasswordResetPage';
 import AuthCallback from './components/AuthCallback';
 import LoadingSpinner from './components/LoadingSpinner';
 import { useAuth } from './hooks/useAuth';
-import { preloadData, usePreloader } from './hooks/useDataLoader';
-import { playerApi, statsApi, datesApi } from './services/api';
+import { lightningService } from './services/lightningService';
 import type { Tables } from './lib/supabase';
 
 // Lazy load heavy components
-const HubScreen = React.lazy(() => import('./components/HubScreen'));
-const RosterScreen = React.lazy(() => import('./components/RosterScreen'));
+const HubScreen = React.lazy(() => import('./components/LightningHubScreen'));
+const RosterScreen = React.lazy(() => import('./components/LightningRosterScreen'));
 const PlaybookScreen = React.lazy(() => import('./components/PlaybookScreen'));
 const SettingsScreen = React.lazy(() => import('./components/SettingsScreen'));
 const PlayerProfile = React.lazy(() => import('./components/PlayerProfile'));
@@ -28,12 +27,8 @@ type Player = Tables<'profiles'>;
 const AppContent = memo(function AppContent() {
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [preloadingComplete, setPreloadingComplete] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  
-  // Use the preloader hook for better performance
-  const { preloadForRoute, isPreloading } = usePreloader();
   
   // Get current tab from URL
   const getCurrentTab = () => {
@@ -47,64 +42,32 @@ const AppContent = memo(function AppContent() {
 
   const activeTab = getCurrentTab();
 
-  // Preload critical data on app start
+  // Lightning-fast initialization
   useEffect(() => {
     let isMounted = true;
     
-    const initializeApp = async () => {
+    const lightningInit = async () => {
       try {
-        console.log('🚀 Starting app initialization...');
+        console.log('⚡ Starting lightning initialization...');
         
-        // Step 1: Load critical data for current route + upcoming dates immediately
-        await Promise.all([
-          preloadForRoute(activeTab),
-        ]);
+        // Immediate cache warmup for instant loading
+        await lightningService.warmupCache();
         
         if (!isMounted) return;
         
-        console.log('✅ TIER 1: Critical data loaded for', activeTab);
-        
-        // Step 2: Start aggressive background preloading for all routes and detailed data
-        setTimeout(async () => {
-          if (!isMounted) return;
-          
-          console.log('🔄 Starting TIER 2 background preloading...');
-          
-          // Preload all other routes in parallel for instant switching
-          const routesToPreload = ['roster', 'playbook', 'settings'].filter(route => route !== activeTab);
-          
-          // Preload all routes in parallel for maximum speed
-          await Promise.all(
-            routesToPreload.map(route => preloadForRoute(route))
-          );
-          
-          if (isMounted) {
-            setPreloadingComplete(true);
-            console.log('🎉 TIER 2: All background preloading complete - app fully optimized');
-          }
-        }, 50); // Minimal delay for immediate background loading
+        console.log('🚀 Lightning initialization complete');
         
       } catch (error) {
-        console.error('❌ Error during app initialization:', error);
-        if (isMounted) {
-          setPreloadingComplete(true); // Don't block UI on error
-        }
+        console.error('❌ Error during lightning initialization:', error);
       }
     };
     
-    initializeApp();
+    lightningInit();
     
     return () => {
       isMounted = false;
     };
-  }, [activeTab, preloadForRoute]);
-
-  // Preload data when user hovers over navigation items
-  const handleNavHover = useCallback((route: string) => {
-    if (route !== activeTab && !isPreloading) {
-      preloadForRoute(route);
-    }
-  }, [activeTab, isPreloading, preloadForRoute]);
+  }, []);
 
   const handlePlayerSelect = (player: Player) => {
     setSelectedPlayer(player);
@@ -147,7 +110,6 @@ const AppContent = memo(function AppContent() {
       <LeftSidebar 
         activeTab={activeTab} 
         onTabChange={handleTabChange}
-        onNavHover={handleNavHover}
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
       />
