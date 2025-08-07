@@ -59,12 +59,22 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
       
-      // More robust date comparison
+      // Fix date comparison - normalize both dates to same timezone
       const dateInfo = upcomingDates?.find(d => {
         const scheduledDate = new Date(d.date);
-        const scheduledDateStr = scheduledDate.toDateString();
-        const currentDateStr = date.toDateString();
-        return scheduledDateStr === currentDateStr;
+        
+        // Compare year, month, and day directly to avoid timezone issues
+        const scheduledYear = scheduledDate.getFullYear();
+        const scheduledMonth = scheduledDate.getMonth();
+        const scheduledDay = scheduledDate.getDate();
+        
+        const currentYear = date.getFullYear();
+        const currentMonth = date.getMonth();
+        const currentDay = date.getDate();
+        
+        return scheduledYear === currentYear && 
+               scheduledMonth === currentMonth && 
+               scheduledDay === currentDay;
       });
       
       dates.push({
@@ -138,10 +148,15 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
               ))}
             </div>
             
-            {/* Debug info - remove after testing */}
+            {/* Debug info */}
             {upcomingDates && upcomingDates.length > 0 && (
-              <div className="mt-4 text-xs text-gray-500">
-                Found {upcomingDates.length} upcoming dates
+              <div className="mt-4 text-xs text-gray-500 space-y-1">
+                <div>Found {upcomingDates.length} upcoming dates</div>
+                {upcomingDates.map((date, index) => (
+                  <div key={index}>
+                    Date {index + 1}: {new Date(date.date).toLocaleDateString()} ({date.type})
+                  </div>
+                ))}
               </div>
             )}
           </section>
