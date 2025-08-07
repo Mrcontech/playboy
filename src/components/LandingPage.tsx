@@ -61,6 +61,33 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 via-purple-500/5 to-pink-500/10"></div>
+        
+        {/* Header with Auth Buttons */}
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+          <div className="flex justify-end">
+            <div className="flex items-center space-x-4">
+              <button 
+                onClick={() => {
+                  document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' });
+                  setIsLogin(true);
+                }}
+                className="text-white hover:text-green-400 px-4 py-2 rounded-lg font-medium transition-colors"
+              >
+                Sign In
+              </button>
+              <button 
+                onClick={() => {
+                  document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' });
+                  setIsLogin(false);
+                }}
+                className="bg-green-500 hover:bg-green-600 text-black px-6 py-2 rounded-lg font-medium transition-colors"
+              >
+                Sign Up
+              </button>
+            </div>
+          </div>
+        </div>
+        
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-green-500 to-green-600 rounded-full mb-8 shadow-2xl">
