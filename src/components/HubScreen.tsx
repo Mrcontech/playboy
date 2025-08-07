@@ -32,7 +32,7 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
   } = useDataLoader({
     key: 'getUpcomingDates',
     fetcher: () => datesApi.getUpcomingDates(),
-    ttlMinutes: 5 // Short cache to prevent constant refetching
+    ttlMinutes: 0 // Always fetch fresh data for upcoming dates
   });
 
   const { 
@@ -147,18 +147,6 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
                 </div>
               ))}
             </div>
-            
-            {/* Debug info */}
-            {upcomingDates && upcomingDates.length > 0 && (
-              <div className="mt-4 text-xs text-gray-500 space-y-1">
-                <div>Found {upcomingDates.length} upcoming dates</div>
-                {upcomingDates.map((date, index) => (
-                  <div key={index}>
-                    Date {index + 1}: {new Date(date.date).toLocaleDateString()} ({date.type})
-                  </div>
-                ))}
-              </div>
-            )}
           </section>
 
           {/* Recently Active Section */}
