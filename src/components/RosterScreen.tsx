@@ -1,5 +1,6 @@
 import React, { useState, memo, useCallback } from 'react';
 import { Users, Plus } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 import SearchBar from './SearchBar';
 import PlayerCard from './PlayerCard';
 import AddPlayerModal from './AddPlayerModal';

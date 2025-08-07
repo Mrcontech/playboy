@@ -1,6 +1,7 @@
 import React, { memo, useCallback } from 'react';
 import { useState, useMemo } from 'react';
 import { Plus, MessageCircle } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 import PlayerCard from './PlayerCard';
 import LoadingSpinner from './LoadingSpinner';
 import AddDateModal from './AddDateModal';
