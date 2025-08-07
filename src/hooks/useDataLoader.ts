@@ -46,8 +46,10 @@ export function useDataLoader<T>({
       
       const freshData = await fetcher();
       
-      // Store in persistent cache
-      persistentCache.set(key, freshData, ttlMinutes);
+      // Store in persistent cache only if TTL > 0
+      if (ttlMinutes > 0) {
+        persistentCache.set(key, freshData, ttlMinutes);
+      }
       setData(freshData);
       setLoading(false);
       console.log(`Successfully loaded data for key: ${key}`);

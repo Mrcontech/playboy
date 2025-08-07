@@ -60,7 +60,7 @@ const PlaybookScreen = memo(function PlaybookScreen({ onPlayerSelect }: Playbook
   } = useDataLoader({
     key: 'getDashboardStats',
     fetcher: () => statsApi.getDashboardStats(),
-    ttlMinutes: 30
+    ttlMinutes: 0 // No caching for stats to ensure they update immediately
   });
 
   // Calculate dashboard stats with average CPN

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { meetingsApi } from '../services/api';
+import { persistentCache } from '../lib/storage';
 
 interface AddMeetingModalProps {
   isOpen: boolean;
@@ -48,6 +49,13 @@ export default function AddMeetingModal({
       });
       
       onMeetingAdded();
+      
+      // Clear stats cache to force refresh
+      persistentCache.delete('getDashboardStats');
+      persistentCache.delete('getCPNByPeriod_monthly');
+      persistentCache.delete('getCPNByPeriod_weekly');
+      persistentCache.delete('getTopPlayersByRating_3');
+      
       onClose();
       setFormData({
         type: 'date',
