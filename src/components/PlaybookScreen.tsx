@@ -2,7 +2,7 @@ import React, { useState, useEffect, memo, useCallback } from 'react';
 import { TrendingUp, Users, DollarSign, Calendar, BarChart3, Target, User } from 'lucide-react';
 import LoadingSpinner from './LoadingSpinner';
 import { useDataLoader } from '../hooks/useDataLoader';
-import { statsApi } from '../services/api';
+import { statsApi, playerApi } from '../services/api';
 
 interface CPNData {
   period: string;
@@ -426,52 +426,6 @@ const PlaybookScreen = memo(function PlaybookScreen({ onPlayerSelect }: Playbook
                           <LoadingSpinner size="small" text="Loading details..." />
                         </div>
                       )}
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-8">
-                    <Users className="mx-auto mb-4 text-gray-400" size={48} />
-                    <p className="text-gray-400 mb-2">No rated players yet</p>
-                    <p className="text-sm text-gray-500">Add some meetings with ratings to see your top performers</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-});
-
-export default PlaybookScreen;
-                      <div className="flex items-center space-x-4">
-                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold text-sm">
-                          {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
-                        </div>
-                        <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-green-500 to-green-600">
-                          {player.image_url ? (
-                            <img 
-                              src={player.image_url} 
-                              alt={player.name}
-                              className="w-full h-full object-cover"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <User className="text-white" size={20} />
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <div className="font-semibold text-white">{player.name}</div>
-                          <div className="text-sm text-gray-400">{player.meeting_count} meetings</div>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <span className="text-yellow-400">⭐</span>
-                          <span className="text-white font-bold">{player.average_rating.toFixed(1)}</span>
-                        </div>
-                      </div>
                     </div>
                   ))
                 ) : (
