@@ -15,8 +15,13 @@ interface TopPlayer {
   id: string;
   name: string;
   image_url?: string;
+  looks_rating?: number;
+  status?: string;
   average_rating: number;
   meeting_count: number;
+  totalMeetings?: number;
+  cpn?: number;
+  averageRating?: number;
 }
 
 interface DashboardStats {
@@ -331,9 +336,15 @@ const PlaybookScreen = memo(function PlaybookScreen({ onPlayerSelect }: Playbook
                       id: player.id,
                       name: player.name,
                       image_url: player.image_url,
+                      looks_rating: player.looks_rating,
+                      status: player.status,
                       user_id: '',
                       created_at: '',
-                      updated_at: ''
+                      updated_at: '',
+                      // Include all the calculated stats for consistency
+                      totalMeetings: player.totalMeetings,
+                      cpn: player.cpn,
+                      averageRating: player.averageRating
                     } as Player)}
                   >
                     <div className="flex items-center space-x-4">

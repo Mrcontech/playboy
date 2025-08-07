@@ -289,36 +289,33 @@ export const statsApi = {
     const { data: players, error } = await supabase
       .from('profiles')
       .select(`
-        id,
-        name,
-        image_url,
-        looks_rating,
+        *,
         meetings (
+          amount_spent,
           rating
+          performance_rating
         )
       `);
     
     if (error) throw error;
     
-    // Calculate average ratings and filter players with meetings
-    const playersWithRatings = (players || [])
-      .map(player => {
-        const meetings = player.meetings || [];
-        const ratingsSum = meetings.reduce((sum: number, meeting: any) => 
-          sum + (Number(meeting.rating) || 0), 0);
-        const averageRating = meetings.length > 0 
-          ? ratingsSum / meetings.length 
-          : (player.looks_rating || 0);
-        
-        return {
-          id: player.id,
-          name: player.name,
-          image_url: player.image_url,
-          average_rating: averageRating,
-          meeting_count: meetings.length
-        };
-      })
-      .filter(player => player.meeting_count > 0) // Only players with meetings
+    // Use the same calculatePlayerStats function for consistency
+    const playersWithStats = (players || []).map(calculatePlayerStats);
+    
+    // Filter players with meetings and sort by average rating
+    const playersWithRatings = playersWithStats
+      .filter(player => player.totalMeetings > 0) // Only players with meetings
+      .map(player => ({
+        id: player.id,
+        name: player.name,
+        image_url: player.image_url,
+        looks_rating: player.looks_rating,
+        status: player.status,
+        average_rating: player.averageRating,
+        meeting_count: player.totalMeetings,
+        // Include all player data for consistency
+        ...player
+      }))
       .sort((a, b) => b.average_rating - a.average_rating)
       .slice(0, limit);
 
