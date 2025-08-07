@@ -159,6 +159,13 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
               </button>
             </div>
             
+            {/* Loading text while dates are being fetched */}
+            {datesLoading && (
+              <div className="text-center mb-4">
+                <p className="text-gray-400 text-sm animate-pulse">Loading your upcoming dates...</p>
+              </div>
+            )}
+            
             <div className="grid grid-cols-7 gap-2">
               {datesLoading || !calendarDates ? (
                 // Loading skeleton for calendar dates
