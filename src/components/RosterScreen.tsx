@@ -6,6 +6,7 @@ import PlayerCard from './PlayerCard';
 import AddPlayerModal from './AddPlayerModal';
 import LoadingSpinner from './LoadingSpinner';
 import { playerService } from '../services/playerService';
+import { playerApi } from '../services/api';
 import type { Tables } from '../lib/supabase';
 
 type Player = Tables<'profiles'>;
