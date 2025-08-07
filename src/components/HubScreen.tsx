@@ -162,7 +162,7 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
             
             {playersLoading ? (
               <div className="flex justify-start space-x-3 animate-pulse">
-                {Array.from({ length: 3 }).map(i => (
+                {Array.from({ length: 3 }).map((_, i) => (
                   <div key={i} className="w-36 bg-gray-800 rounded-xl">
                     <div className="h-28 bg-gray-700 rounded-t-xl"></div>
                     <div className="p-2 space-y-2">
@@ -196,7 +196,7 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
                   <div className="text-center py-8 text-gray-400">
                     No recently active players
                   </div>
-                ))}
+                )}
               </>
             )}
           </section>
