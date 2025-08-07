@@ -12,6 +12,7 @@ import PasswordResetPage from './components/PasswordResetPage';
 import AuthCallback from './components/AuthCallback';
 import LoadingSpinner from './components/LoadingSpinner';
 import { useAuth } from './hooks/useAuth';
+import { useBackgroundPreloader } from './hooks/useBackgroundPreloader';
 import type { Tables } from './lib/supabase';
 
 // Lazy load heavy components
@@ -26,6 +27,10 @@ type Player = Tables<'profiles'>;
 const AppContent = memo(function AppContent() {
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // Start background preloading for instant navigation
+  const { preloadStatus, isPreloading } = useBackgroundPreloader();
+  
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -82,6 +87,13 @@ const AppContent = memo(function AppContent() {
       />
       
       <div className="transition-all duration-300 pt-16 lg:pt-0 lg:ml-64">
+        {/* Background preloading indicator */}
+        {isPreloading && (
+          <div className="fixed top-4 right-4 bg-green-500 text-black px-3 py-2 rounded-lg text-sm font-medium z-50 animate-pulse">
+            🚀 Optimizing app speed...
+          </div>
+        )}
+        
         {selectedPlayer ? (
           <Suspense fallback={<LoadingFallback />}>
             <PlayerProfile 
