@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { Suspense, memo, useEffect, useMemo } from 'react';
 import LandingPage from './components/LandingPage';
