@@ -108,7 +108,7 @@ export const playerApi = {
     const { data: player, error } = await supabase
       .from('profiles')
       .select(`
-        *,
+        id, name, image_url, status, looks_rating, bench, created_at, updated_at, user_id, likes, dislikes, notes,
         meetings (
           amount_spent,
           rating,
