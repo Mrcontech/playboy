@@ -86,7 +86,12 @@ export function useDataLoader<T>({
 
   // Load data on mount and when dependencies change
   useEffect(() => {
-    loadData();
+    // Add a small delay to ensure component is fully mounted
+    const timer = setTimeout(() => {
+      loadData();
+    }, 10);
+    
+    return () => clearTimeout(timer);
   }, [loadData, ...dependencies]);
 
   // Refetch function that bypasses cache

@@ -56,62 +56,41 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
 
   // Generate calendar dates for the next 7 days
   const calendarDates = useMemo(() => {
-    // Always generate calendar, but mark dates as inactive if still loading
-    if (datesLoading) {
-      // Return basic calendar structure while loading
-      const dates = [];
-      const today = new Date();
-      
-      for (let i = 0; i < 7; i++) {
-        const date = new Date(today);
-        date.setDate(today.getDate() + i);
-        
-        dates.push({
-          date: date.getDate(),
-          day: date.toLocaleDateString('en-US', { weekday: 'short' }),
-          active: false, // No active dates while loading
-          dateInfo: null,
-        });
-      }
-      
-      return [];
-    }
-    
     const dates = [];
     const today = new Date();
+    
+    console.log('Generating calendar with upcoming dates:', upcomingDates);
     
     for (let i = 0; i < 7; i++) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
       
       // Find matching upcoming date
-      const dateInfo = (upcomingDates || []).find(d => {
+      const dateInfo = upcomingDates?.find(d => {
         const scheduledDate = new Date(d.date);
         
-        // Compare year, month, and day directly to avoid timezone issues
-        const scheduledYear = scheduledDate.getFullYear();
-        const scheduledMonth = scheduledDate.getMonth();
-        const scheduledDay = scheduledDate.getDate();
+        // Use UTC dates to avoid timezone issues
+        const scheduledUTC = new Date(scheduledDate.getFullYear(), scheduledDate.getMonth(), scheduledDate.getDate());
+        const currentUTC = new Date(date.getFullYear(), date.getMonth(), date.getDate());
         
-        const currentYear = date.getFullYear();
-        const currentMonth = date.getMonth();
-        const currentDay = date.getDate();
+        const matches = scheduledUTC.getTime() === currentUTC.getTime();
         
-        console.log(`Comparing dates: scheduled ${scheduledYear}-${scheduledMonth + 1}-${scheduledDay} vs current ${currentYear}-${currentMonth + 1}-${currentDay}`);
+        if (matches) {
+          console.log(`✅ Date match found: ${d.date} (${d.type}) matches calendar day ${date.getDate()}`);
+        }
         
-        return scheduledYear === currentYear && 
-               scheduledMonth === currentMonth && 
-               scheduledDay === currentDay;
+        return matches;
       });
       
       dates.push({
         date: date.getDate(),
         day: date.toLocaleDateString('en-US', { weekday: 'short' }),
-        active: !!dateInfo,
+        active: !!dateInfo && !datesLoading,
         dateInfo: dateInfo || null,
       });
     }
     
+    console.log('Final calendar dates:', dates.filter(d => d.active));
     return dates;
   }, [upcomingDates, datesLoading]);
 
