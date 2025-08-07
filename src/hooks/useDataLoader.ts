@@ -133,16 +133,6 @@ export function usePreloader() {
       console.log(`📋 Route ${route} already preloaded, skipping`);
       return;
     }
-// Preload data function for critical paths
-export function preloadData<T>(key: string, fetcher: () => Promise<T>, ttlMinutes = 30) {
-  console.log(`Preloading data for key: ${key}`);
-  
-  // Check if already cached
-  const cached = persistentCache.get<T>(key);
-  if (cached) {
-    console.log(`Data already cached for key: ${key}`);
-    return Promise.resolve(cached);
-  }
 
     setIsPreloading(true);
     console.log(`🔄 Preloading data for route: ${route}`);
@@ -178,6 +168,15 @@ export function preloadData<T>(key: string, fetcher: () => Promise<T>, ttlMinute
           // Settings doesn't need data preloading
           break;
       }
+      
+      setPreloadedRoutes(prev => new Set([...prev, route]));
+    } catch (error) {
+      console.warn(`⚠️ Error preloading route ${route}:`, error);
+    } finally {
+      setIsPreloading(false);
+    }
+  }, [preloadedRoutes]);
+
   return {
     preloadForRoute,
     isPreloading,
@@ -185,17 +184,17 @@ export function preloadData<T>(key: string, fetcher: () => Promise<T>, ttlMinute
   };
 }
 
-      
+// Preload data function for critical paths
 export function preloadData<T>(key: string, fetcher: () => Promise<T>, ttlMinutes = 30): Promise<T | null> {
   console.log(`📦 Preloading data for key: ${key}`);
-      
-      setPreloadedRoutes(prev => new Set([...prev, route]));
-    } catch (error) {
-      console.warn(`⚠️ Error preloading route ${route}:`, error);
+  
+  // Check if already cached
+  const cached = persistentCache.get<T>(key);
+  if (cached) {
     console.log(`💾 Data already cached for key: ${key}`);
-      setIsPreloading(false);
-    }
-  }, [preloadedRoutes]);
+    return Promise.resolve(cached);
+  }
+
   // Fetch and cache in background
   console.log(`🌐 Fetching fresh data for key: ${key}`);
   const startTime = performance.now();
