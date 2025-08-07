@@ -45,7 +45,15 @@ const AppContent = memo(function AppContent() {
         ];
         
         // Wait for critical data before showing the UI
-        await Promise.allSettled(criticalPreloadPromises);
+        const criticalResults = await Promise.allSettled(criticalPreloadPromises);
+        
+        // Log any critical data loading failures
+        criticalResults.forEach((result, index) => {
+          if (result.status === 'rejected') {
+            console.warn(`Critical data loading failed for promise ${index}:`, result.reason);
+          }
+        });
+        
         console.log('Critical data loaded, UI ready to render');
 
         // Start background loading after a short delay to not interfere with UI
@@ -64,8 +72,14 @@ const AppContent = memo(function AppContent() {
           ];
           
           Promise.allSettled(backgroundPromises)
-            .then(() => console.log('Background data loading completed'))
-            .catch(error => console.error('Background data loading error:', error));
+            .then((results) => {
+              console.log('Background data loading completed');
+              results.forEach((result, index) => {
+                if (result.status === 'rejected') {
+                  console.warn(`Background data loading failed for promise ${index}:`, result.reason);
+                }
+              });
+            });
         }, 500); // 500ms delay to let UI render first
         
       } catch (error) {

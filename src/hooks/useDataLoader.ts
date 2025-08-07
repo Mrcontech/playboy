@@ -55,10 +55,23 @@ export function useDataLoader<T>({
       return freshData;
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Unknown error');
-      setError(error);
+      console.warn(`Error loading data for key ${key}:`, error.message);
+      
+      // Check if we have cached data to fall back to
+      const cachedFallback = persistentCache.get<T>(key);
+      if (cachedFallback) {
+        console.log(`Using cached fallback data for key: ${key}`);
+        setData(cachedFallback);
+        setError(null);
+      } else {
+        console.log(`No cached fallback available for key: ${key}`);
+        setError(error);
+        setData(null);
+      }
+      
       setLoading(false);
-      console.error(`Error loading data for key ${key}:`, error.message);
-      throw error;
+      // Don't throw error to prevent app crash
+      return cachedFallback;
     }
   }, [key, fetcher, ttlMinutes, enabled]);
 
@@ -113,7 +126,8 @@ export function preloadData<T>(key: string, fetcher: () => Promise<T>, ttlMinute
     persistentCache.set(key, data, ttlMinutes);
     return data;
   }).catch(error => {
-    console.error(`Error preloading data for key ${key}:`, error);
-    throw error;
+    console.warn(`Error preloading data for key ${key}:`, error.message);
+    // Return null instead of throwing to prevent app crash
+    return null;
   });
 }
