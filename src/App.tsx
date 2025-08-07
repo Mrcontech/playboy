@@ -34,16 +34,23 @@ const AppContent = memo(function AppContent() {
   
   // Preload data for all screens to improve initial load times
   useEffect(() => {
-    const preloadAllData = async () => {
+    const preloadDataOptimized = async () => {
       try {
-        console.log('Starting data preloading...');
+        console.log('Starting optimized data preloading...');
         
-        // Preload data for all screens in parallel
-        const preloadPromises = [
+        // Critical data for the initial Hub screen
+        const criticalPreloadPromises = [
           // Hub screen data
           preloadData('getUpcomingDates', () => datesApi.getUpcomingDates(), 10),
           preloadData('getRecentPlayers_3', () => playerApi.getRecentPlayers(3), 15),
-          
+        ];
+        
+        // Await critical data to ensure Hub screen loads quickly
+        await Promise.allSettled(criticalPreloadPromises);
+        console.log('Critical data preloading completed.');
+
+        // Non-critical data for other screens, load in background
+        const backgroundPreloadPromises = [
           // Roster screen data
           preloadData('getActivePlayers', () => playerApi.getActivePlayers(), 30),
           preloadData('getBenchPlayers', () => playerApi.getBenchPlayers(), 30),
@@ -54,17 +61,18 @@ const AppContent = memo(function AppContent() {
           preloadData('getDashboardStats', () => statsApi.getDashboardStats(), 30),
         ];
         
-        // Execute all preloads in parallel
-        await Promise.allSettled(preloadPromises);
-        console.log('Data preloading completed');
+        // Do not await these, let them run in the background
+        Promise.allSettled(backgroundPreloadPromises)
+          .then(() => console.log('Background data preloading completed.'))
+          .catch(error => console.error('Error during background data preloading:', error));
       } catch (error) {
         console.error('Error during data preloading:', error);
         // Don't block the UI if preloading fails
       }
     };
     
-    // Start preloading after a short delay to not interfere with initial render
-    const timer = setTimeout(preloadAllData, 100);
+    // Start optimized preloading after a short delay to not interfere with initial render
+    const timer = setTimeout(preloadDataOptimized, 100);
     return () => clearTimeout(timer);
   }, []);
   
