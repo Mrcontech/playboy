@@ -32,7 +32,8 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
   } = useDataLoader({
     key: 'getUpcomingDates',
     fetcher: () => datesApi.getUpcomingDates(),
-    ttlMinutes: 0 // Always fetch fresh data for upcoming dates
+    ttlMinutes: 5, // Short cache to ensure fresh data but allow initial load
+    dependencies: [] // Force reload when component mounts
   });
 
   const { 
@@ -44,14 +45,22 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
     ttlMinutes: 15 // Increase cache time slightly
   });
 
-  const loading = datesLoading || playersLoading;
+  // Don't show loading for the whole screen if only players are loading
+  const loading = datesLoading;
 
   const loadData = useCallback(async () => {
+    // Clear cache before refetching to ensure fresh data
+    persistentCache.delete('getUpcomingDates');
     await refetchDates();
   }, [refetchDates]);
 
   // Generate calendar dates for the next 7 days
   const calendarDates = useMemo(() => {
+    // Don't generate calendar if dates are still loading
+    if (datesLoading || !upcomingDates) {
+      return [];
+    }
+    
     const dates = [];
     const today = new Date();
     
@@ -59,8 +68,8 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
       
-      // Fix date comparison - normalize both dates to same timezone
-      const dateInfo = upcomingDates?.find(d => {
+      // Find matching upcoming date
+      const dateInfo = upcomingDates.find(d => {
         const scheduledDate = new Date(d.date);
         
         // Compare year, month, and day directly to avoid timezone issues
@@ -86,7 +95,7 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
     }
     
     return dates;
-  }, [upcomingDates]);
+  }, [upcomingDates, datesLoading]);
 
   const handleDateClick = useCallback((dateInfo: UpcomingDate | null) => {
     if (dateInfo) {
@@ -101,7 +110,8 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
     return player?.name;
   }, [recentlyActive]);
 
-  if (loading) {
+  // Only show loading spinner if dates are loading (not players)
+  if (datesLoading) {
     return (
       <div className="p-4 lg:p-8">
         <LoadingSpinner variant="detailed" text="Loading your hub dashboard" />

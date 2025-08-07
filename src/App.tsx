@@ -40,7 +40,7 @@ const AppContent = memo(function AppContent() {
         
         // Only load essential data for Hub screen to show UI quickly
         const criticalPreloadPromises = [
-          preloadData('getUpcomingDates', () => datesApi.getUpcomingDates(), 10),
+          preloadData('getUpcomingDates', () => datesApi.getUpcomingDates(), 5),
           preloadData('getRecentPlayers_3', () => playerApi.getRecentPlayers(3), 15),
         ];
         
