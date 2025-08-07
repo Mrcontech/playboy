@@ -106,6 +106,13 @@ export function useDataLoader<T>({
     persistentCache.delete(key);
   }, [key]);
 
+  // Force refresh function that clears cache and reloads
+  const forceRefresh = useCallback(() => {
+    console.log(`Force refreshing data for key: ${key}`);
+    persistentCache.delete(key);
+    return loadData(false);
+  }, [key, loadData]);
+
   // Update cache function
   const updateCache = useCallback((newData: T) => {
     console.log(`Updating cache for key: ${key}`);
@@ -119,7 +126,8 @@ export function useDataLoader<T>({
     error,
     refetch,
     invalidate,
-    updateCache
+    updateCache,
+    forceRefresh
   };
 }
 

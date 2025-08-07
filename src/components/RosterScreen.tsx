@@ -23,7 +23,8 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
   const { 
     data: basicPlayers, 
     loading: basicLoading,
-    refetch: refetchBasic 
+    refetch: refetchBasic,
+    forceRefresh: forceRefreshBasic
   } = useDataLoader({
     key: 'getPlayersBasic',
     fetcher: () => playerApi.getPlayersBasic(),
@@ -35,12 +36,35 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
   const loadPlayers = useCallback(async () => {
     try {
       console.log('Refreshing player data...');
-      await refetchBasic();
+      await forceRefreshBasic();
       console.log('Player data refreshed successfully');
     } catch (error) {
       console.error('Error refreshing players:', error);
     }
-  }, [refetchBasic]);
+  }, [forceRefreshBasic]);
+
+  // Listen for focus events to refresh data when returning to roster
+  React.useEffect(() => {
+    const handleFocus = () => {
+      console.log('🔄 Window focused, checking for roster updates...');
+      forceRefreshBasic();
+    };
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        console.log('🔄 Page visible again, refreshing roster...');
+        forceRefreshBasic();
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [forceRefreshBasic]);
 
   // Handle player selection with lazy loading of detailed data
   const handlePlayerSelect = useCallback(async (player: Partial<Player>) => {

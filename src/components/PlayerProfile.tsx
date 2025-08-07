@@ -390,7 +390,12 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
             isOpen={showEditModal}
             onClose={() => setShowEditModal(false)}
             onPlayerUpdated={handleDataUpdate}
-            onPlayerDeleted={onBack}
+            onPlayerDeleted={() => {
+              // Clear cache and navigate back immediately
+              const { persistentCache } = require('../lib/storage');
+              persistentCache.clear();
+              onBack();
+            }}
             player={detailedPlayer}
           />
         )}

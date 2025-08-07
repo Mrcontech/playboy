@@ -107,6 +107,15 @@ export default function EditPlayerModal({ isOpen, onClose, onPlayerUpdated, onPl
     setDeleting(true);
     try {
       await playerApi.deletePlayer(player.id);
+      
+      // Clear all relevant caches to force fresh data
+      const { persistentCache } = await import('../lib/storage');
+      persistentCache.delete('getPlayersBasic');
+      persistentCache.delete('getActivePlayers');
+      persistentCache.delete('getBenchPlayers');
+      persistentCache.delete('getRecentPlayers_3');
+      persistentCache.delete('getDashboardStats');
+      
       onPlayerDeleted?.();
       onClose();
     } catch (error) {

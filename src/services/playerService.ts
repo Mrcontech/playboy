@@ -374,6 +374,10 @@ export const playerService = {
     // Clear cache
     playerCache.invalidatePlayer(id);
     
+    // Also clear the persistent cache to force roster refresh
+    const { persistentCache } = await import('../lib/storage');
+    persistentCache.clear();
+    
     console.log('✅ Player deleted successfully');
   },
 
