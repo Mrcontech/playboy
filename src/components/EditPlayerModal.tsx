@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Upload, Trash2 } from 'lucide-react';
 import { playerApi } from '../services/api';
 import { persistentCache } from '../lib/storage';
+import { persistentCache } from '../lib/storage';
 import type { Tables } from '../lib/supabase';
 
 type Player = Tables<'profiles'>;
@@ -109,7 +110,6 @@ export default function EditPlayerModal({ isOpen, onClose, onPlayerUpdated, onPl
     try {
       await playerApi.deletePlayer(player.id);
       
-      // Clear all relevant caches to force fresh data
       persistentCache.delete('getPlayersBasic');
       persistentCache.delete('getActivePlayers');
       persistentCache.delete('getBenchPlayers');
