@@ -139,17 +139,8 @@ export const playerApi = {
     
     if (error) throw error;
     
-    // Return simplified data structure
-    return (players || []).map(player => ({
-      id: player.id,
-      name: player.name,
-      image_url: player.image_url,
-      status: player.status,
-      looks_rating: player.looks_rating,
-      totalMeetings: 0, // Will be calculated when needed
-      cpn: 0, // Will be calculated when needed
-      averageRating: player.looks_rating || 0
-    }));
+    // Apply proper stats calculation to recent players
+    return (players || []).map(calculatePlayerStats);
   },
 
   async updatePlayer(id: string, updates: Updates<'profiles'>) {

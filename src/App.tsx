@@ -41,8 +41,8 @@ const AppContent = memo(function AppContent() {
         // Preload data for all screens in parallel
         const preloadPromises = [
           // Hub screen data
-          preloadData('getUpcomingDates', () => datesApi.getUpcomingDates(), 5),
-          preloadData('getRecentPlayers_3', () => playerApi.getRecentPlayers(3), 10),
+          preloadData('getUpcomingDates', () => datesApi.getUpcomingDates(), 10),
+          preloadData('getRecentPlayers_3', () => playerApi.getRecentPlayers(3), 15),
           
           // Roster screen data
           preloadData('getActivePlayers', () => playerApi.getActivePlayers(), 30),

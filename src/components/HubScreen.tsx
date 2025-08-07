@@ -27,20 +27,22 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
   const { 
     data: upcomingDates, 
     loading: datesLoading,
+    error: datesError,
     refetch: refetchDates 
   } = useDataLoader({
     key: 'getUpcomingDates',
     fetcher: () => datesApi.getUpcomingDates(),
-    ttlMinutes: 5 // Shorter TTL for upcoming dates
+    ttlMinutes: 10 // Increase cache time for better performance
   });
 
   const { 
     data: recentlyActive, 
-    loading: playersLoading
+    loading: playersLoading,
+    error: playersError
   } = useDataLoader({
     key: 'getRecentPlayers_3',
     fetcher: () => playerApi.getRecentPlayers(3),
-    ttlMinutes: 10
+    ttlMinutes: 15 // Increase cache time slightly
   });
 
   const loading = datesLoading || playersLoading;
@@ -147,9 +149,9 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
                     id: player.id,
                     name: player.name,
                     avatar: player.image_url || 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=400',
-                    totalMeetings: (player as any).totalMeetings || 0,
-                    cpn: (player as any).cpn || 0,
-                    averageRating: (player as any).averageRating || 0,
+                    totalMeetings: player.totalMeetings || 0,
+                    cpn: player.cpn || 0,
+                    averageRating: player.averageRating || 0,
                     status: player.status,
                   }}
                   onClick={() => onPlayerSelect?.(player)}
@@ -157,14 +159,14 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
                 />
               ))}
             </div>
-            {(!recentlyActive || recentlyActive.length === 0) && !playersLoading && (
+            {(!recentlyActive || recentlyActive.length === 0) && !playersLoading && !playersError && (
               <div className="text-center py-8 text-gray-400">
                 No recently active players
               </div>
             )}
-            {playersLoading && (
+            {(playersLoading || playersError) && (
               <div className="text-center py-8 text-gray-400">
-                Loading players...
+                {playersLoading ? 'Loading players...' : 'Error loading players'}
               </div>
             )}
           </section>
