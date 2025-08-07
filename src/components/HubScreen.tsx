@@ -27,13 +27,11 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
   // Load data with persistent caching
   const { 
     data: upcomingDates, 
-    loading: datesLoading,
-    refetch: refetchDates 
+    loading: datesLoading
   } = useDataLoader({
     key: 'getUpcomingDates',
-    fetcher: () => datesApi.getUpcomingDates(),
-    ttlMinutes: 0, // No cache to ensure fresh data
-    dependencies: [] // Force reload when component mounts
+    fetcher: () => datesApi.getUpcomingDates(), 
+    ttlMinutes: 5 // Short cache for better performance
   });
 
   const { 
@@ -42,31 +40,29 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
   } = useDataLoader({
     key: 'getRecentPlayers_3',
     fetcher: () => playerApi.getRecentPlayers(3),
-    ttlMinutes: 15 // Increase cache time slightly
+    ttlMinutes: 15
   });
 
-  // Don't show loading for the whole screen if only players are loading
-  const loading = datesLoading;
-
   const loadData = useCallback(async () => {
-    // Clear cache before refetching to ensure fresh data
+    // Force refresh upcoming dates
     persistentCache.delete('getUpcomingDates');
-    await refetchDates();
-  }, [refetchDates]);
+    window.location.reload();
+  }, []);
 
   // Generate calendar dates for the next 7 days
   const calendarDates = useMemo(() => {
+    // Always generate calendar structure, even if data is loading
     const dates = [];
     const today = new Date();
     
-    console.log('Generating calendar with upcoming dates:', upcomingDates);
+    console.log('📅 Generating calendar with upcoming dates:', upcomingDates?.length || 0, 'dates found');
     
     for (let i = 0; i < 7; i++) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
       
-      // Find matching upcoming date
-      const dateInfo = upcomingDates?.find(d => {
+      // Find matching upcoming date (only if data is loaded)
+      const dateInfo = (!datesLoading && upcomingDates) ? upcomingDates.find(d => {
         const scheduledDate = new Date(d.date);
         
         // Use UTC dates to avoid timezone issues
@@ -76,21 +72,21 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
         const matches = scheduledUTC.getTime() === currentUTC.getTime();
         
         if (matches) {
-          console.log(`✅ Date match found: ${d.date} (${d.type}) matches calendar day ${date.getDate()}`);
+          console.log(`✅ Date match: ${d.date} (${d.type}) → day ${date.getDate()}`);
         }
         
         return matches;
-      });
+      }) : null;
       
       dates.push({
         date: date.getDate(),
         day: date.toLocaleDateString('en-US', { weekday: 'short' }),
-        active: !!dateInfo && !datesLoading,
+        active: !!dateInfo,
         dateInfo: dateInfo || null,
       });
     }
     
-    console.log('Final calendar dates:', dates.filter(d => d.active));
+    console.log('📊 Calendar generated:', dates.filter(d => d.active).length, 'active dates');
     return dates;
   }, [upcomingDates, datesLoading]);
 
@@ -106,16 +102,6 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
     const player = recentlyActive?.find(p => p.id === profileId);
     return player?.name;
   }, [recentlyActive]);
-
-  // Show loading spinner only if both dates and players are loading
-  if (datesLoading && playersLoading) {
-    return (
-      <div className="p-4 lg:p-8">
-        <LoadingSpinner variant="detailed" text="Loading your hub dashboard" />
-      </div>
-    );
-  }
-
 
   return (
     <div className="p-4 lg:p-8">
@@ -145,7 +131,9 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
                   className={`p-2 lg:p-4 rounded-lg text-center transition-colors ${
                     date.active 
                       ? 'bg-green-500 text-black shadow-lg cursor-pointer hover:bg-green-400'
-                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-default'
+                      : datesLoading 
+                        ? 'bg-gray-800 text-gray-300 animate-pulse cursor-default'
+                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-default'
                   }`}
                   onClick={() => handleDateClick(date.dateInfo)}
                 >
@@ -154,6 +142,12 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
                 </div>
               ))}
             </div>
+            
+            {datesLoading && (
+              <div className="text-center mt-4">
+                <div className="text-gray-400 text-sm">Loading upcoming dates...</div>
+              </div>
+            )}
           </section>
 
           {/* Recently Active Section */}
@@ -180,6 +174,14 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
             {(!recentlyActive || recentlyActive.length === 0) && !playersLoading && (
               <div className="text-center py-8 text-gray-400">
                 No recently active players
+              </div>
+            )}
+            
+            {playersLoading && (
+              <div className="flex justify-start space-x-3 animate-pulse">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="w-36 h-40 bg-gray-800 rounded-xl"></div>
+                ))}
               </div>
             )}
           </section>

@@ -29,6 +29,9 @@ class MemoryCache {
     
     this.cache.set(key, item);
     
+    // Log cache operations for debugging
+    console.log(`💾 Cached data for key: ${key}, TTL: ${ttlMinutes}min`);
+    
     // Try to store in sessionStorage as backup (smaller, more reliable)
     try {
       // Only store essential data in sessionStorage
@@ -49,6 +52,7 @@ class MemoryCache {
     // Check memory cache first
     const item = this.cache.get(key);
     if (item && Date.now() < item.expiry) {
+      console.log(`🎯 Cache hit for key: ${key}`);
       return item.data;
     }
     
@@ -64,6 +68,7 @@ class MemoryCache {
             timestamp: Date.now(),
             expiry: parsed.expiry
           });
+          console.log(`📱 Restored from sessionStorage: ${key}`);
           return parsed.data;
         } else {
           // Expired, remove it
@@ -79,6 +84,7 @@ class MemoryCache {
       this.cache.delete(key);
     }
     
+    console.log(`❌ Cache miss for key: ${key}`);
     return null;
   }
   

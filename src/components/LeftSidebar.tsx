@@ -4,11 +4,12 @@ import { Home, Users, BookOpen, Settings } from 'lucide-react';
 interface LeftSidebarProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
+  onNavHover?: (tab: string) => void;
   isOpen?: boolean;
   onClose?: () => void;
 }
 
-const LeftSidebar = memo(function LeftSidebar({ activeTab, onTabChange, isOpen = true, onClose }: LeftSidebarProps) {
+const LeftSidebar = memo(function LeftSidebar({ activeTab, onTabChange, onNavHover, isOpen = true, onClose }: LeftSidebarProps) {
   const tabs = [
     { id: 'hub', label: 'Hub', icon: Home },
     { id: 'roster', label: 'Roster', icon: Users },
@@ -48,6 +49,7 @@ const LeftSidebar = memo(function LeftSidebar({ activeTab, onTabChange, isOpen =
             <button
               key={id}
               onClick={() => handleTabClick(id)}
+              onMouseEnter={() => onNavHover?.(id)}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-left ${
                 activeTab === id
                   ? 'bg-green-500 text-black'

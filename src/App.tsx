@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import { Suspense, memo } from 'react';
-import { useEffect } from 'react';
+import { Suspense, memo, useEffect, useMemo } from 'react';
 import LandingPage from './components/LandingPage';
 import AuthWrapper from './components/AuthWrapper';
 import LeftSidebar from './components/LeftSidebar';
@@ -13,7 +12,7 @@ import PasswordResetPage from './components/PasswordResetPage';
 import AuthCallback from './components/AuthCallback';
 import LoadingSpinner from './components/LoadingSpinner';
 import { useAuth } from './hooks/useAuth';
-import { preloadData } from './hooks/useDataLoader';
+import { preloadData, usePreloader } from './hooks/useDataLoader';
 import { playerApi, statsApi, datesApi } from './services/api';
 import type { Tables } from './lib/supabase';
 
@@ -29,69 +28,12 @@ type Player = Tables<'profiles'>;
 const AppContent = memo(function AppContent() {
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [preloadingComplete, setPreloadingComplete] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Preload data for all screens to improve initial load times
-  useEffect(() => {
-    const preloadCriticalData = async () => {
-      try {
-        console.log('Loading critical data for initial screen...');
-        
-        // Only load essential data for Hub screen to show UI quickly
-        const criticalPreloadPromises = [
-          preloadData('getUpcomingDates', () => datesApi.getUpcomingDates(), 5),
-          preloadData('getRecentPlayers_3', () => playerApi.getRecentPlayers(3), 15),
-        ];
-        
-        // Wait for critical data before showing the UI
-        const criticalResults = await Promise.allSettled(criticalPreloadPromises);
-        
-        // Log any critical data loading failures
-        criticalResults.forEach((result, index) => {
-          if (result.status === 'rejected') {
-            console.warn(`Critical data loading failed for promise ${index}:`, result.reason);
-          }
-        });
-        
-        console.log('Critical data loaded, UI ready to render');
-
-        // Start background loading after a short delay to not interfere with UI
-        setTimeout(() => {
-          console.log('Starting background data loading...');
-          
-          const backgroundPromises = [
-            // Roster screen data
-            preloadData('getActivePlayers', () => playerApi.getActivePlayers(), 30),
-            preloadData('getBenchPlayers', () => playerApi.getBenchPlayers(), 30),
-            
-            // Playbook screen data  
-            preloadData('getCPNByPeriod_monthly', () => statsApi.getCPNByPeriod('monthly'), 30),
-            preloadData('getTopPlayersByRating_3', () => statsApi.getTopPlayersByRating(3), 30),
-            preloadData('getDashboardStats', () => statsApi.getDashboardStats(), 30),
-          ];
-          
-          Promise.allSettled(backgroundPromises)
-            .then((results) => {
-              console.log('Background data loading completed');
-              results.forEach((result, index) => {
-                if (result.status === 'rejected') {
-                  console.warn(`Background data loading failed for promise ${index}:`, result.reason);
-                }
-              });
-            });
-        }, 500); // 500ms delay to let UI render first
-        
-      } catch (error) {
-        console.error('Error during critical data loading:', error);
-        // Don't block the UI if critical data fails
-      }
-    };
-    
-    // Start critical data loading immediately
-    const timer = setTimeout(preloadCriticalData, 50);
-    return () => clearTimeout(timer);
-  }, []);
+  // Use the preloader hook for better performance
+  const { preloadForRoute, isPreloading } = usePreloader();
   
   // Get current tab from URL
   const getCurrentTab = () => {
@@ -102,6 +44,68 @@ const AppContent = memo(function AppContent() {
     if (path === '/settings') return 'settings';
     return 'hub';
   };
+
+  const activeTab = getCurrentTab();
+
+  // Preload critical data on app start
+  useEffect(() => {
+    let isMounted = true;
+    
+    const initializeApp = async () => {
+      try {
+        console.log('🚀 Starting app initialization...');
+        
+        // Step 1: Load critical data for current route immediately
+        await preloadForRoute(activeTab);
+        
+        if (!isMounted) return;
+        
+        console.log('✅ Critical data loaded for', activeTab);
+        
+        // Step 2: Start background preloading for other routes
+        setTimeout(async () => {
+          if (!isMounted) return;
+          
+          console.log('🔄 Starting background preloading...');
+          
+          // Preload other routes in order of likely usage
+          const routesToPreload = ['roster', 'playbook', 'settings'].filter(route => route !== activeTab);
+          
+          for (const route of routesToPreload) {
+            if (!isMounted) break;
+            await preloadForRoute(route);
+            console.log(`✅ Background preloaded: ${route}`);
+            // Small delay between preloads to not overwhelm the browser
+            await new Promise(resolve => setTimeout(resolve, 200));
+          }
+          
+          if (isMounted) {
+            setPreloadingComplete(true);
+            console.log('🎉 All background preloading complete');
+          }
+        }, 100); // Reduced delay for faster background loading
+        
+      } catch (error) {
+        console.error('❌ Error during app initialization:', error);
+        if (isMounted) {
+          setPreloadingComplete(true); // Don't block UI on error
+        }
+      }
+    };
+    
+    initializeApp();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [activeTab, preloadForRoute]);
+
+  // Preload data when user hovers over navigation items
+  const handleNavHover = useCallback((route: string) => {
+    if (route !== activeTab && !isPreloading) {
+      preloadForRoute(route);
+    }
+  }, [activeTab, isPreloading, preloadForRoute]);
 
   const handlePlayerSelect = (player: Player) => {
     setSelectedPlayer(player);
@@ -119,45 +123,57 @@ const AppContent = memo(function AppContent() {
     navigate(`/${tab === 'hub' ? '' : tab}`);
   };
 
-  const activeTab = getCurrentTab();
+  // Enhanced loading fallback with route-specific content
+  const LoadingFallback = memo(({ route }: { route?: string }) => (
+    <div className="p-4 lg:p-8">
+      <LoadingSpinner 
+        variant="detailed" 
+        text={
+          route === 'playbook' ? 'Loading analytics dashboard...' :
+          route === 'roster' ? 'Loading player roster...' :
+          route === 'settings' ? 'Loading settings...' :
+          'Loading dashboard...'
+        } 
+      />
+    </div>
+  ));
 
   return (
-    <AuthWrapper>
-      <div className="min-h-screen bg-black">
-        <MobileHeader 
-          isMenuOpen={isMobileMenuOpen}
-          onToggleMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        />
-        
-        <LeftSidebar 
-          activeTab={activeTab} 
-          onTabChange={handleTabChange}
-          isOpen={isMobileMenuOpen}
-          onClose={() => setIsMobileMenuOpen(false)}
-        />
-        
-        <div className="transition-all duration-300 pt-16 lg:pt-0 lg:ml-64">
-          {selectedPlayer ? (
-            <Suspense fallback={<div className="p-8"><LoadingSpinner text="Loading player profile..." /></div>}>
-              <PlayerProfile 
-                player={selectedPlayer} 
-                onBack={handleBackToRoster}
-              />
-            </Suspense>
-          ) : (
-            <Suspense fallback={<div className="p-8"><LoadingSpinner text="Loading..." /></div>}>
-              <Routes>
-                <Route path="/" element={<HubScreen onPlayerSelect={handlePlayerSelect} />} />
-                <Route path="/hub" element={<HubScreen onPlayerSelect={handlePlayerSelect} />} />
-                <Route path="/roster" element={<RosterScreen onPlayerSelect={handlePlayerSelect} />} />
-                <Route path="/playbook" element={<PlaybookScreen onPlayerSelect={handlePlayerSelect} />} />
-                <Route path="/settings" element={<SettingsScreen />} />
-              </Routes>
-            </Suspense>
-          )}
-        </div>
+    <div className="min-h-screen bg-black">
+      <MobileHeader 
+        isMenuOpen={isMobileMenuOpen}
+        onToggleMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+      />
+      
+      <LeftSidebar 
+        activeTab={activeTab} 
+        onTabChange={handleTabChange}
+        onNavHover={handleNavHover}
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+      />
+      
+      <div className="transition-all duration-300 pt-16 lg:pt-0 lg:ml-64">
+        {selectedPlayer ? (
+          <Suspense fallback={<LoadingFallback />}>
+            <PlayerProfile 
+              player={selectedPlayer} 
+              onBack={handleBackToRoster}
+            />
+          </Suspense>
+        ) : (
+          <Suspense fallback={<LoadingFallback route={activeTab} />}>
+            <Routes>
+              <Route path="/" element={<HubScreen onPlayerSelect={handlePlayerSelect} />} />
+              <Route path="/hub" element={<HubScreen onPlayerSelect={handlePlayerSelect} />} />
+              <Route path="/roster" element={<RosterScreen onPlayerSelect={handlePlayerSelect} />} />
+              <Route path="/playbook" element={<PlaybookScreen onPlayerSelect={handlePlayerSelect} />} />
+              <Route path="/settings" element={<SettingsScreen />} />
+            </Routes>
+          </Suspense>
+        )}
       </div>
-    </AuthWrapper>
+    </div>
   );
 });
 
