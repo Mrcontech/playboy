@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Loader2 } from 'lucide-react';
+import { X, Loader2, User } from 'lucide-react';
 import StarRating from './StarRating';
 import { generateAIRecap, type PlayerData } from '../lib/openai';
 import type { Tables } from '../lib/supabase';
@@ -78,11 +78,17 @@ export default function AIRecapModal({ player, playerStats, meetings, onClose }:
         {/* Header */}
         <div className="text-center mb-6">
           <div className="w-16 h-16 mx-auto mb-3 rounded-full overflow-hidden bg-gradient-to-br from-blue-400 to-purple-600">
-            <img 
-              src={player.image_url || 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=400'} 
-              alt={player.name}
-              className="w-full h-full object-cover"
-            />
+            {player.image_url ? (
+              <img 
+                src={player.image_url} 
+                alt={player.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <User className="text-white" size={24} />
+              </div>
+            )}
           </div>
           <h2 className="text-xl font-bold text-white">{player.name}</h2>
         </div>

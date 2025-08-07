@@ -1,5 +1,5 @@
 import React, { useState, useEffect, memo, useCallback } from 'react';
-import { TrendingUp, Users, DollarSign, Calendar, BarChart3, Target } from 'lucide-react';
+import { TrendingUp, Users, DollarSign, Calendar, BarChart3, Target, User } from 'lucide-react';
 import LoadingSpinner from './LoadingSpinner';
 import { useDataLoader } from '../hooks/useDataLoader';
 import { statsApi } from '../services/api';
@@ -352,11 +352,17 @@ const PlaybookScreen = memo(function PlaybookScreen({ onPlayerSelect }: Playbook
                         {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
                       </div>
                       <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-green-500 to-green-600">
-                        <img 
-                          src={player.image_url || 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=400'} 
-                          alt={player.name}
-                          className="w-full h-full object-cover"
-                        />
+                        {player.image_url ? (
+                          <img 
+                            src={player.image_url} 
+                            alt={player.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <User className="text-white" size={20} />
+                          </div>
+                        )}
                       </div>
                       <div className="flex-1">
                         <div className="font-semibold text-white">{player.name}</div>

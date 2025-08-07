@@ -105,7 +105,7 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
                   player={{
                     id: player.id,
                     name: player.name,
-                    avatar: player.image_url || 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400',
+                    avatar: player.image_url || '',
                     status: player.status,
                     totalMeetings: player.totalMeetings || 0,
                     cpn: player.cpn || 0,
@@ -140,7 +140,7 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
                   player={{
                     id: player.id,
                     name: player.name,
-                    avatar: player.image_url || 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=400',
+                    avatar: player.image_url || '',
                     status: player.status,
                     totalMeetings: player.totalMeetings || 0,
                     cpn: player.cpn || 0,

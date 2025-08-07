@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useEffect } from 'react';
-import { ArrowLeft, Edit2, DollarSign, Plus, Heart, Star } from 'lucide-react';
+import { ArrowLeft, Edit2, DollarSign, Plus, Heart, Star, User } from 'lucide-react';
 import StarRating from './StarRating';
 import AIRecapModal from './AIRecapModal';
 import EditPlayerModal from './EditPlayerModal';
@@ -149,11 +149,17 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
             {/* Profile Header */}
             <div className="bg-black border-2 border-green-500 rounded-xl p-6 text-center mb-6">
               <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden bg-gradient-to-br from-green-400 to-green-600">
-                <img 
-                  src={player.image_url || 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=400'} 
-                  alt={player.name}
-                  className="w-full h-full object-cover"
-                />
+                {player.image_url ? (
+                  <img 
+                    src={player.image_url} 
+                    alt={player.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <User className="text-white" size={48} />
+                  </div>
+                )}
               </div>
               <h1 className="text-2xl font-bold mb-2 text-white">{player.name}</h1>
               <span className="bg-green-500 text-black px-4 py-2 rounded-full text-sm font-medium">

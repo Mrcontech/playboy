@@ -153,7 +153,7 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
                   player={{
                     id: player.id,
                     name: player.name,
-                    avatar: player.image_url || 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=400',
+                    avatar: player.image_url || '',
                     totalMeetings: player.totalMeetings || 0,
                     cpn: player.cpn || 0,
                     averageRating: player.averageRating || 0,

@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Star, DollarSign, Heart } from 'lucide-react';
+import { Star, DollarSign, Heart, User } from 'lucide-react';
 
 interface PlayerCardProps {
   player: {
@@ -36,11 +36,17 @@ const PlayerCard = memo(function PlayerCard({ player, onClick, size = 'medium' }
     >
       {/* Image Section */}
       <div className={`${avatarSizes[size]} w-full overflow-hidden bg-gradient-to-br from-green-400 to-green-600`}>
-        <img 
-          src={player.avatar} 
-          alt={player.name}
-          className="w-full h-full object-cover"
-        />
+        {player.avatar ? (
+          <img 
+            src={player.avatar} 
+            alt={player.name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <User className="text-white" size={size === 'small' ? 20 : size === 'medium' ? 24 : 32} />
+          </div>
+        )}
       </div>
       
       {/* Content Section */}
