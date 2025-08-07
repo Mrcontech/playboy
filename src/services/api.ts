@@ -105,23 +105,12 @@ export const playerApi = {
   // New method to get detailed player data on-demand
   async getPlayerDetails(playerId: string): Promise<Player> {
     console.log('🔍 Fetching detailed data for player:', playerId);
-    console.log('🔍 Query: profiles table with all fields and meetings');
+    console.log('🔍 Query: profiles table with explicit fields and meetings');
     
     const { data: player, error } = await supabase
       .from('profiles')
       .select(`
-        id,
-        name,
-        image_url,
-        likes,
-        dislikes,
-        notes,
-        status,
-        looks_rating,
-        bench,
-        created_at,
-        updated_at,
-        user_id,
+        *,
         meetings (*)
       `)
       .eq('id', playerId)
@@ -138,15 +127,10 @@ export const playerApi = {
     }
     
     console.log('✅ Detailed player data loaded for:', player.name);
-    console.log('📋 Profile details check:', {
-      hasLikes: Array.isArray(player.likes) && player.likes.length > 0,
-      likesData: player.likes,
-      hasDislikes: Array.isArray(player.dislikes) && player.dislikes.length > 0,
-      dislikesData: player.dislikes,
-      hasNotes: Boolean(player.notes && player.notes.trim()),
-      notesData: player.notes,
-      rawPlayerObject: player
-    });
+    console.log('📋 RAW SUPABASE DATA:', JSON.stringify(player, null, 2));
+    console.log('📋 Likes field type:', typeof player.likes, 'Value:', player.likes);
+    console.log('📋 Dislikes field type:', typeof player.dislikes, 'Value:', player.dislikes);
+    console.log('📋 Notes field type:', typeof player.notes, 'Value:', player.notes);
     
     return calculatePlayerStats(player, true);
   },

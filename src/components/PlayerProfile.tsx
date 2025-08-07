@@ -46,16 +46,10 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
 
   useEffect(() => {
     console.log('🔄 PlayerProfile mounted for player:', player.name);
-    console.log('📋 Initial player data:', {
-      id: player.id,
-      name: player.name,
-      likes: player.likes,
-      dislikes: player.dislikes,
-      notes: player.notes,
-      hasLikes: Array.isArray(player.likes) && player.likes.length > 0,
-      hasDislikes: Array.isArray(player.dislikes) && player.dislikes.length > 0,
-      hasNotes: Boolean(player.notes && player.notes.trim())
-    });
+    console.log('📋 PLAYER PROFILE DATA RECEIVED:', JSON.stringify(player, null, 2));
+    console.log('📋 Likes:', player.likes, 'Type:', typeof player.likes);
+    console.log('📋 Dislikes:', player.dislikes, 'Type:', typeof player.dislikes);
+    console.log('📋 Notes:', player.notes, 'Type:', typeof player.notes);
     loadPlayerStats();
   }, [player.id]);
 
@@ -232,9 +226,9 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
               </div>
               
               {/* Likes Section */}
-              {Array.isArray(player.likes) && player.likes.length > 0 ? (
-                <div className="mb-6">
-                  <h4 className="text-green-500 font-medium mb-3">Likes</h4>
+              <div className="mb-6">
+                <h4 className="text-green-500 font-medium mb-3">Likes</h4>
+                {player.likes && Array.isArray(player.likes) && player.likes.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {player.likes.map((like, index) => (
                       <span key={index} className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm border border-green-500/30">
@@ -242,18 +236,17 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                       </span>
                     ))}
                   </div>
-                </div>
-              ) : (
-                <div className="mb-6">
-                  <h4 className="text-gray-500 font-medium mb-3">Likes</h4>
-                  <div className="text-gray-400 text-sm italic">No likes added yet</div>
-                </div>
-              )}
+                ) : (
+                  <div className="text-gray-400 text-sm italic">
+                    {player.likes ? 'No likes data available' : 'No likes added yet'}
+                  </div>
+                )}
+              </div>
               
               {/* Dislikes Section */}
-              {Array.isArray(player.dislikes) && player.dislikes.length > 0 ? (
-                <div className="mb-6">
-                  <h4 className="text-red-500 font-medium mb-3">Dislikes</h4>
+              <div className="mb-6">
+                <h4 className="text-red-500 font-medium mb-3">Dislikes</h4>
+                {player.dislikes && Array.isArray(player.dislikes) && player.dislikes.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {player.dislikes.map((dislike, index) => (
                       <span key={index} className="bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-sm border border-red-500/30">
@@ -261,30 +254,28 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                       </span>
                     ))}
                   </div>
-                </div>
-              ) : (
-                <div className="mb-6">
-                  <h4 className="text-gray-500 font-medium mb-3">Dislikes</h4>
-                  <div className="text-gray-400 text-sm italic">No dislikes added yet</div>
-                </div>
-              )}
+                ) : (
+                  <div className="text-gray-400 text-sm italic">
+                    {player.dislikes ? 'No dislikes data available' : 'No dislikes added yet'}
+                  </div>
+                )}
+              </div>
               
               {/* Notes Section */}
-              {player.notes && player.notes.trim() ? (
-                <div className="mb-6">
-                  <h4 className="text-purple-500 font-medium mb-3">Notes</h4>
+              <div className="mb-6">
+                <h4 className="text-purple-500 font-medium mb-3">Notes</h4>
+                {player.notes && player.notes.trim() ? (
                   <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
                     <p className="text-gray-300 leading-relaxed">
                       {player.notes}
                     </p>
                   </div>
-                </div>
-              ) : (
-                <div className="mb-6">
-                  <h4 className="text-gray-500 font-medium mb-3">Notes</h4>
-                  <div className="text-gray-400 text-sm italic">No notes added yet</div>
-                </div>
-              )}
+                ) : (
+                  <div className="text-gray-400 text-sm italic">
+                    {player.notes ? 'No notes content available' : 'No notes added yet'}
+                  </div>
+                )}
+              </div>
               
               {/* Action button to add/edit details */}
               <div className="text-center pt-4 border-t border-gray-700">
@@ -292,8 +283,8 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                   onClick={() => setShowEditModal(true)}
                   className="bg-purple-500 hover:bg-purple-600 px-6 py-3 rounded-lg text-white font-medium transition-colors"
                 >
-                  {(Array.isArray(player.likes) && player.likes.length > 0) || 
-                   (Array.isArray(player.dislikes) && player.dislikes.length > 0) || 
+                  {(player.likes && Array.isArray(player.likes) && player.likes.length > 0) || 
+                   (player.dislikes && Array.isArray(player.dislikes) && player.dislikes.length > 0) || 
                    (player.notes && player.notes.trim()) ? 'Edit Details' : 'Add Details'}
                 </button>
               </div>
@@ -303,7 +294,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
             <div className="bg-black border-2 border-green-500 rounded-xl p-6">
               <h3 className="text-xl font-semibold text-white mb-6">Meeting & Expense History</h3>
               {meetings.length > 0 ? (
-                <div className="space-y-4">
+                <div className="mb-6">
                   {meetings.map((meeting) => (
                     <div key={meeting.id} className="bg-gray-800 rounded-lg p-4">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 space-y-2 sm:space-y-0">
