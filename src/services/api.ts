@@ -271,29 +271,46 @@ export const datesApi = {
 // Stats API for Playbook
 export const statsApi = {
   async getDashboardStats() {
-    console.log('Fetching dashboard stats...');
+    console.log('Fetching fresh dashboard stats...');
+    
+    // Get all meetings with detailed logging
     const { data: meetings, error } = await supabase
       .from('meetings')
-      .select('amount_spent, performance_rating, type, id');
+      .select('*');
     
     if (error) {
       console.error('Error fetching meetings for stats:', error);
       throw error;
     }
     
-    console.log('Raw meetings data:', meetings);
+    console.log('Raw meetings data (total count):', meetings?.length || 0);
+    console.log('All meetings:', meetings);
     
     const totalSpent = meetings?.reduce((sum, meeting) => 
       sum + (Number(meeting.amount_spent) || 0), 0) || 0;
     const totalDates = meetings?.length || 0;
-    const totalHookups = meetings?.filter(meeting => 
-      meeting.performance_rating !== null && Number(meeting.performance_rating) > 0).length || 0;
     
-    console.log('Calculated stats:', {
+    // More detailed hookup detection
+    const hookupMeetings = meetings?.filter(meeting => {
+      const hasPerformanceRating = meeting.performance_rating !== null && meeting.performance_rating !== undefined;
+      const ratingValue = Number(meeting.performance_rating);
+      const isValidRating = hasPerformanceRating && ratingValue > 0;
+      
+      if (hasPerformanceRating) {
+        console.log(`Meeting ${meeting.id}: performance_rating = ${meeting.performance_rating}, parsed = ${ratingValue}, isValid = ${isValidRating}`);
+      }
+      
+      return isValidRating;
+    }) || [];
+    
+    const totalHookups = hookupMeetings.length;
+    
+    console.log('Detailed stats calculation:', {
       totalSpent,
       totalDates,
       totalHookups,
-      meetingsWithPerformanceRating: meetings?.filter(m => m.performance_rating !== null).length || 0
+      hookupMeetings: hookupMeetings.map(m => ({ id: m.id, type: m.type, performance_rating: m.performance_rating })),
+      allMeetingsWithPerformanceData: meetings?.filter(m => m.performance_rating !== null && m.performance_rating !== undefined).map(m => ({ id: m.id, type: m.type, performance_rating: m.performance_rating })) || []
     });
     
     return {
