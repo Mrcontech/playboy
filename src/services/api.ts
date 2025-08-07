@@ -273,15 +273,72 @@ export const statsApi = {
   async getDashboardStats() {
     console.log('Fetching fresh dashboard stats...');
     
-    // Get all meetings with detailed logging
-    const { data: meetings, error } = await supabase
-      .from('meetings')
-      .select('*');
-    
-    if (error) {
-      console.error('Error fetching meetings for stats:', error);
-      throw error;
+    try {
+      // Get all meetings with detailed logging
+      const { data: meetings, error } = await supabase
+        .from('meetings')
+        .select('*');
+      
+      if (error) {
+        console.error('Supabase error fetching meetings for stats:', error);
+        throw new Error(`Database error: ${error.message}`);
+      }
+      
+      if (!meetings) {
+        console.warn('No meetings data returned from Supabase');
+        return {
+          totalSpent: 0,
+          totalDates: 0,
+          totalHookups: 0
+        };
+      }
+      
+      console.log('Raw meetings data (total count):', meetings.length);
+      console.log('All meetings:', meetings);
+      
+      const totalSpent = meetings.reduce((sum, meeting) => 
+        sum + (Number(meeting.amount_spent) || 0), 0);
+      const totalDates = meetings.length;
+      
+      // More detailed hookup detection
+      const hookupMeetings = meetings.filter(meeting => {
+        const hasPerformanceRating = meeting.performance_rating !== null && meeting.performance_rating !== undefined;
+        const ratingValue = Number(meeting.performance_rating);
+        const isValidRating = hasPerformanceRating && ratingValue > 0;
+        
+        if (hasPerformanceRating) {
+          console.log(`Meeting ${meeting.id}: performance_rating = ${meeting.performance_rating}, parsed = ${ratingValue}, isValid = ${isValidRating}`);
+        }
+        
+        return isValidRating;
+      });
+      
+      const totalHookups = hookupMeetings.length;
+      
+      console.log('Detailed stats calculation:', {
+        totalSpent,
+        totalDates,
+        totalHookups,
+        hookupMeetings: hookupMeetings.map(m => ({ id: m.id, type: m.type, performance_rating: m.performance_rating })),
+        allMeetingsWithPerformanceData: meetings.filter(m => m.performance_rating !== null && m.performance_rating !== undefined).map(m => ({ id: m.id, type: m.type, performance_rating: m.performance_rating }))
+      });
+      
+      return {
+        totalSpent: Math.round(totalSpent),
+        totalDates,
+        totalHookups
+      };
+    } catch (err) {
+      console.error('Error fetching meetings for stats:', err);
+      
+      // Return fallback stats instead of throwing
+      return {
+        totalSpent: 0,
+        totalDates: 0,
+        totalHookups: 0
+      };
     }
+  },
     
     console.log('Raw meetings data (total count):', meetings?.length || 0);
     console.log('All meetings:', meetings);

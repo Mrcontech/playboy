@@ -46,6 +46,13 @@ export function useDataLoader<T>({
       
       const freshData = await fetcher();
       
+      if (!freshData) {
+        console.warn(`Fetcher returned null/undefined for key: ${key}`);
+        setData(null);
+        setLoading(false);
+        return null;
+      }
+      
       // Store in persistent cache only if TTL > 0
       if (ttlMinutes > 0) {
         persistentCache.set(key, freshData, ttlMinutes);
@@ -57,7 +64,7 @@ export function useDataLoader<T>({
       return freshData;
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Unknown error');
-      console.warn(`Error loading data for key ${key}:`, error.message);
+      console.error(`Error loading data for key ${key}:`, error);
       
       // Check if we have cached data to fall back to
       const cachedFallback = persistentCache.get<T>(key);
@@ -67,12 +74,12 @@ export function useDataLoader<T>({
         setError(null);
       } else {
         console.log(`No cached fallback available for key: ${key}`);
-        setError(error);
+        // Don't set error state for network issues, just show empty state
+        setError(null);
         setData(null);
       }
       
       setLoading(false);
-      // Don't throw error to prevent app crash
       return cachedFallback;
     }
   }, [key, fetcher, ttlMinutes, enabled]);
