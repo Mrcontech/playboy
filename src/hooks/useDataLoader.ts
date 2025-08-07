@@ -151,20 +151,26 @@ export function usePreloader() {
       switch (route) {
         case 'hub':
           await Promise.all([
-            preloadData('getRecentPlayers_3', () => playerApi.getRecentPlayers(3), 15),
+            preloadData('getRecentPlayersBasic_3', () => playerService.getRecentPlayersBasic(3), 15),
             preloadData('getUpcomingDates', () => datesApi.getUpcomingDates(), 10),
+            // Background preload full playbook data
+            preloadData('getDashboardStats', () => statsApi.getDashboardStats(), 30),
+            preloadData('getCPNByPeriod_monthly', () => statsApi.getCPNByPeriod('monthly'), 30),
+            preloadData('getTopPlayersByRating_3', () => statsApi.getTopPlayersByRating(3), 30),
           ]);
           break;
           
         case 'roster':
           await Promise.all([
-            preloadData('getActivePlayers', () => playerApi.getActivePlayers(), 30),
-            preloadData('getBenchPlayers', () => playerApi.getBenchPlayers(), 30),
+            preloadData('getActivePlayers', () => playerService.getActivePlayers(), 30),
+            preloadData('getBenchPlayers', () => playerService.getBenchPlayers(), 30),
+            // Background preload full roster details for instant profile access
+            preloadData('getAllPlayersDetailed', () => this.preloadAllPlayersDetailed(), 45),
           ]);
           break;
           
         case 'playbook':
-          // Preload playbook data in parallel for faster loading
+          // Playbook data should already be preloaded from hub, just verify cache
           await Promise.all([
             preloadData('getDashboardStats', () => statsApi.getDashboardStats(), 15),
             preloadData('getCPNByPeriod_monthly', () => statsApi.getCPNByPeriod('monthly'), 30),
@@ -178,6 +184,9 @@ export function usePreloader() {
       }
       
       setPreloadedRoutes(prev => new Set([...prev, route]));
+      
+      const endTime = performance.now();
+      console.log(`✅ Route ${route} preloaded in ${Math.round(endTime - startTime)}ms`);
     } catch (error) {
       console.warn(`⚠️ Error preloading route ${route}:`, error);
     } finally {
@@ -185,10 +194,39 @@ export function usePreloader() {
     }
   }, [preloadedRoutes]);
 
+  // Background preload all detailed player data
+  const preloadAllPlayersDetailed = useCallback(async () => {
+    console.log('🔄 Background preloading all detailed player data...');
+    
+    try {
+      // Get basic players first
+      const basicPlayers = await playerService.getPlayersBasic();
+      
+      // Preload detailed data for each player in background
+      const detailedPromises = basicPlayers.map(async (player) => {
+        try {
+          return await playerService.getPlayerDetailed(player.id, false);
+        } catch (error) {
+          console.warn(`Failed to preload player ${player.name}:`, error);
+          return null;
+        }
+      });
+      
+      const detailedPlayers = await Promise.all(detailedPromises);
+      const validPlayers = detailedPlayers.filter(p => p !== null);
+      
+      console.log(`✅ Background preloaded ${validPlayers.length} detailed players`);
+      return validPlayers;
+    } catch (error) {
+      console.warn('⚠️ Error in background preloading:', error);
+      return [];
+    }
+  }, []);
   return {
     preloadForRoute,
     isPreloading,
-    preloadedRoutes: Array.from(preloadedRoutes)
+    preloadedRoutes: Array.from(preloadedRoutes),
+    preloadAllPlayersDetailed
   };
 }
 

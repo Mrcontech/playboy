@@ -37,13 +37,13 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
   });
 
   const { 
-    data: recentlyActive, 
+    data: recentlyActiveBasic, 
     loading: playersLoading,
     refetch: refetchPlayers
   } = useDataLoader({
-    key: 'getRecentPlayers_3',
-    fetcher: () => playerApi.getRecentPlayers(3),
-    ttlMinutes: 20 // Longer cache for recent players
+    key: 'getRecentPlayersBasic_3',
+    fetcher: () => playerService.getRecentPlayersBasic(3),
+    ttlMinutes: 15 // Shorter cache for faster updates
   });
 
   const loadData = useCallback(async () => {
@@ -60,17 +60,11 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
   const handlePlayerSelect = useCallback(async (player: Player) => {
     if (!player.id) return;
     
-    // If player already has detailed stats, navigate directly
-    if (player.totalMeetings !== undefined) {
-      onPlayerSelect?.(player);
-      return;
-    }
-    
     setLoadingPlayerDetails(player.id);
     try {
-      console.log('🔍 Loading detailed data for recently active player:', player.name);
-      const detailedPlayer = await playerApi.getPlayerDetails(player.id);
-      console.log('✅ Detailed data loaded, navigating to profile');
+      console.log('🔍 TIER 2: Loading detailed data for player:', player.name);
+      const detailedPlayer = await playerService.getPlayerDetailed(player.id);
+      console.log('✅ TIER 2: Detailed data loaded, navigating to profile');
       onPlayerSelect?.(detailedPlayer);
     } catch (error) {
       console.error('❌ Error loading player details:', error);
@@ -82,55 +76,36 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
 
   // Generate calendar dates for the next 7 days
   const calendarDates = useMemo(() => {
-    // Always generate calendar structure, but mark loading state
     const dates = [];
     const today = new Date();
-    
-    console.log('📅 Generating calendar...');
-    console.log('🔍 Dates loading state:', datesLoading);
-    console.log('📊 Upcoming dates data:', upcomingDates?.length || 0, 'dates found');
-    
-    if (upcomingDates) {
-      console.log('📋 Raw upcoming dates:', upcomingDates.map(d => ({
-        date: d.date,
-        type: d.type,
-        profile_id: d.profile_id
-      })));
-    }
     
     for (let i = 0; i < 7; i++) {
       const currentDate = new Date(today);
       currentDate.setDate(today.getDate() + i);
       
-      // Create date strings for comparison
       const currentDateStr = currentDate.toISOString().split('T')[0]; // YYYY-MM-DD format
       
-      console.log(`📅 Checking day ${i + 1}: ${currentDateStr} (${currentDate.getDate()})`);
-      
-      // Find matching upcoming date with improved logic
+      // Find matching upcoming date with proper validation
       let dateInfo = null;
       if (upcomingDates && !datesLoading) {
         dateInfo = upcomingDates.find(d => {
-          // Validate date before processing
+          // Validate date exists and is valid
           if (!d.date || typeof d.date !== 'string') {
-            console.warn('⚠️ Invalid date found:', d.date);
             return false;
           }
           
-          const scheduledDate = new Date(d.date);
-          if (isNaN(scheduledDate.getTime())) {
-            console.warn('⚠️ Invalid date format found:', d.date);
+          try {
+            const scheduledDate = new Date(d.date);
+            if (isNaN(scheduledDate.getTime())) {
+              return false;
+            }
+            
+            const scheduledDateStr = scheduledDate.toISOString().split('T')[0];
+            return scheduledDateStr === currentDateStr;
+          } catch (error) {
+            console.warn('Date parsing error:', error);
             return false;
           }
-          
-          const scheduledDateStr = scheduledDate.toISOString().split('T')[0];
-          const matches = scheduledDateStr === currentDateStr;
-          
-          if (matches) {
-            console.log(`✅ MATCH FOUND: ${d.date} (${d.type}) → ${currentDateStr} (day ${currentDate.getDate()})`);
-          }
-          
-          return matches;
         });
       }
       
@@ -142,9 +117,6 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
         isLoading: datesLoading
       });
     }
-    
-    const activeDatesCount = dates.filter(d => d.active).length;
-    console.log('📊 Calendar generated:', activeDatesCount, 'active dates out of', dates.length);
     
     return dates;
   }, [upcomingDates, datesLoading]);
@@ -158,9 +130,9 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
 
   const getPlayerName = useCallback((profileId: string | null) => {
     if (!profileId) return undefined;
-    const player = recentlyActive?.find(p => p.id === profileId);
+    const player = recentlyActiveBasic?.find(p => p.id === profileId);
     return player?.name;
-  }, [recentlyActive]);
+  }, [recentlyActiveBasic]);
 
   return (
     <div className="p-4 lg:p-8">
@@ -243,21 +215,19 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
             ) : (
               <>
                 <div className="flex justify-start space-x-3 overflow-x-auto pb-2 px-1">
-                  {recentlyActive?.map((player) => (
+                  {recentlyActiveBasic?.map((player) => (
                     <div key={player.id} className="relative">
                       <PlayerCard 
                         player={{
                           id: player.id,
                           name: player.name,
                           avatar: player.image_url || '',
-                          totalMeetings: player.totalMeetings || 0,
-                          cpn: player.cpn || 0,
-                          averageRating: player.averageRating || 0,
                           status: player.status,
                         }}
                         onClick={() => handlePlayerSelect(player)}
                         size="small"
                         isLoading={loadingPlayerDetails === player.id}
+                        showBasicInfo={false}
                       />
                       {loadingPlayerDetails === player.id && (
                         <div className="absolute inset-0 bg-black bg-opacity-75 rounded-xl flex items-center justify-center">
@@ -267,7 +237,7 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
                     </div>
                   ))}
                 </div>
-                {(!recentlyActive || recentlyActive.length === 0) && (
+                {(!recentlyActiveBasic || recentlyActiveBasic.length === 0) && (
                   <div className="text-center py-8 text-gray-400">
                     No recently active players
                   </div>

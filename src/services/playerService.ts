@@ -11,24 +11,24 @@ import type { Tables, Inserts, Updates } from '../lib/supabase';
 type Player = Tables<'profiles'>;
 type Meeting = Tables<'meetings'>;
 
-// Core player data for initial display (Tier 1)
+// TIER 1: Minimal data for fast initial display
 export interface PlayerBasic {
   id: string;
   name: string;
   image_url?: string;
   status?: string;
-  looks_rating?: number;
   bench?: boolean;
-  created_at: string;
-  updated_at: string;
 }
 
-// Complete player data with all details (Tier 2)
+// TIER 2: Complete player data with all details
 export interface PlayerDetailed extends PlayerBasic {
+  looks_rating?: number;
   likes?: string[];
   dislikes?: string[];
   notes?: string;
   user_id: string;
+  created_at: string;
+  updated_at: string;
   meetings?: Meeting[];
   // Calculated stats
   totalMeetings: number;
@@ -134,8 +134,8 @@ function calculatePlayerStats(player: any, meetings: Meeting[]): Omit<PlayerDeta
 
 export const playerService = {
   /**
-   * TIER 1: Get basic player data for initial display
-   * Fast query with minimal data for cards/lists
+   * TIER 1: Get minimal player data for ultra-fast initial display
+   * Only essential fields: name, image, status, bench
    */
   async getPlayersBasic(forceRefresh = false): Promise<PlayerBasic[]> {
     const cacheKey = 'all_basic_players';
@@ -143,12 +143,12 @@ export const playerService = {
     if (!forceRefresh) {
       const cached = playerCache.getBasicPlayers(cacheKey);
       if (cached) {
-        console.log('📦 Using cached basic players data');
+        console.log('⚡ TIER 1: Using cached minimal player data');
         return cached;
       }
     }
 
-    console.log('🚀 OPTIMIZED: Fetching basic players from Supabase...');
+    console.log('🚀 TIER 1: Fetching minimal player data (name, image, status, bench only)...');
     
     const { data: players, error } = await supabase
       .from('profiles')
@@ -157,22 +157,19 @@ export const playerService = {
         name,
         image_url,
         status,
-        looks_rating,
-        bench,
-        created_at,
-        updated_at
+        bench
       `)
       .order('created_at', { ascending: false });
     
     if (error) {
-      console.error('❌ Error fetching basic players:', error);
+      console.error('❌ TIER 1: Error fetching minimal players:', error);
       throw error;
     }
     
     const basicPlayers = players || [];
     playerCache.setBasicPlayers(cacheKey, basicPlayers);
     
-    console.log('⚡ OPTIMIZED: Basic players loaded in record time:', basicPlayers.length);
+    console.log('⚡ TIER 1: Minimal players loaded instantly:', basicPlayers.length, 'players');
     return basicPlayers;
   },
 
@@ -256,7 +253,7 @@ export const playerService = {
   },
 
   /**
-   * Get active players (basic data only)
+   * Get active players (minimal data only)
    */
   async getActivePlayers(): Promise<PlayerBasic[]> {
     const players = await this.getPlayersBasic();
@@ -264,7 +261,7 @@ export const playerService = {
   },
 
   /**
-   * Get bench players (basic data only)
+   * Get bench players (minimal data only)
    */
   async getBenchPlayers(): Promise<PlayerBasic[]> {
     const players = await this.getPlayersBasic();
@@ -272,38 +269,44 @@ export const playerService = {
   },
 
   /**
-   * Get recent players with basic stats
+   * Get recent players with minimal data for hub display
    */
-  async getRecentPlayers(limit: number = 3): Promise<PlayerDetailed[]> {
-    const cacheKey = `recent_players_${limit}`;
+  async getRecentPlayersBasic(limit: number = 3): Promise<PlayerBasic[]> {
+    const cacheKey = `recent_players_basic_${limit}`;
     
-    console.log('🔄 Fetching recent players...');
+    // Check cache first
+    const cached = playerCache.getBasicPlayers(cacheKey);
+    if (cached) {
+      console.log('⚡ Using cached recent players basic data');
+      return cached.slice(0, limit);
+    }
+
+    console.log('🔄 TIER 1: Fetching recent players (minimal data)...');
     
     const { data: players, error } = await supabase
       .from('profiles')
       .select(`
-        *,
-        meetings (*)
+        id,
+        name,
+        image_url,
+        status,
+        bench,
+        updated_at
       `)
       .eq('bench', false)
       .limit(limit)
       .order('updated_at', { ascending: false });
     
     if (error) {
-      console.error('❌ Error fetching recent players:', error);
+      console.error('❌ TIER 1: Error fetching recent players:', error);
       throw error;
     }
     
-    return (players || []).map(player => {
-      const meetings = player.meetings || [];
-      const stats = calculatePlayerStats(player, meetings);
-      
-      return {
-        ...player,
-        meetings,
-        ...stats
-      };
-    });
+    const basicPlayers = players || [];
+    playerCache.setBasicPlayers(cacheKey, basicPlayers);
+    
+    console.log('⚡ TIER 1: Recent players loaded instantly:', basicPlayers.length);
+    return basicPlayers;
   },
 
   /**
