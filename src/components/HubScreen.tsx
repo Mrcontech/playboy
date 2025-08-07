@@ -54,6 +54,7 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
 
   // Generate calendar dates for the next 7 days
   const getUpcomingCalendarDates = useCallback(() => {
+    console.log('Generating calendar dates with upcoming dates:', upcomingDates);
     const dates = [];
     const today = new Date();
     
@@ -63,9 +64,11 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
       
       const dateInfo = upcomingDates?.find(d => {
         const scheduledDate = new Date(d.date);
+        console.log(`Comparing ${scheduledDate.toDateString()} with ${date.toDateString()}`);
         return scheduledDate.toDateString() === date.toDateString();
       });
       
+      console.log(`Date ${date.getDate()}: ${dateInfo ? 'HAS DATE' : 'NO DATE'}`);
       dates.push({
         date: date.getDate(),
         day: date.toLocaleDateString('en-US', { weekday: 'short' }),
@@ -74,6 +77,7 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
       });
     }
     
+    console.log('Final calendar dates:', dates);
     return dates;
   }, [upcomingDates]);
 

@@ -225,6 +225,7 @@ export const datesApi = {
   },
 
   async getUpcomingDates(): Promise<UpcomingDate[]> {
+    console.log('Fetching upcoming dates...');
     const { data, error } = await supabase
       .from('upcoming_dates')
       .select(`
@@ -237,6 +238,7 @@ export const datesApi = {
       .gte('date', new Date().toISOString())
       .order('date', { ascending: true });
     
+    console.log('Upcoming dates query result:', { data, error });
     if (error) throw error;
     return data || [];
   },
