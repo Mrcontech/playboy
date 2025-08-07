@@ -342,10 +342,13 @@ export const datesApi = {
   },
 
   async getUpcomingDates(): Promise<UpcomingDate[]> {
-    // Get today's date at midnight in local timezone
+    console.log('🔍 Fetching upcoming dates from database...');
+    
+    // Get today's date in YYYY-MM-DD format to avoid timezone issues
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const currentDate = today.toISOString();
+    const currentDate = today.toISOString().split('T')[0]; // YYYY-MM-DD format
+    
+    console.log('📅 Current date for filtering:', currentDate);
     
     const { data, error } = await supabase
       .from('upcoming_dates')
@@ -356,10 +359,23 @@ export const datesApi = {
           image_url
         )
       `)
-      .gte('date', currentDate)
+      .gte('date', currentDate + 'T00:00:00.000Z')
       .order('date', { ascending: true });
     
-    if (error) throw error;
+    if (error) {
+      console.error('❌ Error fetching upcoming dates:', error);
+      throw error;
+    }
+    
+    console.log('✅ Upcoming dates fetched:', data?.length || 0, 'dates');
+    if (data && data.length > 0) {
+      console.log('📋 Upcoming dates details:', data.map(d => ({
+        date: d.date,
+        type: d.type,
+        profile_name: d.profiles?.name
+      })));
+    }
+    
     return data || [];
   },
 

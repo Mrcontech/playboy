@@ -82,46 +82,58 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
 
   // Generate calendar dates for the next 7 days
   const calendarDates = useMemo(() => {
+    // Always generate calendar structure, but mark loading state
     const dates = [];
     const today = new Date();
     
-    // Only generate calendar if we have data or are not loading
-    if (datesLoading) {
-      return null; // Return null while loading to show skeleton
+    console.log('📅 Generating calendar...');
+    console.log('🔍 Dates loading state:', datesLoading);
+    console.log('📊 Upcoming dates data:', upcomingDates?.length || 0, 'dates found');
+    
+    if (upcomingDates) {
+      console.log('📋 Raw upcoming dates:', upcomingDates.map(d => ({
+        date: d.date,
+        type: d.type,
+        profile_id: d.profile_id
+      })));
     }
     
-    console.log('📅 Generating calendar with upcoming dates:', upcomingDates?.length || 0, 'dates found');
-    
     for (let i = 0; i < 7; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
+      const currentDate = new Date(today);
+      currentDate.setDate(today.getDate() + i);
       
-      // Find matching upcoming date
-      const dateInfo = upcomingDates ? upcomingDates.find(d => {
-        const scheduledDate = new Date(d.date);
-        
-        // Use UTC dates to avoid timezone issues
-        const scheduledUTC = new Date(scheduledDate.getFullYear(), scheduledDate.getMonth(), scheduledDate.getDate());
-        const currentUTC = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-        
-        const matches = scheduledUTC.getTime() === currentUTC.getTime();
-        
-        if (matches) {
-          console.log(`✅ Date match: ${d.date} (${d.type}) → day ${date.getDate()}`);
-        }
-        
-        return matches;
-      }) : null;
+      // Create date strings for comparison
+      const currentDateStr = currentDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+      
+      console.log(`📅 Checking day ${i + 1}: ${currentDateStr} (${currentDate.getDate()})`);
+      
+      // Find matching upcoming date with improved logic
+      let dateInfo = null;
+      if (upcomingDates && !datesLoading) {
+        dateInfo = upcomingDates.find(d => {
+          const scheduledDateStr = new Date(d.date).toISOString().split('T')[0];
+          const matches = scheduledDateStr === currentDateStr;
+          
+          if (matches) {
+            console.log(`✅ MATCH FOUND: ${d.date} (${d.type}) → ${currentDateStr} (day ${currentDate.getDate()})`);
+          }
+          
+          return matches;
+        });
+      }
       
       dates.push({
-        date: date.getDate(),
-        day: date.toLocaleDateString('en-US', { weekday: 'short' }),
-        active: !!dateInfo,
+        date: currentDate.getDate(),
+        day: currentDate.toLocaleDateString('en-US', { weekday: 'short' }),
+        active: !!dateInfo && !datesLoading,
         dateInfo: dateInfo || null,
+        isLoading: datesLoading
       });
     }
     
-    console.log('📊 Calendar generated:', dates.filter(d => d.active).length, 'active dates');
+    const activeDatesCount = dates.filter(d => d.active).length;
+    console.log('📊 Calendar generated:', activeDatesCount, 'active dates out of', dates.length);
+    
     return dates;
   }, [upcomingDates, datesLoading]);
 
@@ -160,14 +172,14 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
             </div>
             
             {/* Loading text while dates are being fetched */}
-            {datesLoading && (
+            {datesLoading && calendarDates && (
               <div className="text-center mb-4">
-                <p className="text-gray-400 text-sm animate-pulse">Loading your upcoming dates...</p>
+                <p className="text-green-400 text-sm animate-pulse font-medium">Loading your upcoming dates...</p>
               </div>
             )}
             
             <div className="grid grid-cols-7 gap-2">
-              {datesLoading || !calendarDates ? (
+              {!calendarDates ? (
                 // Loading skeleton for calendar dates
                 Array.from({ length: 7 }).map((_, index) => (
                   <div
@@ -182,10 +194,12 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
                 calendarDates.map((date, index) => (
                   <div
                     key={index}
-                    className={`p-2 lg:p-4 rounded-lg text-center transition-colors ${
+                    className={`p-2 lg:p-4 rounded-lg text-center transition-all duration-300 ${
                       date.active 
                         ? 'bg-green-500 text-black shadow-lg cursor-pointer hover:bg-green-400'
-                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-default'
+                        : date.isLoading 
+                          ? 'bg-gray-800 text-gray-300 animate-pulse cursor-default'
+                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-default'
                     }`}
                     onClick={() => handleDateClick(date.dateInfo)}
                   >
