@@ -6,6 +6,7 @@
  */
 
 import { supabase } from '../lib/supabase';
+import { persistentCache } from '../lib/storage';
 import type { Tables, Inserts, Updates } from '../lib/supabase';
 
 type Player = Tables<'profiles'>;
@@ -377,8 +378,7 @@ export const playerService = {
     // Clear cache
     playerCache.invalidatePlayer(id);
     
-    // Also clear the persistent cache to force roster refresh
-    const { persistentCache } = await import('../lib/storage');
+    // Clear the persistent cache to force roster refresh
     persistentCache.clear();
     
     console.log('✅ Player deleted successfully');
