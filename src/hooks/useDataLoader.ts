@@ -151,7 +151,6 @@ export function usePreloader() {
       switch (route) {
         case 'hub':
           await Promise.all([
-            preloadData('getUpcomingDates', () => datesApi.getUpcomingDates(), 5),
             preloadData('getRecentPlayers_3', () => playerApi.getRecentPlayers(3), 15),
           ]);
           break;

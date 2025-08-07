@@ -55,8 +55,11 @@ const AppContent = memo(function AppContent() {
       try {
         console.log('🚀 Starting app initialization...');
         
-        // Step 1: Load critical data for current route immediately
-        await preloadForRoute(activeTab);
+        // Step 1: Load critical data for current route + upcoming dates immediately
+        await Promise.all([
+          preloadForRoute(activeTab),
+          preloadData('getUpcomingDates', () => datesApi.getUpcomingDates(), 10)
+        ]);
         
         if (!isMounted) return;
         
