@@ -32,7 +32,7 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
   } = useDataLoader({
     key: 'getUpcomingDates',
     fetcher: () => datesApi.getUpcomingDates(),
-    ttlMinutes: 5, // Short cache to ensure fresh data but allow initial load
+    ttlMinutes: 0, // No cache to ensure fresh data
     dependencies: [] // Force reload when component mounts
   });
 
@@ -56,8 +56,24 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
 
   // Generate calendar dates for the next 7 days
   const calendarDates = useMemo(() => {
-    // Don't generate calendar if dates are still loading
-    if (datesLoading || !upcomingDates) {
+    // Always generate calendar, but mark dates as inactive if still loading
+    if (datesLoading) {
+      // Return basic calendar structure while loading
+      const dates = [];
+      const today = new Date();
+      
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(today);
+        date.setDate(today.getDate() + i);
+        
+        dates.push({
+          date: date.getDate(),
+          day: date.toLocaleDateString('en-US', { weekday: 'short' }),
+          active: false, // No active dates while loading
+          dateInfo: null,
+        });
+      }
+      
       return [];
     }
     
@@ -69,7 +85,7 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
       date.setDate(today.getDate() + i);
       
       // Find matching upcoming date
-      const dateInfo = upcomingDates.find(d => {
+      const dateInfo = (upcomingDates || []).find(d => {
         const scheduledDate = new Date(d.date);
         
         // Compare year, month, and day directly to avoid timezone issues
@@ -80,6 +96,8 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
         const currentYear = date.getFullYear();
         const currentMonth = date.getMonth();
         const currentDay = date.getDate();
+        
+        console.log(`Comparing dates: scheduled ${scheduledYear}-${scheduledMonth + 1}-${scheduledDay} vs current ${currentYear}-${currentMonth + 1}-${currentDay}`);
         
         return scheduledYear === currentYear && 
                scheduledMonth === currentMonth && 
@@ -110,8 +128,8 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
     return player?.name;
   }, [recentlyActive]);
 
-  // Only show loading spinner if dates are loading (not players)
-  if (datesLoading) {
+  // Show loading spinner only if both dates and players are loading
+  if (datesLoading && playersLoading) {
     return (
       <div className="p-4 lg:p-8">
         <LoadingSpinner variant="detailed" text="Loading your hub dashboard" />

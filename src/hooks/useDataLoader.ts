@@ -58,8 +58,8 @@ export function useDataLoader<T>({
         persistentCache.set(key, freshData, ttlMinutes);
       }
       setData(freshData);
-      setLoading(false);
       console.log(`Successfully loaded data for key: ${key}`);
+      setLoading(false);
       
       return freshData;
     } catch (err) {
