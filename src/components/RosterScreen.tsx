@@ -1,12 +1,11 @@
 import React, { useState, memo, useCallback } from 'react';
 import { Users, Plus } from 'lucide-react';
-import { supabase } from '../lib/supabase';
 import SearchBar from './SearchBar';
 import PlayerCard from './PlayerCard';
 import AddPlayerModal from './AddPlayerModal';
 import LoadingSpinner from './LoadingSpinner';
-import { playerService } from '../services/playerService';
 import { playerApi } from '../services/api';
+import { useRosterCache } from '../hooks/useRosterCache';
 import type { Tables } from '../lib/supabase';
 
 type Player = Tables<'profiles'>;
@@ -20,97 +19,8 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
   const [showAddPlayerModal, setShowAddPlayerModal] = useState(false);
   const [loadingPlayerDetails, setLoadingPlayerDetails] = useState<string | null>(null);
 
-  // Use optimized player service with instant loading
-  const [players, setPlayers] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Load players with minimal data for fast display
-  React.useEffect(() => {
-    let isMounted = true;
-    
-    const loadPlayers = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        console.log('🚀 Loading roster with minimal data...');
-        const startTime = performance.now();
-        
-        // Simple, fast query - just get essential fields
-        const { data: playersData, error: playersError } = await supabase
-          .from('profiles')
-          .select('id, name, image_url, status, bench, updated_at')
-          .order('updated_at', { ascending: false });
-        
-        if (playersError) {
-          throw playersError;
-        }
-        
-        if (isMounted) {
-          setPlayers(playersData || []);
-          const endTime = performance.now();
-          console.log(`✅ Roster loaded in ${Math.round(endTime - startTime)}ms`);
-        }
-      } catch (err) {
-        console.error('❌ Error loading roster:', err);
-        if (isMounted) {
-          setError(err instanceof Error ? err.message : 'Failed to load roster');
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
-    
-    loadPlayers();
-    
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  const refreshPlayers = useCallback(async () => {
-    try {
-      console.log('🔄 Force refreshing roster...');
-      const { data: playersData, error } = await supabase
-        .from('profiles')
-        .select('id, name, image_url, status, bench, updated_at')
-        .order('updated_at', { ascending: false });
-      
-      if (error) throw error;
-      
-      setPlayers(playersData || []);
-      console.log('✅ Roster refreshed successfully');
-    } catch (error) {
-      console.error('❌ Error refreshing roster:', error);
-      setError(error instanceof Error ? error.message : 'Failed to refresh roster');
-    }
-  }, []);
-
-  // Listen for focus events to refresh data when returning to roster
-  React.useEffect(() => {
-    const handleFocus = () => {
-      console.log('🔄 Window focused, checking for roster updates...');
-      refreshPlayers();
-    };
-
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        console.log('🔄 Page visible again, refreshing roster...');
-        refreshPlayers();
-      }
-    };
-
-    window.addEventListener('focus', handleFocus);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      window.removeEventListener('focus', handleFocus);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [refreshPlayers]);
+  // Use simple caching to prevent reloading
+  const { players, loading, error, refresh, invalidateCache } = useRosterCache();
 
   // Handle player selection with lazy loading of detailed data
   const handlePlayerSelect = useCallback(async (player: Partial<Player>) => {
@@ -319,7 +229,10 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
       <AddPlayerModal
         isOpen={showAddPlayerModal}
         onClose={() => setShowAddPlayerModal(false)}
-        onPlayerAdded={refreshPlayers}
+        onPlayerAdded={() => {
+          invalidateCache();
+          refresh();
+        }}
       />
     </div>
   );
