@@ -18,7 +18,7 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddPlayerModal, setShowAddPlayerModal] = useState(false);
 
-  // Load data with persistent caching
+  // Optimized data loading with longer cache times for roster
   const { 
     data: activePlayers, 
     loading: activeLoading,
@@ -26,16 +26,17 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
   } = useDataLoader({
     key: 'getActivePlayers',
     fetcher: () => playerApi.getActivePlayers(),
-    ttlMinutes: 30
+    ttlMinutes: 45 // Longer cache for roster data
   });
 
   const { 
     data: benchPlayers, 
-    loading: benchLoading
+    loading: benchLoading,
+    refetch: refetchBench
   } = useDataLoader({
     key: 'getBenchPlayers',
     fetcher: () => playerApi.getBenchPlayers(),
-    ttlMinutes: 30
+    ttlMinutes: 45
   });
 
   const loading = activeLoading || benchLoading;
@@ -43,25 +44,75 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
   const loadPlayers = useCallback(async () => {
     try {
       console.log('Refreshing player data...');
-      await refetchActive();
+      await Promise.all([refetchActive(), refetchBench()]);
       console.log('Player data refreshed successfully');
     } catch (error) {
       console.error('Error refreshing players:', error);
     }
-  }, [refetchActive]);
+  }, [refetchActive, refetchBench]);
 
-  const filteredActivePlayers = (activePlayers || []).filter(player =>
+  // Memoized filtered players for better performance
+  const filteredActivePlayers = React.useMemo(() => (activePlayers || []).filter(player =>
     player.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  ), [activePlayers, searchQuery]);
 
-  const filteredBenchPlayers = (benchPlayers || []).filter(player =>
+  const filteredBenchPlayers = React.useMemo(() => (benchPlayers || []).filter(player =>
     player.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  ), [benchPlayers, searchQuery]);
 
   if (loading) {
     return (
       <div className="p-4 lg:p-8">
-        <LoadingSpinner variant="detailed" text="Loading your player roster" />
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center justify-between mb-6 lg:mb-8">
+            <h1 className="text-3xl font-bold text-white">Player Roster</h1>
+            <div className="flex items-center space-x-4">
+              <div className="bg-gray-800 px-4 py-2 rounded-lg animate-pulse">
+                <div className="w-20 h-6 bg-gray-700 rounded"></div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="mb-6 lg:mb-8">
+            <div className="bg-gray-800 rounded-xl p-3 animate-pulse">
+              <div className="h-6 bg-gray-700 rounded"></div>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-8">
+            {/* Active Players Skeleton */}
+            <section className="bg-black border-2 border-green-500 rounded-xl p-6">
+              <h2 className="text-2xl font-semibold text-white mb-6">Active Players</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 lg:gap-4">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="w-36 bg-gray-800 rounded-xl animate-pulse">
+                    <div className="h-28 bg-gray-700 rounded-t-xl"></div>
+                    <div className="p-2 space-y-2">
+                      <div className="h-4 bg-gray-700 rounded"></div>
+                      <div className="h-3 bg-gray-700 rounded w-3/4 mx-auto"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+            
+            {/* Bench Players Skeleton */}
+            <section className="bg-black border-2 border-green-500 rounded-xl p-6">
+              <h2 className="text-2xl font-semibold text-white mb-6">Bench</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 lg:gap-4">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="w-36 bg-gray-800 rounded-xl animate-pulse">
+                    <div className="h-28 bg-gray-700 rounded-t-xl"></div>
+                    <div className="p-2 space-y-2">
+                      <div className="h-4 bg-gray-700 rounded"></div>
+                      <div className="h-3 bg-gray-700 rounded w-3/4 mx-auto"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
+        </div>
       </div>
     );
   }

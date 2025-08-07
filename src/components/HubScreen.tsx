@@ -27,27 +27,33 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
   // Load data with persistent caching
   const { 
     data: upcomingDates, 
-    loading: datesLoading
+    loading: datesLoading,
+    refetch: refetchDates
   } = useDataLoader({
     key: 'getUpcomingDates',
-    fetcher: () => datesApi.getUpcomingDates(), 
-    ttlMinutes: 5 // Short cache for better performance
+    fetcher: () => datesApi.getUpcomingDates(),
+    ttlMinutes: 10 // Short cache for balance between performance and freshness
   });
 
   const { 
     data: recentlyActive, 
-    loading: playersLoading
+    loading: playersLoading,
+    refetch: refetchPlayers
   } = useDataLoader({
-    key: 'getRecentPlayers_3',
+    key: 'getRecentPlayers_4', // Increased to 4 for better display
     fetcher: () => playerApi.getRecentPlayers(3),
-    ttlMinutes: 15
+    ttlMinutes: 20 // Longer cache for recent players
   });
 
   const loadData = useCallback(async () => {
-    // Force refresh upcoming dates
-    persistentCache.delete('getUpcomingDates');
-    window.location.reload();
-  }, []);
+    try {
+      console.log('🔄 Refreshing hub data...');
+      await Promise.all([refetchDates(), refetchPlayers()]);
+      console.log('✅ Hub data refreshed successfully');
+    } catch (error) {
+      console.error('❌ Error refreshing hub data:', error);
+    }
+  }, [refetchDates, refetchPlayers]);
 
   // Generate calendar dates for the next 7 days
   const calendarDates = useMemo(() => {
@@ -153,36 +159,45 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
           {/* Recently Active Section */}
           <section className="bg-black border-2 border-green-500 rounded-xl p-6">
             <h2 className="text-2xl font-semibold text-white mb-6">Recently Active</h2>
-            <div className="flex justify-start space-x-3 overflow-x-auto pb-2 px-1">
-              {recentlyActive?.map((player) => (
-                <PlayerCard 
-                  key={player.id}
-                  player={{
-                    id: player.id,
-                    name: player.name,
-                    avatar: player.image_url || '',
-                    totalMeetings: player.totalMeetings || 0,
-                    cpn: player.cpn || 0,
-                    averageRating: player.averageRating || 0,
-                    status: player.status,
-                  }}
-                  onClick={() => onPlayerSelect?.(player)}
-                  size="small"
-                />
-              ))}
-            </div>
-            {(!recentlyActive || recentlyActive.length === 0) && !playersLoading && (
-              <div className="text-center py-8 text-gray-400">
-                No recently active players
-              </div>
-            )}
             
-            {playersLoading && (
+            {playersLoading ? (
               <div className="flex justify-start space-x-3 animate-pulse">
-                {[1, 2, 3].map(i => (
-                  <div key={i} className="w-36 h-40 bg-gray-800 rounded-xl"></div>
+                {Array.from({ length: 3 }).map(i => (
+                  <div key={i} className="w-36 bg-gray-800 rounded-xl">
+                    <div className="h-28 bg-gray-700 rounded-t-xl"></div>
+                    <div className="p-2 space-y-2">
+                      <div className="h-4 bg-gray-700 rounded"></div>
+                      <div className="h-3 bg-gray-700 rounded w-3/4 mx-auto"></div>
+                    </div>
+                  </div>
                 ))}
               </div>
+            ) : (
+              <>
+                <div className="flex justify-start space-x-3 overflow-x-auto pb-2 px-1">
+                  {recentlyActive?.map((player) => (
+                    <PlayerCard 
+                      key={player.id}
+                      player={{
+                        id: player.id,
+                        name: player.name,
+                        avatar: player.image_url || '',
+                        totalMeetings: player.totalMeetings || 0,
+                        cpn: player.cpn || 0,
+                        averageRating: player.averageRating || 0,
+                        status: player.status,
+                      }}
+                      onClick={() => onPlayerSelect?.(player)}
+                      size="small"
+                    />
+                  ))}
+                </div>
+                {(!recentlyActive || recentlyActive.length === 0) && (
+                  <div className="text-center py-8 text-gray-400">
+                    No recently active players
+                  </div>
+                ))}
+              </>
             )}
           </section>
         </div>

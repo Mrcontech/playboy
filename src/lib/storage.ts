@@ -7,7 +7,7 @@ interface CacheItem<T> {
 
 class MemoryCache {
   private cache = new Map<string, CacheItem<any>>();
-  private maxItems = 100; // Limit cache size
+  private maxItems = 150; // Increased cache size for better performance
   
   set<T>(key: string, data: T, ttlMinutes: number = 30): void {
     // Clean up expired items first
@@ -15,11 +15,11 @@ class MemoryCache {
     
     // If cache is getting too large, remove oldest items
     if (this.cache.size >= this.maxItems) {
-      const oldestKey = this.cache.keys().next().value;
-      if (oldestKey) {
-        this.cache.delete(oldestKey);
+      // Remove multiple old items at once for better performance
+      const keysToRemove = Array.from(this.cache.keys()).slice(0, 20);
+      keysToRemove.forEach(key => this.cache.delete(key));
+      console.log(`🧹 Cleaned up ${keysToRemove.length} old cache items`);
       }
-    }
     
     const item: CacheItem<T> = {
       data,
@@ -29,8 +29,10 @@ class MemoryCache {
     
     this.cache.set(key, item);
     
-    // Log cache operations for debugging
-    console.log(`💾 Cached data for key: ${key}, TTL: ${ttlMinutes}min`);
+    // Reduced logging for better performance
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`💾 Cached: ${key} (${ttlMinutes}min TTL)`);
+    }
     
     // Try to store in sessionStorage as backup (smaller, more reliable)
     try {
@@ -43,8 +45,10 @@ class MemoryCache {
         }));
       }
     } catch (error) {
-      // SessionStorage failed, but memory cache still works
-      console.warn('SessionStorage failed, using memory only:', error);
+      // SessionStorage failed silently in production
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('SessionStorage failed, using memory only:', error);
+      }
     }
   }
   
@@ -52,7 +56,9 @@ class MemoryCache {
     // Check memory cache first
     const item = this.cache.get(key);
     if (item && Date.now() < item.expiry) {
-      console.log(`🎯 Cache hit for key: ${key}`);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`🎯 Cache hit: ${key}`);
+      }
       return item.data;
     }
     
@@ -68,7 +74,9 @@ class MemoryCache {
             timestamp: Date.now(),
             expiry: parsed.expiry
           });
-          console.log(`📱 Restored from sessionStorage: ${key}`);
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`📱 Restored: ${key}`);
+          }
           return parsed.data;
         } else {
           // Expired, remove it
@@ -76,7 +84,9 @@ class MemoryCache {
         }
       }
     } catch (error) {
-      console.warn('Failed to read from sessionStorage:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('SessionStorage read failed:', error);
+      }
     }
     
     // Clean up expired memory cache item
@@ -84,7 +94,9 @@ class MemoryCache {
       this.cache.delete(key);
     }
     
-    console.log(`❌ Cache miss for key: ${key}`);
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`❌ Cache miss: ${key}`);
+    }
     return null;
   }
   
@@ -122,11 +134,11 @@ class MemoryCache {
   }
   
   private getEssentialData(data: any): any {
-    // Only store essential fields to reduce storage size
+    // Optimized essential data extraction
     if (Array.isArray(data)) {
       return data.map(item => {
         if (item && typeof item === 'object') {
-          // For player data, only store essential fields
+          // Minimal essential fields for players
           return {
             id: item.id,
             name: item.name,
@@ -136,12 +148,25 @@ class MemoryCache {
             totalMeetings: item.totalMeetings,
             cpn: item.cpn,
             averageRating: item.averageRating,
-            bench: item.bench
+            bench: item.bench,
+            // Only include if they exist to save space
+            ...(item.meeting_count && { meeting_count: item.meeting_count }),
+            ...(item.average_rating && { average_rating: item.average_rating })
           };
         }
         return item;
       });
     }
+    
+    // For non-array data, return as-is but limit size
+    if (data && typeof data === 'object') {
+      const serialized = JSON.stringify(data);
+      if (serialized.length > 50000) { // 50KB limit
+        console.warn('Data too large for sessionStorage, using memory only');
+        return null;
+      }
+    }
+    
     return data;
   }
   

@@ -2,7 +2,6 @@ import React, { useState, useEffect, memo, useCallback } from 'react';
 import { TrendingUp, Users, DollarSign, Calendar, BarChart3, Target, User } from 'lucide-react';
 import LoadingSpinner from './LoadingSpinner';
 import { useDataLoader } from '../hooks/useDataLoader';
-import { persistentCache } from '../lib/storage';
 import { statsApi } from '../services/api';
 
 interface CPNData {
@@ -29,20 +28,23 @@ interface DashboardStats {
   totalSpent: number;
   totalDates: number;
   totalHookups: number;
-  onPlayerSelect: (player: Player) => void;
+}
+
+interface PlaybookScreenProps {
+  onPlayerSelect: (player: any) => void;
 }
 
 const PlaybookScreen = memo(function PlaybookScreen({ onPlayerSelect }: PlaybookScreenProps) {
   const [selectedPeriod, setSelectedPeriod] = useState<'weekly' | 'monthly' | 'yearly'>('monthly');
 
-  // Load data with persistent caching
+  // Optimized data loading with parallel fetching
   const { 
     data: cpnData, 
     loading: cpnLoading
   } = useDataLoader({
     key: `getCPNByPeriod_${selectedPeriod}`,
     fetcher: () => statsApi.getCPNByPeriod(selectedPeriod),
-    ttlMinutes: 15, // Reduced cache time for fresher data
+    ttlMinutes: 30, // Balanced cache time
     dependencies: [selectedPeriod]
   });
 
@@ -52,7 +54,7 @@ const PlaybookScreen = memo(function PlaybookScreen({ onPlayerSelect }: Playbook
   } = useDataLoader({
     key: 'getTopPlayersByRating_3',
     fetcher: () => statsApi.getTopPlayersByRating(3),
-    ttlMinutes: 15
+    ttlMinutes: 25
   });
 
   const { 
@@ -61,10 +63,10 @@ const PlaybookScreen = memo(function PlaybookScreen({ onPlayerSelect }: Playbook
   } = useDataLoader({
     key: 'getDashboardStats',
     fetcher: () => statsApi.getDashboardStats(),
-    ttlMinutes: 15 // Use cache for better performance
+    ttlMinutes: 20
   });
 
-  // Calculate dashboard stats with average CPN
+  // Memoized dashboard stats calculation
   const dashboardStats = React.useMemo(() => {
     const stats = rawStats || { totalSpent: 0, totalDates: 0, totalHookups: 0 };
     const averageCPN = stats.totalHookups > 0 ? stats.totalSpent / stats.totalHookups : 0;
@@ -74,9 +76,6 @@ const PlaybookScreen = memo(function PlaybookScreen({ onPlayerSelect }: Playbook
       averageCPN: Math.round(averageCPN)
     };
   }, [rawStats]);
-
-  // Show skeleton loading for individual sections instead of full page loading
-  const anyLoading = cpnLoading || playersLoading || statsLoading;
 
   const formatPeriodLabel = useCallback((period: string) => {
     if (!period || typeof period !== 'string') {
@@ -380,11 +379,11 @@ const PlaybookScreen = memo(function PlaybookScreen({ onPlayerSelect }: Playbook
                         user_id: '',
                         created_at: '',
                         updated_at: '',
-                        // Include all the calculated stats for consistency
+                        // Include calculated stats
                         totalMeetings: player.totalMeetings,
                         cpn: player.cpn,
                         averageRating: player.averageRating
-                      } as Player)}
+                      })}
                     >
                       <div className="flex items-center space-x-4">
                         <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold text-sm">
@@ -396,6 +395,7 @@ const PlaybookScreen = memo(function PlaybookScreen({ onPlayerSelect }: Playbook
                               src={player.image_url} 
                               alt={player.name}
                               className="w-full h-full object-cover"
+                              loading="lazy"
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
