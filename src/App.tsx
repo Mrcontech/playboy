@@ -58,35 +58,31 @@ const AppContent = memo(function AppContent() {
         // Step 1: Load critical data for current route + upcoming dates immediately
         await Promise.all([
           preloadForRoute(activeTab),
-          preloadData('getUpcomingDates', () => datesApi.getUpcomingDates(), 10)
         ]);
         
         if (!isMounted) return;
         
-        console.log('✅ Critical data loaded for', activeTab);
+        console.log('✅ TIER 1: Critical data loaded for', activeTab);
         
-        // Step 2: Start background preloading for other routes
+        // Step 2: Start aggressive background preloading for all routes and detailed data
         setTimeout(async () => {
           if (!isMounted) return;
           
-          console.log('🔄 Starting background preloading...');
+          console.log('🔄 Starting TIER 2 background preloading...');
           
-          // Preload other routes in order of likely usage
+          // Preload all other routes in parallel for instant switching
           const routesToPreload = ['roster', 'playbook', 'settings'].filter(route => route !== activeTab);
           
-          for (const route of routesToPreload) {
-            if (!isMounted) break;
-            await preloadForRoute(route);
-            console.log(`✅ Background preloaded: ${route}`);
-            // Small delay between preloads to not overwhelm the browser
-            await new Promise(resolve => setTimeout(resolve, 200));
-          }
+          // Preload all routes in parallel for maximum speed
+          await Promise.all(
+            routesToPreload.map(route => preloadForRoute(route))
+          );
           
           if (isMounted) {
             setPreloadingComplete(true);
-            console.log('🎉 All background preloading complete');
+            console.log('🎉 TIER 2: All background preloading complete - app fully optimized');
           }
-        }, 100); // Reduced delay for faster background loading
+        }, 50); // Minimal delay for immediate background loading
         
       } catch (error) {
         console.error('❌ Error during app initialization:', error);

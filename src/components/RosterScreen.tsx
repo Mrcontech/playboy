@@ -23,7 +23,7 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Load players with optimized service
+  // Load players with TIER 1 minimal data for instant display
   React.useEffect(() => {
     let isMounted = true;
     
@@ -32,7 +32,7 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
         setLoading(true);
         setError(null);
         
-        console.log('🚀 Loading roster with optimized service...');
+        console.log('🚀 TIER 1: Loading roster with minimal data...');
         const startTime = performance.now();
         
         const playersData = await playerService.getPlayersBasic();
@@ -40,7 +40,7 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
         if (isMounted) {
           setPlayers(playersData);
           const endTime = performance.now();
-          console.log(`✅ Roster loaded in ${Math.round(endTime - startTime)}ms`);
+          console.log(`✅ TIER 1: Roster loaded instantly in ${Math.round(endTime - startTime)}ms`);
         }
       } catch (err) {
         console.error('❌ Error loading roster:', err);
@@ -63,10 +63,10 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
 
   const refreshPlayers = useCallback(async () => {
     try {
-      console.log('🔄 Force refreshing roster...');
-      const playersData = await playerService.getPlayersBasic(); // Use cache if available
+      console.log('🔄 TIER 1: Force refreshing roster...');
+      const playersData = await playerService.getPlayersBasic(true); // Force refresh
       setPlayers(playersData);
-      console.log('✅ Roster refreshed successfully');
+      console.log('✅ TIER 1: Roster refreshed successfully');
     } catch (error) {
       console.error('❌ Error refreshing roster:', error);
       setError(error instanceof Error ? error.message : 'Failed to refresh roster');
@@ -76,13 +76,13 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
   // Listen for focus events to refresh data when returning to roster
   React.useEffect(() => {
     const handleFocus = () => {
-      console.log('🔄 Window focused, checking for roster updates...');
+      console.log('🔄 TIER 1: Window focused, checking for roster updates...');
       refreshPlayers();
     };
 
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        console.log('🔄 Page visible again, refreshing roster...');
+        console.log('🔄 TIER 1: Page visible again, refreshing roster...');
         refreshPlayers();
       }
     };
@@ -102,9 +102,9 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
     
     setLoadingPlayerDetails(player.id);
     try {
-      console.log('🔍 Loading detailed data for:', player.name);
+      console.log('🔍 TIER 2: Loading detailed data for:', player.name);
       const detailedPlayer = await playerService.getPlayerDetailed(player.id);
-      console.log('✅ Detailed data loaded, navigating to profile');
+      console.log('✅ TIER 2: Detailed data loaded, navigating to profile');
       onPlayerSelect(detailedPlayer);
     } catch (error) {
       console.error('❌ Error loading player details:', error);
@@ -170,7 +170,7 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
             
             {/* Bench Players Skeleton */}
             <section className="bg-black border-2 border-green-500 rounded-xl p-6">
-              <h2 className="text-2xl font-semibold text-white mb-6">Bench</h2>
+              <h2 className="text-2xl font-semibent text-white mb-6">Bench</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 lg:gap-4">
                 {Array.from({ length: 3 }).map((_, i) => (
                   <div key={i} className="w-36 bg-gray-800 rounded-xl animate-pulse">
@@ -231,7 +231,6 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
                       name: player.name!,
                       avatar: player.image_url || '',
                       status: player.status,
-                      // Only show basic info for roster cards - no stats initially
                       isActive: !player.bench
                     }}
                     onClick={() => handlePlayerSelect(player)}
@@ -277,7 +276,6 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
                       name: player.name!,
                       avatar: player.image_url || '',
                       status: player.status,
-                      // Only show basic info for roster cards - no stats initially
                       isActive: !player.bench
                     }}
                     onClick={() => handlePlayerSelect(player)}
