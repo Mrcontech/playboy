@@ -271,17 +271,30 @@ export const datesApi = {
 // Stats API for Playbook
 export const statsApi = {
   async getDashboardStats() {
+    console.log('Fetching dashboard stats...');
     const { data: meetings, error } = await supabase
       .from('meetings')
-      .select('amount_spent, performance_rating');
+      .select('amount_spent, performance_rating, type, id');
     
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching meetings for stats:', error);
+      throw error;
+    }
+    
+    console.log('Raw meetings data:', meetings);
     
     const totalSpent = meetings?.reduce((sum, meeting) => 
       sum + (Number(meeting.amount_spent) || 0), 0) || 0;
     const totalDates = meetings?.length || 0;
     const totalHookups = meetings?.filter(meeting => 
-      meeting.performance_rating && Number(meeting.performance_rating) > 0).length || 0;
+      meeting.performance_rating !== null && Number(meeting.performance_rating) > 0).length || 0;
+    
+    console.log('Calculated stats:', {
+      totalSpent,
+      totalDates,
+      totalHookups,
+      meetingsWithPerformanceRating: meetings?.filter(m => m.performance_rating !== null).length || 0
+    });
     
     return {
       totalSpent: Math.round(totalSpent),

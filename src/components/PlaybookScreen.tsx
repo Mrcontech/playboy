@@ -2,6 +2,7 @@ import React, { useState, useEffect, memo, useCallback } from 'react';
 import { TrendingUp, Users, DollarSign, Calendar, BarChart3, Target, User } from 'lucide-react';
 import LoadingSpinner from './LoadingSpinner';
 import { useDataLoader } from '../hooks/useDataLoader';
+import { persistentCache } from '../lib/storage';
 import { statsApi } from '../services/api';
 
 interface CPNData {
@@ -59,8 +60,12 @@ const PlaybookScreen = memo(function PlaybookScreen({ onPlayerSelect }: Playbook
     loading: statsLoading
   } = useDataLoader({
     key: 'getDashboardStats',
-    fetcher: () => statsApi.getDashboardStats(),
-    ttlMinutes: 0 // No caching for stats to ensure they update immediately
+    fetcher: async () => {
+      // Clear any existing cache before fetching
+      persistentCache.delete('getDashboardStats');
+      return statsApi.getDashboardStats();
+    },
+    ttlMinutes: 0
   });
 
   // Calculate dashboard stats with average CPN
