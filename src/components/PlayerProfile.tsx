@@ -6,7 +6,7 @@ import EditPlayerModal from './EditPlayerModal';
 import AddMeetingModal from './AddMeetingModal';
 import AddExpenseModal from './AddExpenseModal';
 import LoadingSpinner from './LoadingSpinner';
-import { playerService, type PlayerDetailed } from '../services/playerService';
+import { fastPlayerService, type PlayerWithStats } from '../services/fastPlayerService';
 import { meetingsApi } from '../services/api';
 import type { Tables } from '../lib/supabase';
 
@@ -14,12 +14,12 @@ type Player = Tables<'profiles'>;
 type Meeting = Tables<'meetings'>;
 
 interface PlayerProfileProps {
-  player: Player;
+  player: PlayerWithStats;
   onBack: () => void;
 }
 
 export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
-  const [detailedPlayer, setDetailedPlayer] = useState<PlayerDetailed | null>(null);
+  const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showAIRecap, setShowAIRecap] = useState(false);
@@ -28,38 +28,32 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
   const [showAddExpenseModal, setShowAddExpenseModal] = useState(false);
 
   useEffect(() => {
-    loadDetailedPlayerData();
+    loadMeetings();
   }, [player.id]);
 
-  const loadDetailedPlayerData = async () => {
+  const loadMeetings = async () => {
     setLoading(true);
     setError(null);
     
     try {
-      console.log('🔍 Loading detailed data for player:', player.name);
+      console.log('📅 Loading meetings for player:', player.name);
       
-      const detailed = await playerService.getPlayerDetailed(player.id);
+      const data = await meetingsApi.getMeetingsByPlayer(player.id);
       
-      console.log('🎯 DETAILED PLAYER DATA LOADED:');
-      console.log('Player name:', detailed.name);
-      console.log('Likes:', detailed.likes);
-      console.log('Dislikes:', detailed.dislikes);
-      console.log('Notes:', detailed.notes);
-      console.log('Total meetings:', detailed.totalMeetings);
-      
-      setDetailedPlayer(detailed);
+      setMeetings(data);
+      console.log('✅ Meetings loaded:', data.length);
       
     } catch (err) {
-      console.error('💥 Error loading detailed player data:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load player details');
+      console.error('💥 Error loading meetings:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load meetings');
     } finally {
       setLoading(false);
     }
   };
 
   const handleDataUpdate = async () => {
-    // Refresh detailed data after updates
-    await loadDetailedPlayerData();
+    // Refresh meetings after updates
+    await loadMeetings();
   };
 
   if (loading) {
@@ -87,7 +81,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
     );
   }
 
-  if (error || !detailedPlayer) {
+  if (error) {
     return (
       <div className="p-4 lg:p-8">
         <div className="max-w-4xl mx-auto">
@@ -105,7 +99,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
             <h2 className="text-xl font-bold text-red-400 mb-4">Failed to Load Player Details</h2>
             <p className="text-red-300 mb-6">{error}</p>
             <button 
-              onClick={loadDetailedPlayerData}
+              onClick={loadMeetings}
               className="bg-red-500 hover:bg-red-600 px-6 py-3 rounded-lg text-white font-medium transition-colors"
             >
               Retry Loading
@@ -159,11 +153,11 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
           <div className="lg:col-span-1">
             {/* Profile Header */}
             <div className="bg-black border-2 border-green-500 rounded-xl p-6 text-center mb-6">
-              <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden bg-gradient-to-br from-green-400 to-green-600">
-                {detailedPlayer.image_url ? (
+              <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden bg-gradient-to-br from-green-500 to-green-600">
+                {player.image_url ? (
                   <img 
-                    src={detailedPlayer.image_url} 
-                    alt={detailedPlayer.name}
+                    src={player.image_url} 
+                    alt={player.name}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -172,9 +166,9 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                   </div>
                 )}
               </div>
-              <h1 className="text-2xl font-bold mb-2 text-white">{detailedPlayer.name}</h1>
+              <h1 className="text-2xl font-bold mb-2 text-white">{player.name}</h1>
               <span className="bg-green-500 text-black px-4 py-2 rounded-full text-sm font-medium">
-                {detailedPlayer.status || 'Active'}
+                {player.status || 'Active'}
               </span>
             </div>
 
@@ -182,17 +176,17 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
             <div className="grid grid-cols-3 gap-2 mb-6">
               <div className="bg-black border-2 border-green-500 p-4 rounded-xl text-center">
                 <div className="text-2xl mb-2">📅</div>
-                <div className="text-lg font-bold text-white">{detailedPlayer.totalMeetings}</div>
+                <div className="text-lg font-bold text-white">{player.totalMeetings}</div>
                 <div className="text-xs text-gray-400">Meetings</div>
               </div>
               <div className="bg-black border-2 border-green-500 p-4 rounded-xl text-center">
                 <div className="text-2xl mb-2">💰</div>
-                <div className="text-sm font-bold text-white">${detailedPlayer.cpn}</div>
+                <div className="text-sm font-bold text-white">${player.cpn}</div>
                 <div className="text-xs text-gray-400">CPN</div>
               </div>
               <div className="bg-black border-2 border-green-500 p-4 rounded-xl text-center">
                 <div className="text-2xl mb-2">⭐</div>
-                <div className="text-lg font-bold text-white">{detailedPlayer.averageRating}</div>
+                <div className="text-lg font-bold text-white">{player.averageRating}</div>
                 <div className="text-xs text-gray-400">Avg</div>
               </div>
             </div>
@@ -206,15 +200,15 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-300 font-medium text-sm sm:text-base">👀 Looks</span>
-                  <StarRating rating={detailedPlayer.looks_rating || 0} />
+                  <StarRating rating={player.looks_rating || 0} />
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-300 font-medium text-sm sm:text-base">🔥 Performance</span>
-                  <StarRating rating={detailedPlayer.performanceRating} />
+                  <StarRating rating={player.averageRating} />
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-300 font-medium text-sm sm:text-base">💕 Date Experience</span>
-                  <StarRating rating={detailedPlayer.dateRating} />
+                  <StarRating rating={player.averageRating} />
                 </div>
               </div>
             </div>
@@ -235,9 +229,9 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
               {/* Likes Section - FIXED */}
               <div className="mb-6">
                 <h4 className="text-green-500 font-medium mb-3">👍 Likes</h4>
-                {detailedPlayer.likes && Array.isArray(detailedPlayer.likes) && detailedPlayer.likes.length > 0 ? (
+                {player.likes && Array.isArray(player.likes) && player.likes.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
-                    {detailedPlayer.likes.map((like, index) => (
+                    {player.likes.map((like, index) => (
                       <span key={index} className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm border border-green-500/30">
                         {like}
                       </span>
@@ -253,9 +247,9 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
               {/* Dislikes Section - FIXED */}
               <div className="mb-6">
                 <h4 className="text-red-500 font-medium mb-3">👎 Dislikes</h4>
-                {detailedPlayer.dislikes && Array.isArray(detailedPlayer.dislikes) && detailedPlayer.dislikes.length > 0 ? (
+                {player.dislikes && Array.isArray(player.dislikes) && player.dislikes.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
-                    {detailedPlayer.dislikes.map((dislike, index) => (
+                    {player.dislikes.map((dislike, index) => (
                       <span key={index} className="bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-sm border border-red-500/30">
                         {dislike}
                       </span>
@@ -271,10 +265,10 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
               {/* Notes Section - FIXED */}
               <div className="mb-6">
                 <h4 className="text-purple-500 font-medium mb-3">📋 Notes</h4>
-                {detailedPlayer.notes && typeof detailedPlayer.notes === 'string' && detailedPlayer.notes.trim() ? (
+                {player.notes && typeof player.notes === 'string' && player.notes.trim() ? (
                   <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
                     <p className="text-gray-300 leading-relaxed">
-                      {detailedPlayer.notes}
+                      {player.notes}
                     </p>
                   </div>
                 ) : (
@@ -290,7 +284,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                   onClick={() => setShowEditModal(true)}
                   className="bg-purple-500 hover:bg-purple-600 px-6 py-3 rounded-lg text-white font-medium transition-colors"
                 >
-                  {(detailedPlayer.likes?.length || detailedPlayer.dislikes?.length || detailedPlayer.notes?.trim()) 
+                  {(player.likes?.length || player.dislikes?.length || player.notes?.trim()) 
                     ? 'Edit Details' : 'Add Details'}
                 </button>
               </div>
@@ -299,9 +293,9 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
             {/* Meetings & Expenses History */}
             <div className="bg-black border-2 border-green-500 rounded-xl p-6">
               <h3 className="text-xl font-semibold text-white mb-6">📅 Meeting & Expense History</h3>
-              {detailedPlayer.meetings && detailedPlayer.meetings.length > 0 ? (
+              {meetings && meetings.length > 0 ? (
                 <div className="space-y-4">
-                  {detailedPlayer.meetings.map((meeting) => (
+                  {meetings.map((meeting) => (
                     <div key={meeting.id} className="bg-gray-800 rounded-lg p-4 border border-gray-700">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 space-y-2 sm:space-y-0">
                         <div className="flex items-center space-x-2 flex-wrap">
@@ -372,16 +366,16 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
         </div>
 
         {/* Modals */}
-        {showAIRecap && detailedPlayer && (
+        {showAIRecap && (
           <AIRecapModal 
-            player={detailedPlayer}
+            player={player}
             playerStats={{
-              totalSpent: detailedPlayer.totalSpent,
-              totalMeetings: detailedPlayer.totalMeetings,
-              averageRating: detailedPlayer.averageRating,
-              performanceRating: detailedPlayer.performanceRating
+              totalSpent: player.totalSpent,
+              totalMeetings: player.totalMeetings,
+              averageRating: player.averageRating,
+              performanceRating: player.averageRating
             }}
-            meetings={detailedPlayer.meetings || []}
+            meetings={meetings}
             onClose={() => setShowAIRecap(false)}
           />
         )}
@@ -393,11 +387,10 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
             onPlayerUpdated={handleDataUpdate}
             onPlayerDeleted={() => {
               // Clear cache and navigate back immediately
-              const { persistentCache } = require('../lib/storage');
-              persistentCache.clear();
+              fastPlayerService.clearCache();
               onBack();
             }}
-            player={detailedPlayer}
+            player={player}
           />
         )}
 
@@ -406,8 +399,8 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
             isOpen={showAddMeetingModal}
             onClose={() => setShowAddMeetingModal(false)}
             onMeetingAdded={handleDataUpdate}
-            playerId={detailedPlayer.id}
-            playerName={detailedPlayer.name}
+            playerId={player.id}
+            playerName={player.name}
           />
         )}
 
@@ -416,8 +409,8 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
             isOpen={showAddExpenseModal}
             onClose={() => setShowAddExpenseModal(false)}
             onExpenseAdded={handleDataUpdate}
-            playerId={detailedPlayer.id}
-            playerName={detailedPlayer.name}
+            playerId={player.id}
+            playerName={player.name}
           />
         )}
       </div>
