@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { persistentCache } from '../lib/storage';
 import { playerApi, statsApi, datesApi } from '../services/api';
-import { playerService } from '../services/playerService';
 
 interface UseDataLoaderOptions<T> {
   key: string;
@@ -152,7 +151,7 @@ export function usePreloader() {
       switch (route) {
         case 'hub':
           await Promise.all([
-            preloadData('getRecentPlayersBasic_3', () => playerService.getRecentPlayersBasic(3), 15),
+            preloadData('getRecentPlayersBasic_3', () => statsApi.getRecentPlayers(3), 15),
             preloadData('getUpcomingDates', () => datesApi.getUpcomingDates(), 10),
             // Background preload full playbook data
             preloadData('getDashboardStats', () => statsApi.getDashboardStats(), 30),
@@ -163,8 +162,8 @@ export function usePreloader() {
           
         case 'roster':
           await Promise.all([
-            preloadData('getActivePlayers', () => playerService.getActivePlayers(), 30),
-            preloadData('getBenchPlayers', () => playerService.getBenchPlayers(), 30),
+            preloadData('getActivePlayers', () => playerApi.getAllPlayers(), 30),
+            preloadData('getBenchPlayers', () => playerApi.getAllPlayers(), 30),
             // Background preload full roster details for instant profile access
             preloadData('getAllPlayersDetailed', () => this.preloadAllPlayersDetailed(), 45),
           ]);
@@ -201,12 +200,12 @@ export function usePreloader() {
     
     try {
       // Get basic players first
-      const basicPlayers = await playerService.getPlayersBasic();
+      const basicPlayers = await playerApi.getPlayersBasic();
       
       // Preload detailed data for each player in background
       const detailedPromises = basicPlayers.map(async (player) => {
         try {
-          return await playerService.getPlayerDetailed(player.id, false);
+          return await playerApi.getPlayerDetails(player.id);
         } catch (error) {
           console.warn(`Failed to preload player ${player.name}:`, error);
           return null;
