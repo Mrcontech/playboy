@@ -36,24 +36,98 @@ export interface PlayerWithStats extends PlayerBasic {
 }
 
 // Simple in-memory cache
-const cache = new Map<string, { data: any; timestamp: number }>();
-const CACHE_TTL = 15 * 60 * 1000; // 15 minutes - longer cache for better performance
+class PersistentPlayerCache {
+  private static instance: PersistentPlayerCache;
+  private cache = new Map<string, { data: any; timestamp: number }>();
+  private readonly CACHE_TTL = 30 * 60 * 1000; // 30 minutes for better persistence
 
-function setCache(key: string, data: any) {
-  cache.set(key, { data, timestamp: Date.now() });
-  console.log(`💾 Cached data for key: ${key}`);
-}
-
-function getCache(key: string) {
-  const item = cache.get(key);
-  if (item && Date.now() - item.timestamp < CACHE_TTL) {
-    console.log(`⚡ Cache hit for key: ${key}`);
-    return item.data;
+  static getInstance(): PersistentPlayerCache {
+    if (!PersistentPlayerCache.instance) {
+      PersistentPlayerCache.instance = new PersistentPlayerCache();
+    }
+    return PersistentPlayerCache.instance;
   }
-  cache.delete(key);
-  console.log(`❌ Cache miss for key: ${key}`);
-  return null;
+
+  set(key: string, data: any): void {
+    this.cache.set(key, { data, timestamp: Date.now() });
+    console.log(`💾 Cached data for key: ${key} (${this.cache.size} items in cache)`);
+    
+    // Also store in sessionStorage for persistence across page reloads
+    try {
+      sessionStorage.setItem(`player_cache_${key}`, JSON.stringify({
+        data,
+        timestamp: Date.now()
+      }));
+    } catch (error) {
+      console.warn('Failed to store in sessionStorage:', error);
+    }
+  }
+
+  get(key: string): any | null {
+    // Check memory cache first
+    const memoryItem = this.cache.get(key);
+    if (memoryItem && Date.now() - memoryItem.timestamp < this.CACHE_TTL) {
+      console.log(`⚡ Memory cache hit for key: ${key}`);
+      return memoryItem.data;
+    }
+
+    // Check sessionStorage if not in memory
+    try {
+      const sessionItem = sessionStorage.getItem(`player_cache_${key}`);
+      if (sessionItem) {
+        const parsed = JSON.parse(sessionItem);
+        if (Date.now() - parsed.timestamp < this.CACHE_TTL) {
+          // Restore to memory cache
+          this.cache.set(key, parsed);
+          console.log(`📱 Session cache hit for key: ${key}`);
+          return parsed.data;
+        } else {
+          // Expired, remove it
+          sessionStorage.removeItem(`player_cache_${key}`);
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to read from sessionStorage:', error);
+    }
+
+    console.log(`❌ Cache miss for key: ${key}`);
+    return null;
+  }
+
+  clear(): void {
+    this.cache.clear();
+    // Clear sessionStorage items
+    try {
+      const keys = Object.keys(sessionStorage);
+      keys.forEach(key => {
+        if (key.startsWith('player_cache_')) {
+          sessionStorage.removeItem(key);
+        }
+      });
+    } catch (error) {
+      console.warn('Failed to clear sessionStorage:', error);
+    }
+    console.log('🧹 Player cache cleared completely');
+  }
+
+  getInfo(): { memoryItems: number; sessionItems: number } {
+    let sessionItems = 0;
+    try {
+      const keys = Object.keys(sessionStorage);
+      sessionItems = keys.filter(key => key.startsWith('player_cache_')).length;
+    } catch (error) {
+      console.warn('Failed to get session storage info:', error);
+    }
+    
+    return { 
+      memoryItems: this.cache.size, 
+      sessionItems 
+    };
+  }
 }
+
+
+const playerCache = PersistentPlayerCache.getInstance();
 
 export const fastPlayerService = {
   /**
@@ -61,7 +135,7 @@ export const fastPlayerService = {
    */
   async getPlayersBasic(): Promise<PlayerBasic[]> {
     const cacheKey = 'players_basic';
-    const cached = getCache(cacheKey);
+    const cached = playerCache.get(cacheKey);
     if (cached) {
       console.log('⚡ Using cached basic players');
       return cached;
@@ -78,7 +152,7 @@ export const fastPlayerService = {
     if (error) throw error;
     
     const players = data || [];
-    setCache(cacheKey, players);
+    playerCache.set(cacheKey, players);
     
     const loadTime = performance.now() - startTime;
     console.log(`⚡ Basic players loaded in ${Math.round(loadTime)}ms`);
@@ -91,7 +165,7 @@ export const fastPlayerService = {
    */
   async getPlayerWithStats(playerId: string): Promise<PlayerWithStats> {
     const cacheKey = `player_stats_${playerId}`;
-    const cached = getCache(cacheKey);
+    const cached = playerCache.get(cacheKey);
     if (cached) {
       console.log('⚡ Using cached player stats for:', cached.name);
       return cached;
@@ -133,7 +207,7 @@ export const fastPlayerService = {
       cpn: Math.round(cpn)
     };
     
-    setCache(cacheKey, playerWithStats);
+    playerCache.set(cacheKey, playerWithStats);
     console.log('✅ Player stats loaded for:', player.name);
     
     return playerWithStats;
@@ -160,7 +234,7 @@ export const fastPlayerService = {
    */
   async getRecentPlayersBasic(limit: number = 3): Promise<PlayerBasic[]> {
     const cacheKey = `recent_basic_${limit}`;
-    const cached = getCache(cacheKey);
+    const cached = playerCache.get(cacheKey);
     if (cached) return cached;
 
     const { data, error } = await supabase
@@ -173,7 +247,7 @@ export const fastPlayerService = {
     if (error) throw error;
     
     const players = data || [];
-    setCache(cacheKey, players);
+    playerCache.set(cacheKey, players);
     
     return players;
   },
@@ -182,7 +256,7 @@ export const fastPlayerService = {
    * Clear cache
    */
   clearCache() {
-    cache.clear();
+    playerCache.clear();
     console.log('🧹 Fast player cache cleared');
   }
 };
