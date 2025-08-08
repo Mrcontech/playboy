@@ -12,12 +12,12 @@ import PasswordResetPage from './components/PasswordResetPage';
 import AuthCallback from './components/AuthCallback';
 import LoadingSpinner from './components/LoadingSpinner';
 import { useAuth } from './hooks/useAuth';
-import { useBackgroundPreloader } from './hooks/useBackgroundPreloader';
+import { usePreloader } from './hooks/useDataLoader';
 import type { Tables } from './lib/supabase';
 
 // Lazy load heavy components
-const HubScreen = React.lazy(() => import('./components/HubScreen'));
-const RosterScreen = React.lazy(() => import('./components/RosterScreen'));
+const HubScreen = React.lazy(() => import('./components/FastHubScreen'));
+const RosterScreen = React.lazy(() => import('./components/FastRosterScreen'));
 const PlaybookScreen = React.lazy(() => import('./components/PlaybookScreen'));
 const SettingsScreen = React.lazy(() => import('./components/SettingsScreen'));
 const PlayerProfile = React.lazy(() => import('./components/PlayerProfile'));
@@ -29,7 +29,7 @@ const AppContent = memo(function AppContent() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // Start background preloading for instant navigation
-  const { preloadStatus, isPreloading } = useBackgroundPreloader();
+  const { preloadStatus, isPreloading } = usePreloader();
   
   const navigate = useNavigate();
   const location = useLocation();
