@@ -16,6 +16,7 @@ const FastRosterScreen = memo(function FastRosterScreen({ onPlayerSelect }: Fast
   const [loadingPlayerDetails, setLoadingPlayerDetails] = useState<string | null>(null);
 
   // Load basic data immediately
+  useEffect(() => {
     // Clear cache and reload basic data
     fastPlayerService.clearCache();
     loadBasicPlayers();
