@@ -12,7 +12,9 @@ import PasswordResetPage from './components/PasswordResetPage';
 import AuthCallback from './components/AuthCallback';
 import LoadingSpinner from './components/LoadingSpinner';
 import { useAuth } from './hooks/useAuth';
-import { usePreloader } from './hooks/useDataLoader';
+import { usePreloader, preloadData } from './hooks/useDataLoader';
+import { fastPlayerService } from './services/fastPlayerService';
+import { statsApi, datesApi } from './services/api';
 import type { Tables } from './lib/supabase';
 
 // Lazy load heavy components
@@ -27,6 +29,7 @@ type Player = Tables<'profiles'>;
 const AppContent = memo(function AppContent() {
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [backgroundLoadingComplete, setBackgroundLoadingComplete] = useState(false);
   
   // Start background preloading for instant navigation
   const { preloadStatus, isPreloading } = usePreloader();
@@ -45,6 +48,43 @@ const AppContent = memo(function AppContent() {
   };
 
   const activeTab = getCurrentTab();
+
+  // Start background preloading immediately when app loads
+  useEffect(() => {
+    const startBackgroundPreloading = async () => {
+      console.log('🚀 Starting background preloading for instant app experience...');
+      const startTime = performance.now();
+      
+      try {
+        // Preload all critical data in parallel
+        await Promise.allSettled([
+          // Roster data - highest priority
+          preloadData('players_basic', () => fastPlayerService.getPlayersBasic(), 30),
+          
+          // Hub data - second priority
+          preloadData('recent_basic_3', () => fastPlayerService.getRecentPlayersBasic(3), 30),
+          preloadData('getUpcomingDates', () => datesApi.getUpcomingDates(), 20),
+          
+          // Playbook data - third priority
+          preloadData('getDashboardStats', () => statsApi.getDashboardStats(), 30),
+          preloadData('getCPNByPeriod_monthly', () => statsApi.getCPNByPeriod('monthly'), 30),
+          preloadData('getTopPlayersByRating_3', () => statsApi.getTopPlayersByRating(3), 30),
+        ]);
+        
+        const endTime = performance.now();
+        console.log(`✅ Background preloading completed in ${Math.round(endTime - startTime)}ms`);
+        setBackgroundLoadingComplete(true);
+        
+      } catch (error) {
+        console.warn('⚠️ Some background preloading failed:', error);
+        setBackgroundLoadingComplete(true); // Still mark as complete to avoid blocking UI
+      }
+    };
+    
+    // Start preloading after a brief delay to not block initial render
+    const timer = setTimeout(startBackgroundPreloading, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handlePlayerSelect = (player: Player) => {
     setSelectedPlayer(player);
@@ -88,7 +128,7 @@ const AppContent = memo(function AppContent() {
       
       <div className="transition-all duration-300 pt-16 lg:pt-0 lg:ml-64">
         {/* Background preloading indicator */}
-        {isPreloading && (
+        {!backgroundLoadingComplete && (
           <div className="fixed top-4 right-4 bg-green-500 text-black px-3 py-2 rounded-lg text-sm font-medium z-50 animate-pulse">
             🚀 Optimizing app speed...
           </div>

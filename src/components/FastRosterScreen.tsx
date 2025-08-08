@@ -17,15 +17,22 @@ const FastRosterScreen = memo(function FastRosterScreen({ onPlayerSelect }: Fast
 
   // Load basic data immediately
   useEffect(() => {
-    // Clear cache and reload basic data
-    fastPlayerService.clearCache();
     loadBasicPlayers();
   }, []);
 
   const loadBasicPlayers = async () => {
     try {
-      setLoading(true);
+      // Check if we already have cached data first
+      const cachedPlayers = await fastPlayerService.getPlayersBasic();
+      if (cachedPlayers && cachedPlayers.length > 0) {
+        console.log('⚡ Using cached roster data - instant load!');
+        setBasicPlayers(cachedPlayers);
+        setLoading(false);
+        return;
+      }
+      
       console.log('🚀 Loading basic players for instant display...');
+      setLoading(true);
       
       const players = await fastPlayerService.getPlayersBasic();
       setBasicPlayers(players);

@@ -24,13 +24,13 @@ const FastHubScreen = memo(function FastHubScreen({ onPlayerSelect }: FastHubScr
   const [playersLoading, setPlayersLoading] = useState(true);
   const [datesLoading, setDatesLoading] = useState(true);
   const [loadingPlayerDetails, setLoadingPlayerDetails] = useState<string | null>(null);
-
-  useEffect(() => {
     loadHubData();
   }, []);
 
   const loadHubData = async () => {
     try {
+      console.log('🏠 Loading Hub data...');
+      
       // Load both in parallel for speed
       const [playersResult, datesResult] = await Promise.allSettled([
         fastPlayerService.getRecentPlayersBasic(3),
@@ -39,12 +39,14 @@ const FastHubScreen = memo(function FastHubScreen({ onPlayerSelect }: FastHubScr
 
       if (playersResult.status === 'fulfilled') {
         setRecentPlayers(playersResult.value);
+        console.log('✅ Recent players loaded for Hub:', playersResult.value.length);
       } else {
         console.error('Failed to load recent players:', playersResult.reason);
       }
 
       if (datesResult.status === 'fulfilled') {
         setUpcomingDates(datesResult.value);
+        console.log('✅ Upcoming dates loaded for Hub:', datesResult.value.length);
       } else {
         console.error('Failed to load upcoming dates:', datesResult.reason);
       }

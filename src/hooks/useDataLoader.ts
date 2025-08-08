@@ -231,27 +231,27 @@ export function usePreloader() {
 }
 
 // Preload data function for critical paths
-export function preloadData<T>(key: string, fetcher: () => Promise<T>, ttlMinutes = 30): Promise<T | null> {
-  console.log(`📦 Preloading data for key: ${key}`);
+export function preloadData<T>(key: string, fetcher: () => Promise<T>, ttlMinutes = 30, silent = false): Promise<T | null> {
+  if (!silent) console.log(`📦 Preloading data for key: ${key}`);
   
   // Check if already cached
   const cached = persistentCache.get<T>(key);
   if (cached) {
-    console.log(`💾 Data already cached for key: ${key}`);
+    if (!silent) console.log(`💾 Data already cached for key: ${key}`);
     return Promise.resolve(cached);
   }
 
   // Fetch and cache in background
-  console.log(`🌐 Fetching fresh data for key: ${key}`);
+  if (!silent) console.log(`🌐 Fetching fresh data for key: ${key}`);
   const startTime = performance.now();
   
   return fetcher().then(data => {
     const endTime = performance.now();
-    console.log(`✅ Successfully preloaded data for key: ${key} in ${Math.round(endTime - startTime)}ms`);
+    if (!silent) console.log(`✅ Successfully preloaded data for key: ${key} in ${Math.round(endTime - startTime)}ms`);
     persistentCache.set(key, data, ttlMinutes);
     return data;
   }).catch(error => {
-    console.warn(`❌ Error preloading data for key ${key}:`, error.message);
+    if (!silent) console.warn(`❌ Error preloading data for key ${key}:`, error.message);
     // Return null instead of throwing to prevent app crash
     return null;
   });
