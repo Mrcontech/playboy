@@ -353,7 +353,7 @@ export const statsApi = {
       // Optimized query - only get necessary fields for stats calculation
       const { data: meetings, error } = await supabase
         .from('meetings')
-        .select('amount_spent, performance_rating, created_at');
+        .select('amount_spent, performance_rating, created_at, rating');
       
       if (error) {
         console.error('Supabase error fetching meetings for stats:', error);
@@ -371,8 +371,13 @@ export const statsApi = {
       
       console.log('📊 Processing', meetings.length, 'meetings for dashboard stats');
       
-      const totalSpent = meetings.reduce((sum, meeting) => 
-        sum + (Number(meeting.amount_spent) || 0), 0);
+      // Calculate total spent from ALL meetings (not just hookups)
+      const totalSpent = meetings.reduce((sum, meeting) => {
+        const amount = Number(meeting.amount_spent) || 0;
+        console.log(`Meeting amount: ${amount}`);
+        return sum + amount;
+      }, 0);
+      
       const totalDates = meetings.length;
       
       // Optimized hookup detection
