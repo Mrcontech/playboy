@@ -24,6 +24,8 @@ const FastHubScreen = memo(function FastHubScreen({ onPlayerSelect }: FastHubScr
   const [playersLoading, setPlayersLoading] = useState(true);
   const [datesLoading, setDatesLoading] = useState(true);
   const [loadingPlayerDetails, setLoadingPlayerDetails] = useState<string | null>(null);
+
+  useEffect(() => {
     loadHubData();
   }, []);
 
