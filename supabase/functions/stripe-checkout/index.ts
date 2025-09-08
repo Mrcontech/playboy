@@ -93,6 +93,19 @@ Deno.serve(async (req) => {
      * In case we don't have a mapping yet, the customer does not exist and we need to create one.
      */
     if (!customer || !customer.customer_id) {
+      // First check if there's a soft-deleted customer record for this user
+      const { data: softDeletedCustomer, error: getSoftDeletedError } = await supabase
+        .from('stripe_customers')
+        .select('id, customer_id')
+        .eq('user_id', user.id)
+        .not('deleted_at', 'is', null)
+        .maybeSingle();
+
+      if (getSoftDeletedError) {
+        console.error('Failed to check for soft-deleted customer', getSoftDeletedError);
+        return corsResponse({ error: 'Failed to check customer information' }, 500);
+      }
+
       const newCustomer = await stripe.customers.create({
         email: user.email,
         metadata: {
@@ -102,13 +115,33 @@ Deno.serve(async (req) => {
 
       console.log(`Created new Stripe customer ${newCustomer.id} for user ${user.id}`);
 
-      const { error: createCustomerError } = await supabase.from('stripe_customers').insert({
-        user_id: user.id,
-        customer_id: newCustomer.id,
-      });
+      let createCustomerError;
+
+      if (softDeletedCustomer) {
+        // Reactivate the soft-deleted customer record
+        const { error } = await supabase
+          .from('stripe_customers')
+          .update({
+            customer_id: newCustomer.id,
+            deleted_at: null,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', softDeletedCustomer.id);
+        
+        createCustomerError = error;
+        console.log(`Reactivated soft-deleted customer record ${softDeletedCustomer.id} for user ${user.id}`);
+      } else {
+        // Create new customer record
+        const { error } = await supabase.from('stripe_customers').insert({
+          user_id: user.id,
+          customer_id: newCustomer.id,
+        });
+        
+        createCustomerError = error;
+      }
 
       if (createCustomerError) {
-        console.error('Failed to save customer information in the database', createCustomerError);
+        console.error('Failed to save/update customer information in the database', createCustomerError);
 
         // Try to clean up both the Stripe customer and subscription record
         try {
