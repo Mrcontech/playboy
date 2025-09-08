@@ -121,7 +121,7 @@ export default function LandingPage() {
                 onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
                 className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-black px-10 py-5 rounded-xl font-bold text-xl transition-all transform hover:scale-105 shadow-2xl flex items-center justify-center space-x-3"
               >
-                <span>Only $0.99/week</span>
+                <span>Sign Up</span>
                 <ArrowRight size={24} />
               </button>
               <button 
@@ -181,7 +181,7 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-32 bg-gradient-to-b from-gray-900 to-black">
+      <section className="py-32 bg-gradient-to-b from-gray-900 to-black hidden">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
             <h2 className="text-5xl font-bold text-white mb-6">
