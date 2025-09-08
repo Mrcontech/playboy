@@ -14,6 +14,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const [playerAdded, setPlayerAdded] = useState(false);
 
   const handlePlayerAdded = () => {
+    console.log('Player added successfully, moving to next step');
     setPlayerAdded(true);
     setShowAddPlayerModal(false);
     setCurrentStep('next-steps');

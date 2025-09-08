@@ -90,9 +90,6 @@ export default function AddPlayerModal({ isOpen, onClose, onPlayerAdded }: AddPl
       onPlayerAdded();
       onClose();
       
-      // Force a page refresh to ensure data is updated
-      window.location.reload();
-      
       setFormData({
         name: '',
         image_url: '',
