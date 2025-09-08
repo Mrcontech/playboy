@@ -350,10 +350,26 @@ export const statsApi = {
     console.log('Fetching fresh dashboard stats...');
     
     try {
+      // Get current user
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        throw new Error('User not authenticated');
+      }
+
       // Optimized query - only get necessary fields for stats calculation
+      // Filter meetings by user's profiles only
       const { data: meetings, error } = await supabase
         .from('meetings')
-        .select('amount_spent, performance_rating, created_at, rating');
+        .select(`
+          amount_spent, 
+          performance_rating, 
+          created_at, 
+          rating,
+          profiles!inner (
+            user_id
+          )
+        `)
+        .eq('profiles.user_id', user.id);
       
       if (error) {
         console.error('Supabase error fetching meetings for stats:', error);
@@ -417,6 +433,12 @@ export const statsApi = {
   async getTopPlayersByRating(limit: number = 3) {
     console.log('🏆 Fetching top players with limit:', limit);
     
+    // Get current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      throw new Error('User not authenticated');
+    }
+
     const { data: players, error } = await supabase
       .from('profiles')
       .select(`
@@ -428,6 +450,7 @@ export const statsApi = {
         )
       `)
       .eq('bench', false)
+      .eq('user_id', user.id)
       .limit(50); // Pre-filter to reduce data transfer, then sort client-side
     
     if (error) throw error;
@@ -465,6 +488,12 @@ export const statsApi = {
 
   // Highly optimized recent players query - only essential data
   async getRecentPlayers(limit: number = 3): Promise<Player[]> {
+    // Get current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      throw new Error('User not authenticated');
+    }
+
     const { data: players, error } = await supabase
       .from('profiles')
       .select(`
@@ -476,6 +505,7 @@ export const statsApi = {
         )
       `)
       .eq('bench', false)
+      .eq('user_id', user.id)
       .limit(limit)
       .order('updated_at', { ascending: false });
     
@@ -488,9 +518,24 @@ export const statsApi = {
   async getCPNByPeriod(period: 'weekly' | 'monthly' | 'yearly') {
     console.log('📊 Calculating CPN for period:', period);
     
+    // Get current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      throw new Error('User not authenticated');
+    }
+
     const { data: meetings, error } = await supabase
       .from('meetings')
-      .select('amount_spent, performance_rating, date, created_at')
+      .select(`
+        amount_spent, 
+        performance_rating, 
+        date, 
+        created_at,
+        profiles!inner (
+          user_id
+        )
+      `)
+      .eq('profiles.user_id', user.id)
       .gt('performance_rating', 0)
       .order('date', { ascending: true }); // Pre-sort for better performance
     
