@@ -76,8 +76,8 @@ export default function SubscriptionRequired() {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-500 rounded-full mb-4">
               <Crown className="text-white" size={32} />
             </div>
-            <div className="text-5xl font-bold text-white mb-2">$0.99</div>
-            <div className="text-gray-400 text-lg">per week</div>
+            <h2 className="text-3xl font-bold text-white mb-2">Playboi Pro</h2>
+            <div className="text-gray-400 text-lg">Unlock all premium features</div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -108,7 +108,7 @@ export default function SubscriptionRequired() {
               ) : (
                 <>
                   <Crown size={24} />
-                  <span>Upgrade to Playboi Pro</span>
+                  <span>Sign Up for Playboi Pro</span>
                 </>
               )}
             </button>
