@@ -56,9 +56,6 @@ export default function AddDateModal({ isOpen, onClose, onDateAdded }: AddDateMo
       onDateAdded();
       onClose();
       
-      // Force refresh of upcoming dates cache
-      window.location.reload();
-      
       setFormData({
         profile_id: '',
         type: 'dinner',
