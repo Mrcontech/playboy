@@ -191,7 +191,7 @@ export default function App() {
       {!user && !isPasswordReset ? (
         <Route path="/*" element={<LandingPage />} />
       ) : (
-        <Route path="/*" element={user ? <AppContent /> : <ResetPasswordPage />} />
+        <Route path="/*" element={user ? <AuthWrapper><AppContent /></AuthWrapper> : <ResetPasswordPage />} />
       )}
     </Routes>
   );

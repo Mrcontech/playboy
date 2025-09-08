@@ -18,6 +18,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   };
 
   const handleContinue = () => {
+    // Complete onboarding and let AuthWrapper handle subscription check
     onComplete();
   };
 

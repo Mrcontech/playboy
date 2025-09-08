@@ -57,7 +57,12 @@ export function useAuth() {
     });
     
     // Mark as new user if signup was successful
-    if (!error && data.user) {
+    if (!error && data.user && !data.session) {
+      // Email confirmation required - don't mark as new user yet
+      return { data, error };
+    }
+    
+    if (!error && data.user && data.session) {
       localStorage.setItem('playboi_new_user', 'true');
       setIsNewUser(true);
     }
