@@ -89,6 +89,12 @@ export function useAuth() {
     localStorage.removeItem('playboi_new_user');
     setIsNewUser(false);
   };
+
+  const markAsExistingUser = () => {
+    localStorage.removeItem('playboi_new_user');
+    setIsNewUser(false);
+  };
+
   return {
     user,
     session,
@@ -98,5 +104,6 @@ export function useAuth() {
     signUp,
     signOut,
     completeOnboarding,
+    markAsExistingUser,
   };
 }

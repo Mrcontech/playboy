@@ -2,9 +2,11 @@ import React, { useEffect } from 'react';
 import { CheckCircle, ArrowRight, Crown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useSubscription } from '../hooks/useSubscription';
+import { useAuth } from '../hooks/useAuth';
 
 export default function SuccessPage() {
   const { refetch, currentPlan } = useSubscription();
+  const { markAsExistingUser } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,6 +19,8 @@ export default function SuccessPage() {
   }, [refetch]);
 
   const handleContinue = () => {
+    // Mark user as no longer new to prevent going back to onboarding
+    markAsExistingUser();
     navigate('/');
   };
 
@@ -33,13 +37,13 @@ export default function SuccessPage() {
           </h1>
           
           <p className="text-gray-300 mb-6">
-            Welcome to {currentPlan}! Your subscription is now active and you have full access to all premium features.
+            Welcome to Playboi Pro! Your subscription is now active and you have full access to all premium features.
           </p>
 
           <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg p-4 mb-6">
             <div className="flex items-center justify-center space-x-2 text-white">
               <Crown size={20} />
-              <span className="font-semibold">{currentPlan} Activated</span>
+              <span className="font-semibold">Playboi Pro Activated</span>
             </div>
           </div>
 
