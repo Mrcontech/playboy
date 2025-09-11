@@ -100,12 +100,14 @@ function calculatePlayerStats(player: any, meetings: Meeting[]): Omit<PlayerDeta
   
   const cpn = hookups > 0 ? totalSpent / hookups : 0;
   
-  // Calculate date experience rating
-  const ratingsSum = meetings.reduce((sum, meeting) => 
-    sum + (Number(meeting.rating) || 0), 0);
-  const dateRating = totalMeetings > 0 ? ratingsSum / totalMeetings : 0;
+  // Calculate date experience rating (only from meetings with ratings)
+  const meetingsWithRatings = meetings.filter(meeting => 
+    meeting.rating && Number(meeting.rating) > 0);
+  const ratingsSum = meetingsWithRatings.reduce((sum, meeting) => 
+    sum + Number(meeting.rating), 0);
+  const dateRating = meetingsWithRatings.length > 0 ? ratingsSum / meetingsWithRatings.length : 0;
   
-  // Calculate performance rating average
+  // Calculate performance rating average (only from meetings with performance ratings)
   const performanceRatings = meetings.filter(meeting => 
     meeting.performance_rating && Number(meeting.performance_rating) > 0);
   const performanceRatingSum = performanceRatings.reduce((sum, meeting) => 
@@ -117,9 +119,17 @@ function calculatePlayerStats(player: any, meetings: Meeting[]): Omit<PlayerDeta
   let averageRating;
   
   if (performanceRating > 0) {
-    averageRating = (looksRating + performanceRating + dateRating) / 3;
+    if (dateRating > 0) {
+      averageRating = (looksRating + performanceRating + dateRating) / 3;
+    } else {
+      averageRating = (looksRating + performanceRating) / 2;
+    }
   } else {
-    averageRating = totalMeetings > 0 ? (looksRating + dateRating) / 2 : looksRating;
+    if (dateRating > 0) {
+      averageRating = (looksRating + dateRating) / 2;
+    } else {
+      averageRating = looksRating;
+    }
   }
   
   return {
