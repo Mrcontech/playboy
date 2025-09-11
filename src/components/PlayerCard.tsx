@@ -29,9 +29,9 @@ const PlayerCard = memo(function PlayerCard({
   showBasicInfo = true 
 }: PlayerCardProps) {
   const sizeClasses = {
-    small: 'w-36',
-    medium: 'w-40',
-    large: 'w-48'
+    small: 'w-full max-w-[144px]',
+    medium: 'w-full max-w-[160px]',
+    large: 'w-full max-w-[192px]'
   };
 
   const avatarSizes = {
