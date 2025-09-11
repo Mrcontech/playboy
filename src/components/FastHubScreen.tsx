@@ -178,7 +178,7 @@ const FastHubScreen = memo(function FastHubScreen({ onPlayerSelect }: FastHubScr
                       className={`flex-shrink-0 w-36 bg-black border-2 border-green-500 rounded-xl overflow-hidden transition-all duration-200 ${
                         loadingPlayerDetails === player.id
                           ? 'cursor-wait opacity-75' 
-                          : 'cursor-pointer hover:border-green-400 hover:shadow-lg hover:shadow-green-500/30'
+                          : 'cursor-pointer hover:border-green-400 hover:scale-105'
                       }`}
                     >
                       <div className="h-28 w-full bg-gray-800 flex items-center justify-center">
