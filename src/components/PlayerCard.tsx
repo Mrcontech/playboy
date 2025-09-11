@@ -45,7 +45,7 @@ const PlayerCard = memo(function PlayerCard({
       className={`${sizeClasses[size]} bg-black border-2 border-green-500 rounded-xl overflow-hidden transition-all duration-200 shadow-lg flex-shrink-0 ${
         isLoading 
           ? 'cursor-wait opacity-75' 
-          : 'cursor-pointer hover:border-green-400 hover:scale-105'
+          : 'cursor-pointer hover:border-green-400 hover:shadow-xl hover:shadow-green-500/20'
       }`}
       onClick={onClick}
     >
