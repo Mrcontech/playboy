@@ -387,7 +387,6 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
             onPlayerUpdated={handleDataUpdate}
             onPlayerDeleted={() => {
               // Clear cache and navigate back immediately
-              fastPlayerService.clearCache();
               onBack();
             }}
             player={player}
