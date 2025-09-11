@@ -23,27 +23,48 @@ function calculatePlayerStats(player: any, useCache = true) {
     meeting.performance_rating && Number(meeting.performance_rating) > 0).length;
   const cpn = hookups > 0 ? totalSpent / hookups : 0;
   
-  // Calculate average rating from meeting ratings
+  // Calculate date experience rating (average of all meeting ratings)
   const meetingsWithRatings = meetings.filter((meeting: any) => 
     meeting.rating && Number(meeting.rating) > 0);
   const ratingsSum = meetingsWithRatings.reduce((sum: number, meeting: any) => 
     sum + Number(meeting.rating), 0);
-  const averageMeetingRating = meetingsWithRatings.length > 0 ? ratingsSum / meetingsWithRatings.length : 0;
+  const dateExperienceRating = meetingsWithRatings.length > 0 ? ratingsSum / meetingsWithRatings.length : 0;
+  
+  // Calculate performance rating average (only from meetings with performance ratings)
+  const performanceRatings = meetings.filter((meeting: any) => 
+    meeting.performance_rating && Number(meeting.performance_rating) > 0);
+  const performanceRatingSum = performanceRatings.reduce((sum: number, meeting: any) => 
+    sum + Number(meeting.performance_rating), 0);
+  const avgPerformanceRating = performanceRatings.length > 0 ? performanceRatingSum / performanceRatings.length : 0;
   
   // Calculate overall average rating
   const looksRating = player.looks_rating || 0;
-  let averageRating = looksRating;
+  let averageRating;
   
-  if (averageMeetingRating > 0) {
-    averageRating = (looksRating + averageMeetingRating) / 2;
+  if (avgPerformanceRating > 0) {
+    // Include all three: looks, performance, date experience (only if all exist)
+    if (dateExperienceRating > 0) {
+      averageRating = (looksRating + avgPerformanceRating + dateExperienceRating) / 3;
+    } else {
+      // Only looks and performance
+      averageRating = (looksRating + avgPerformanceRating) / 2;
+    }
   } else {
-    averageRating = looksRating;
+    // Only looks and date experience (if date experience exists)
+    if (dateExperienceRating > 0) {
+      averageRating = (looksRating + dateExperienceRating) / 2;
+    } else {
+      // Only looks rating
+      averageRating = looksRating;
+    }
   }
   
   const calculatedStats = {
     totalMeetings,
     cpn: Math.round(cpn),
-    averageRating: Number(averageRating.toFixed(1))
+    averageRating: Number(averageRating.toFixed(1)),
+    performanceRating: Number(avgPerformanceRating.toFixed(1)),
+    dateExperienceRating: Number(dateExperienceRating.toFixed(1))
   };
   
   // Cache the calculated stats
