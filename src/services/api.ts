@@ -6,10 +6,15 @@ type Meeting = Tables<'meetings'>;
 type UpcomingDate = Tables<'upcoming_dates'>;
 
 // Optimized helper function to calculate player stats with memoization
+function calculatePlayerStats(player: any, playerMeetings: any[], includeStats = false) {
+  const totalSpent = playerMeetings.reduce((sum: number, meeting: any) => 
+    sum + (Number(meeting.amount_spent) || 0), 0);
+  
   const hookups = playerMeetings.filter(meeting => 
     meeting.performance_rating && Number(meeting.performance_rating) > 0).length;
   const totalMeetings = playerMeetings.length;
   const cpn = hookups > 0 ? totalSpent / hookups : 0;
+  const hookupMeetings = playerMeetings.filter(meeting => 
     meeting.performance_rating && Number(meeting.performance_rating) > 0).length;
   // Calculate date experience rating (average of all meeting ratings)
   const ratingsSum = playerMeetings.reduce((sum: number, meeting: any) => 
@@ -50,6 +55,9 @@ type UpcomingDate = Tables<'upcoming_dates'>;
     dateRating: Number(dateRating.toFixed(1))
   };
 }
+
+// Stats cache for memoization
+const statsCache = new Map();
 
 // Player API
 export const playerApi = {
