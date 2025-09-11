@@ -35,43 +35,19 @@ export function useSubscription() {
       setLoading(true);
       setError(null);
 
-      // Check if Supabase is properly configured
-      if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-        console.warn('Supabase not configured - subscription features disabled');
-        setSubscription(null);
-        setLoading(false);
-        return;
-      }
-
       const { data, error: fetchError } = await supabase
         .from('stripe_user_subscriptions')
         .select('*')
         .maybeSingle();
 
       if (fetchError) {
-        // Handle specific Supabase connection errors gracefully
-        if (fetchError.message.includes('Failed to fetch') || 
-            fetchError.message.includes('NetworkError') ||
-            fetchError.message.includes('fetch')) {
-          console.warn('Unable to connect to Supabase - subscription features disabled');
-          setSubscription(null);
-          setError(null); // Don't show error to user for connection issues
-          return;
-        }
         throw fetchError;
       }
 
       setSubscription(data);
     } catch (err) {
       console.error('Error fetching subscription:', err);
-      
-      // Handle network/connection errors gracefully
-      if (err instanceof TypeError && err.message.includes('Failed to fetch')) {
-        console.warn('Network error fetching subscription - continuing without subscription data');
-        setError(null); // Don't show error to user for network issues
-      } else {
-        setError(err instanceof Error ? err.message : 'Failed to fetch subscription');
-      }
+      setError(err instanceof Error ? err.message : 'Failed to fetch subscription');
       setSubscription(null);
     } finally {
       setLoading(false);
