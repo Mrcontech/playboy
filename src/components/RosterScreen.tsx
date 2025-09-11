@@ -4,7 +4,7 @@ import SearchBar from './SearchBar';
 import PlayerCard from './PlayerCard';
 import AddPlayerModal from './AddPlayerModal';
 import LoadingSpinner from './LoadingSpinner';
-import { playerApi } from '../services/api';
+import { fastPlayerService } from '../services/fastPlayerService';
 import { useRosterCache } from '../hooks/useRosterCache';
 import type { Tables } from '../lib/supabase';
 
@@ -28,10 +28,11 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
     
     setLoadingPlayerDetails(player.id);
     try {
-      console.log('🔍 Loading detailed data for:', player.name);
-      const detailedPlayer = await playerApi.getPlayerDetails(player.id);
-      console.log('✅ Detailed data loaded, navigating to profile');
-      onPlayerSelect(detailedPlayer);
+      console.log('🔍 ROSTER: Loading detailed data for:', player.name);
+      // Use fastPlayerService to ensure consistent calculations
+      const playerWithStats = await fastPlayerService.getPlayerWithStats(player.id);
+      console.log('✅ ROSTER: Detailed data loaded with stats, navigating to profile');
+      onPlayerSelect(playerWithStats);
     } catch (error) {
       console.error('❌ Error loading player details:', error);
       alert('Failed to load player details. Please try again.');
@@ -232,6 +233,8 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
         onPlayerAdded={() => {
           invalidateCache();
           refresh();
+          // Also clear fast player service cache
+          fastPlayerService.clearCache();
         }}
       />
     </div>

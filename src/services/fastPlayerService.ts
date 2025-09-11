@@ -192,19 +192,26 @@ export const fastPlayerService = {
     
     if (meetingsError) throw meetingsError;
     
-    // Calculate stats using the same logic as api.ts
     const playerMeetings = meetings || [];
+    console.log('📊 Calculating stats from', playerMeetings.length, 'meetings for:', player.name);
+    
     const totalSpent = playerMeetings.reduce((sum, m) => sum + (Number(m.amount_spent) || 0), 0);
     const totalMeetings = playerMeetings.length;
     
-    // Calculate date experience rating (average of all meeting ratings)
+    // Calculate date experience rating (average of all meeting rating values)
     const ratingsSum = playerMeetings.reduce((sum, m) => sum + (Number(m.rating) || 0), 0);
     const dateExperienceRating = totalMeetings > 0 ? ratingsSum / totalMeetings : 0;
+    console.log('📈 Date experience calculation:', { ratingsSum, totalMeetings, dateExperienceRating });
     
-    // Calculate performance rating average
+    // Calculate performance rating average (only from meetings with performance_rating > 0)
     const performanceRatings = playerMeetings.filter(m => m.performance_rating && Number(m.performance_rating) > 0);
     const performanceRatingSum = performanceRatings.reduce((sum, m) => sum + Number(m.performance_rating), 0);
     const avgPerformanceRating = performanceRatings.length > 0 ? performanceRatingSum / performanceRatings.length : 0;
+    console.log('🔥 Performance calculation:', { 
+      performanceRatings: performanceRatings.length, 
+      performanceRatingSum, 
+      avgPerformanceRating 
+    });
     
     // Calculate overall average rating
     const looksRating = player.looks_rating || 0;
@@ -217,6 +224,7 @@ export const fastPlayerService = {
       // Only looks and date experience
       averageRating = totalMeetings > 0 ? (looksRating + dateExperienceRating) / 2 : looksRating;
     }
+    console.log('⭐ Overall rating calculation:', { looksRating, avgPerformanceRating, dateExperienceRating, averageRating });
     
     const hookups = playerMeetings.filter(m => m.performance_rating && Number(m.performance_rating) > 0).length;
     const cpn = hookups > 0 ? totalSpent / hookups : 0;
@@ -231,8 +239,13 @@ export const fastPlayerService = {
       dateExperienceRating: Number(dateExperienceRating.toFixed(1))
     };
     
+    console.log('✅ Final calculated stats for', player.name, ':', {
+      performanceRating: playerWithStats.performanceRating,
+      dateExperienceRating: playerWithStats.dateExperienceRating,
+      averageRating: playerWithStats.averageRating
+    });
+    
     playerCache.set(cacheKey, playerWithStats);
-    console.log('✅ Player stats loaded for:', player.name);
     
     return playerWithStats;
   },
