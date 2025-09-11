@@ -5,25 +5,28 @@ type Player = Tables<'profiles'>;
 type Meeting = Tables<'meetings'>;
 type UpcomingDate = Tables<'upcoming_dates'>;
 
-// Simple helper function to calculate player stats
-function calculatePlayerStats(player: any, playerMeetings: any[]) {
-  const totalSpent = playerMeetings.reduce((sum: number, meeting: any) => 
+// Simple helper function to calculate player stats from meetings
+function calculatePlayerStats(player: Player, meetings: Meeting[]) {
+  const totalSpent = meetings.reduce((sum, meeting) => 
     sum + (Number(meeting.amount_spent) || 0), 0);
   
-  const hookups = playerMeetings.filter(meeting => 
+  const totalMeetings = meetings.length;
+  
+  // Calculate hookups (meetings with performance_rating > 0)
+  const hookups = meetings.filter(meeting => 
     meeting.performance_rating && Number(meeting.performance_rating) > 0).length;
-  const totalMeetings = playerMeetings.length;
+  
   const cpn = hookups > 0 ? totalSpent / hookups : 0;
   
   // Calculate date experience rating (average of all meeting ratings)
-  const ratingsSum = playerMeetings.reduce((sum: number, meeting: any) => 
+  const ratingsSum = meetings.reduce((sum, meeting) => 
     sum + (Number(meeting.rating) || 0), 0);
   const dateRating = totalMeetings > 0 ? ratingsSum / totalMeetings : 0;
   
-  // Calculate performance rating average
-  const performanceRatings = playerMeetings.filter(meeting => 
+  // Calculate performance rating average (only from meetings with performance_rating > 0)
+  const performanceRatings = meetings.filter(meeting => 
     meeting.performance_rating && Number(meeting.performance_rating) > 0);
-  const performanceRatingSum = performanceRatings.reduce((sum: number, meeting: any) => 
+  const performanceRatingSum = performanceRatings.reduce((sum, meeting) => 
     sum + Number(meeting.performance_rating), 0);
   const performanceRating = performanceRatings.length > 0 ? performanceRatingSum / performanceRatings.length : 0;
   
@@ -52,18 +55,13 @@ function calculatePlayerStats(player: any, playerMeetings: any[]) {
 // Player API
 export const playerApi = {
   async createPlayer(player: Inserts<'profiles'>) {
-    console.log('API: Creating player with data:', player);
     const { data, error } = await supabase
       .from('profiles')
       .insert(player)
       .select()
       .single();
     
-    if (error) {
-      console.error('Supabase error creating player:', error);
-      throw error;
-    }
-    console.log('API: Player created successfully:', data);
+    if (error) throw error;
     return data;
   },
 
@@ -84,8 +82,8 @@ export const playerApi = {
     return players || [];
   },
 
-  async getPlayerDetails(playerId: string): Promise<Player> {
-    console.log('🔍 Fetching detailed data for player:', playerId);
+  async getPlayerDetails(playerId: string) {
+    console.log('🔍 Loading player details for:', playerId);
     
     // Get current user first
     const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -93,25 +91,26 @@ export const playerApi = {
       throw new Error('User not authenticated');
     }
     
-    // Step 1: Get complete player profile data with user check
-    const { data: player, error } = await supabase
+    // Get player data
+    const { data: player, error: playerError } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', playerId)
       .eq('user_id', user.id)
       .single();
     
-    if (error) {
-      console.error('❌ Supabase error fetching player details:', error);
-      throw error;
+    if (playerError) {
+      console.error('❌ Error fetching player:', playerError);
+      throw playerError;
     }
     
     if (!player) {
-      console.error('❌ Player not found for ID:', playerId);
       throw new Error('Player not found');
     }
     
-    // Step 2: Get meetings data separately with user check
+    console.log('✅ Player loaded:', player.name);
+    
+    // Get meetings data
     const { data: meetings, error: meetingsError } = await supabase
       .from('meetings')
       .select('*')
@@ -119,16 +118,16 @@ export const playerApi = {
     
     if (meetingsError) {
       console.error('❌ Error fetching meetings:', meetingsError);
-      // Don't throw - continue with empty meetings
+      // Continue with empty meetings rather than failing
     }
     
     const playerMeetings = meetings || [];
     console.log('📊 Meetings loaded:', playerMeetings.length);
     
-    // Step 3: Calculate stats
+    // Calculate stats
     const playerWithStats = calculatePlayerStats(player, playerMeetings);
     
-    console.log('✅ FINAL DETAILED PLAYER WITH PROPER STATS:', {
+    console.log('✅ Final player with stats:', {
       name: playerWithStats.name,
       performanceRating: playerWithStats.performanceRating,
       dateRating: playerWithStats.dateRating,
@@ -220,19 +219,13 @@ export const datesApi = {
   },
 
   async getUpcomingDates(): Promise<UpcomingDate[]> {
-    console.log('🔍 Fetching upcoming dates from database...');
-    
     // Get current user first
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       throw new Error('User not authenticated');
     }
     
-    // Get today's date in YYYY-MM-DD format to avoid timezone issues
-    const today = new Date();
-    const currentDate = today.toISOString().split('T')[0]; // YYYY-MM-DD format
-    
-    console.log('📅 Current date for filtering:', currentDate);
+    const today = new Date().toISOString().split('T')[0];
     
     const { data, error } = await supabase
       .from('upcoming_dates')
@@ -245,15 +238,10 @@ export const datesApi = {
         )
       `)
       .eq('profiles.user_id', user.id)
-      .gte('date', currentDate + 'T00:00:00.000Z')
+      .gte('date', today + 'T00:00:00.000Z')
       .order('date', { ascending: true });
     
-    if (error) {
-      console.error('❌ Error fetching upcoming dates:', error);
-      throw error;
-    }
-    
-    console.log('✅ Upcoming dates fetched:', data?.length || 0, 'dates');
+    if (error) throw error;
     return data || [];
   },
 
@@ -282,99 +270,65 @@ export const datesApi = {
 // Stats API for Playbook
 export const statsApi = {
   async getDashboardStats() {
-    console.log('Fetching fresh dashboard stats...');
-    
-    try {
-      // Get current user
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError || !user) {
-        throw new Error('User not authenticated');
-      }
+    // Get current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      throw new Error('User not authenticated');
+    }
 
-      // Get meetings for current user only
-      const { data: meetings, error } = await supabase
-        .from('meetings')
-        .select(`
-          amount_spent, 
-          performance_rating, 
-          created_at, 
-          rating,
-          profiles!inner (
-            user_id
-          )
-        `)
-        .eq('profiles.user_id', user.id);
-      
-      if (error) {
-        console.error('Supabase error fetching meetings for stats:', error);
-        throw new Error(`Database error: ${error.message}`);
-      }
-      
-      if (!meetings) {
-        console.warn('No meetings data returned from Supabase');
-        return {
-          totalSpent: 0,
-          totalDates: 0,
-          totalHookups: 0
-        };
-      }
-      
-      console.log('📊 Processing', meetings.length, 'meetings for dashboard stats');
-      
-      // Calculate total spent from ALL meetings (not just hookups)
-      const totalSpent = meetings.reduce((sum, meeting) => {
-        const amount = Number(meeting.amount_spent) || 0;
-        return sum + amount;
-      }, 0);
-      
-      const totalDates = meetings.length;
-      
-      // Optimized hookup detection
-      const hookupMeetings = meetings.filter(meeting => {
-        return meeting.performance_rating !== null && 
-               meeting.performance_rating !== undefined && 
-               Number(meeting.performance_rating) > 0;
-      });
-      
-      const totalHookups = hookupMeetings.length;
-      
-      console.log('📈 Dashboard stats calculated:', {
-        totalSpent,
-        totalDates,
-        totalHookups,
-        averageCPN: totalHookups > 0 ? Math.round(totalSpent / totalHookups) : 0
-      });
-      
-      return {
-        totalSpent: Math.round(totalSpent),
-        totalDates,
-        totalHookups
-      };
-    } catch (err) {
-      console.error('Error fetching meetings for stats:', err);
-      
-      // Return fallback stats instead of throwing
+    const { data: meetings, error } = await supabase
+      .from('meetings')
+      .select(`
+        amount_spent, 
+        performance_rating,
+        profiles!inner (
+          user_id
+        )
+      `)
+      .eq('profiles.user_id', user.id);
+    
+    if (error) throw error;
+    
+    if (!meetings) {
       return {
         totalSpent: 0,
         totalDates: 0,
         totalHookups: 0
       };
     }
+    
+    const totalSpent = meetings.reduce((sum, meeting) => {
+      const amount = Number(meeting.amount_spent) || 0;
+      return sum + amount;
+    }, 0);
+    
+    const totalDates = meetings.length;
+    
+    const totalHookups = meetings.filter(meeting => {
+      return meeting.performance_rating !== null && 
+             meeting.performance_rating !== undefined && 
+             Number(meeting.performance_rating) > 0;
+    }).length;
+    
+    return {
+      totalSpent: Math.round(totalSpent),
+      totalDates,
+      totalHookups
+    };
   },
 
   async getTopPlayersByRating(limit: number = 3) {
-    console.log('🏆 Fetching top players with limit:', limit);
-    
     // Get current user
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       throw new Error('User not authenticated');
     }
 
+    // Get all players with their meetings
     const { data: players, error } = await supabase
       .from('profiles')
       .select(`
-        id, name, image_url, status, looks_rating, created_at, updated_at, user_id,
+        *,
         meetings (
           amount_spent,
           rating,
@@ -382,76 +336,43 @@ export const statsApi = {
         )
       `)
       .eq('bench', false)
-      .eq('user_id', user.id)
-      .limit(50);
+      .eq('user_id', user.id);
     
     if (error) throw error;
     
     if (!players || players.length === 0) {
-      console.log('🏆 No players found for top ratings');
       return [];
     }
     
-    // Calculate stats using meetings data for each player
+    // Calculate stats for each player
     const playersWithStats = players.map(player => {
       const meetings = player.meetings || [];
       return calculatePlayerStats(player, meetings);
     });
     
-    // Filter and sort efficiently
-    const playersWithRatings = playersWithStats
-      .filter(player => player.totalMeetings > 0) // Only players with meetings
+    // Filter and sort
+    const topPlayers = playersWithStats
+      .filter(player => player.totalMeetings > 0)
+      .sort((a, b) => b.averageRating - a.averageRating)
+      .slice(0, limit)
       .map(player => ({
         id: player.id,
         name: player.name,
         image_url: player.image_url,
         looks_rating: player.looks_rating,
         status: player.status,
-        average_rating: player.averageRating, 
+        average_rating: player.averageRating,
         meeting_count: player.totalMeetings,
         cpn: player.cpn,
         averageRating: player.averageRating,
         performanceRating: player.performanceRating,
         dateRating: player.dateRating
-      }))
-      .sort((a, b) => b.average_rating - a.average_rating)
-      .slice(0, limit);
+      }));
     
-    console.log('🏆 Top players calculated:', playersWithRatings.length, 'players');
-    
-    return playersWithRatings;
-  },
-
-  async getRecentPlayers(limit: number = 3): Promise<Player[]> {
-    // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (userError || !user) {
-      throw new Error('User not authenticated');
-    }
-
-    const { data: players, error } = await supabase
-      .from('profiles')
-      .select(`
-        id, name, image_url, status, looks_rating, bench, created_at, updated_at, user_id,
-        meetings (
-          amount_spent,
-          rating,
-          performance_rating
-        )
-      `)
-      .eq('bench', false)
-      .eq('user_id', user.id)
-      .limit(limit)
-      .order('updated_at', { ascending: false });
-    
-    if (error) throw error;
-    
-    return (players || []).map(player => calculatePlayerStats(player, player.meetings || []));
+    return topPlayers;
   },
 
   async getCPNByPeriod(period: 'weekly' | 'monthly' | 'yearly') {
-    console.log('📊 Calculating CPN for period:', period);
-    
     // Get current user
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
@@ -476,7 +397,6 @@ export const statsApi = {
     if (error) throw error;
     
     if (!meetings || meetings.length === 0) {
-      console.log('📊 No CPN data available for period:', period);
       return [];
     }
     
@@ -509,7 +429,7 @@ export const statsApi = {
       groupedData[periodKey].hookups += 1;
     });
     
-    // Convert to array and calculate CPN efficiently
+    // Convert to array and calculate CPN
     const result = Object.entries(groupedData).map(([period, data]) => ({
       period,
       cpn: data.hookups > 0 ? Math.round(data.totalSpent / data.hookups) : 0,
@@ -517,7 +437,6 @@ export const statsApi = {
       hookups: data.hookups
     })).sort((a, b) => a.period.localeCompare(b.period));
     
-    console.log('📊 CPN data calculated:', result.length, 'periods');
     return result;
   }
 };
