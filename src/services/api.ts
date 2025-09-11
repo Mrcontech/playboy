@@ -8,27 +8,30 @@ type UpcomingDate = Tables<'upcoming_dates'>;
 // Optimized helper function to calculate player stats with memoization
 const statsCache = new Map<string, any>();
 
-function calculatePlayerStats(player: any, useCache = true) {
+function calculatePlayerStats(player: any, meetings: any[] = [], useCache = true) {
   const cacheKey = `${player.id}_${player.updated_at}`;
   
   if (useCache && statsCache.has(cacheKey)) {
     return { ...player, ...statsCache.get(cacheKey) };
   }
   
-  const meetings = player.meetings || [];
+  // Use provided meetings array or fall back to player.meetings
+  const playerMeetings = meetings.length > 0 ? meetings : (player.meetings || []);
+  
   const totalSpent = meetings.reduce((sum: number, meeting: any) => 
     sum + (Number(meeting.amount_spent) || 0), 0);
-  const totalMeetings = meetings.length;
-  const hookups = meetings.filter((meeting: any) => 
+  const totalMeetings = playerMeetings.length;
+  const hookups = playerMeetings.filter((meeting: any) => 
     meeting.performance_rating && Number(meeting.performance_rating) > 0).length;
   const cpn = hookups > 0 ? totalSpent / hookups : 0;
   
-  const ratingsSum = meetings.reduce((sum: number, meeting: any) => 
+  // Calculate date experience rating (average of all meeting ratings)
+  const ratingsSum = playerMeetings.reduce((sum: number, meeting: any) => 
     sum + (Number(meeting.rating) || 0), 0);
   const dateExperienceRating = totalMeetings > 0 ? ratingsSum / totalMeetings : 0;
   
   // Calculate performance rating average
-  const performanceRatings = meetings.filter((meeting: any) => 
+  const performanceRatings = playerMeetings.filter((meeting: any) => 
     meeting.performance_rating && Number(meeting.performance_rating) > 0);
   const performanceRatingSum = performanceRatings.reduce((sum: number, meeting: any) => 
     sum + Number(meeting.performance_rating), 0);
@@ -49,7 +52,9 @@ function calculatePlayerStats(player: any, useCache = true) {
   const calculatedStats = {
     totalMeetings,
     cpn: Math.round(cpn),
-    averageRating: Number(averageRating.toFixed(1))
+    averageRating: Number(averageRating.toFixed(1)),
+    performanceRating: Number(avgPerformanceRating.toFixed(1)),
+    dateExperienceRating: Number(dateExperienceRating.toFixed(1))
   };
   
   // Cache the calculated stats
@@ -112,7 +117,6 @@ export const playerApi = {
   // New method to get detailed player data on-demand
   async getPlayerDetails(playerId: string): Promise<Player> {
     console.log('🔍 Fetching detailed data for player:', playerId);
-    console.log('🔍 EMERGENCY DEBUG: About to query Supabase for player details');
     
     const { data: player, error } = await supabase
       .from('profiles')
@@ -130,16 +134,6 @@ export const playerApi = {
       throw new Error('Player not found');
     }
     
-    console.log('🚨 EMERGENCY DEBUG - RAW SUPABASE RESPONSE:');
-    console.log('Player object keys:', Object.keys(player));
-    console.log('Full player object:', player);
-    console.log('Likes value:', player.likes);
-    console.log('Dislikes value:', player.dislikes);
-    console.log('Notes value:', player.notes);
-    console.log('Likes type:', typeof player.likes);
-    console.log('Dislikes type:', typeof player.dislikes);
-    console.log('Notes type:', typeof player.notes);
-    
     // Now fetch meetings separately to avoid any join issues
     const { data: meetings, error: meetingsError } = await supabase
       .from('meetings')
@@ -148,17 +142,14 @@ export const playerApi = {
     
     if (meetingsError) {
       console.error('❌ Error fetching meetings:', meetingsError);
+      // Don't throw error, just use empty meetings array
     }
     
-    // Attach meetings to player object
-    const playerWithMeetings = {
-      ...player,
-      meetings: meetings || []
-    };
+    const playerMeetings = meetings || [];
+    console.log('🔍 Player loaded with', playerMeetings.length, 'meetings');
     
-    console.log('🔍 Final player object with meetings:', playerWithMeetings);
-    
-    return calculatePlayerStats(playerWithMeetings, true);
+    // Calculate stats using the meetings data
+    return calculatePlayerStats(player, playerMeetings, true);
   },
 
   // Optimized query with selective field loading
@@ -460,8 +451,11 @@ export const statsApi = {
       return [];
     }
     
-    // Use optimized stats calculation with caching
-    const playersWithStats = players.map(player => calculatePlayerStats(player, true));
+    // Calculate stats using meetings data for each player
+    const playersWithStats = players.map(player => {
+      const meetings = player.meetings || [];
+      return calculatePlayerStats(player, meetings, true);
+    });
     
     // Filter and sort efficiently
     const playersWithRatings = playersWithStats
@@ -472,11 +466,12 @@ export const statsApi = {
         image_url: player.image_url,
         looks_rating: player.looks_rating,
         status: player.status,
-        average_rating: player.averageRating,
+        average_rating: player.averageRating, 
         meeting_count: player.totalMeetings,
-        // Only include essential data to reduce memory usage
         cpn: player.cpn,
-        averageRating: player.averageRating
+        averageRating: player.averageRating,
+        performanceRating: player.performanceRating,
+        dateExperienceRating: player.dateExperienceRating
       }))
       .sort((a, b) => b.average_rating - a.average_rating)
       .slice(0, limit);

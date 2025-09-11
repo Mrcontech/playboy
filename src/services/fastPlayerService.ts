@@ -33,6 +33,8 @@ export interface PlayerWithStats extends PlayerBasic {
   totalSpent: number;
   averageRating: number;
   cpn: number;
+  performanceRating: number;
+  dateExperienceRating: number;
 }
 
 // Simple in-memory cache
@@ -185,17 +187,37 @@ export const fastPlayerService = {
     // Get meetings for stats calculation
     const { data: meetings, error: meetingsError } = await supabase
       .from('meetings')
-      .select('amount_spent, rating, performance_rating')
+      .select('*')
       .eq('profile_id', playerId);
     
     if (meetingsError) throw meetingsError;
     
-    // Calculate stats
+    // Calculate stats using the same logic as api.ts
     const playerMeetings = meetings || [];
     const totalSpent = playerMeetings.reduce((sum, m) => sum + (Number(m.amount_spent) || 0), 0);
     const totalMeetings = playerMeetings.length;
+    
+    // Calculate date experience rating (average of all meeting ratings)
     const ratingsSum = playerMeetings.reduce((sum, m) => sum + (Number(m.rating) || 0), 0);
-    const averageRating = totalMeetings > 0 ? ratingsSum / totalMeetings : 0;
+    const dateExperienceRating = totalMeetings > 0 ? ratingsSum / totalMeetings : 0;
+    
+    // Calculate performance rating average
+    const performanceRatings = playerMeetings.filter(m => m.performance_rating && Number(m.performance_rating) > 0);
+    const performanceRatingSum = performanceRatings.reduce((sum, m) => sum + Number(m.performance_rating), 0);
+    const avgPerformanceRating = performanceRatings.length > 0 ? performanceRatingSum / performanceRatings.length : 0;
+    
+    // Calculate overall average rating
+    const looksRating = player.looks_rating || 0;
+    let averageRating;
+    
+    if (avgPerformanceRating > 0) {
+      // Include all three: looks, performance, date experience
+      averageRating = (looksRating + avgPerformanceRating + dateExperienceRating) / 3;
+    } else {
+      // Only looks and date experience
+      averageRating = totalMeetings > 0 ? (looksRating + dateExperienceRating) / 2 : looksRating;
+    }
+    
     const hookups = playerMeetings.filter(m => m.performance_rating && Number(m.performance_rating) > 0).length;
     const cpn = hookups > 0 ? totalSpent / hookups : 0;
     
@@ -204,7 +226,9 @@ export const fastPlayerService = {
       totalMeetings,
       totalSpent: Math.round(totalSpent),
       averageRating: Number(averageRating.toFixed(1)),
-      cpn: Math.round(cpn)
+      cpn: Math.round(cpn),
+      performanceRating: Number(avgPerformanceRating.toFixed(1)),
+      dateExperienceRating: Number(dateExperienceRating.toFixed(1))
     };
     
     playerCache.set(cacheKey, playerWithStats);

@@ -204,11 +204,11 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-300 font-medium text-sm sm:text-base">🔥 Performance</span>
-                  <StarRating rating={player.averageRating} />
+                  <StarRating rating={player.performanceRating || 0} />
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-300 font-medium text-sm sm:text-base">💕 Date Experience</span>
-                  <StarRating rating={player.averageRating} />
+                  <StarRating rating={player.dateExperienceRating || 0} />
                 </div>
               </div>
             </div>
