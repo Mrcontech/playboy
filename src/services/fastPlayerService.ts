@@ -192,8 +192,6 @@ export const fastPlayerService = {
     
     if (meetingsError) throw meetingsError;
     
-    console.log('🔍 DEBUG: Raw meetings data for', player.name, meetings);
-    
     // Calculate stats
     const playerMeetings = meetings || [];
     const totalSpent = playerMeetings.reduce((sum, m) => sum + (Number(m.amount_spent) || 0), 0);
@@ -201,16 +199,14 @@ export const fastPlayerService = {
     
     // Calculate date experience rating (only from meetings with ratings)
     const meetingsWithRatings = playerMeetings.filter(m => 
-      m.rating !== null && m.rating !== undefined && Number(m.rating) > 0);
-    console.log('🔍 DEBUG: Meetings with ratings:', meetingsWithRatings);
+      m.rating && Number(m.rating) > 0);
     const ratingsSum = meetingsWithRatings.reduce((sum, m) => 
       sum + Number(m.rating), 0);
     const dateRating = meetingsWithRatings.length > 0 ? ratingsSum / meetingsWithRatings.length : 0;
     
     // Calculate performance rating average (only from meetings with performance ratings)
     const performanceRatings = playerMeetings.filter(m => 
-      m.performance_rating !== null && m.performance_rating !== undefined && Number(m.performance_rating) > 0);
-    console.log('🔍 DEBUG: Meetings with performance ratings:', performanceRatings);
+      m.performance_rating && Number(m.performance_rating) > 0);
     const performanceRatingSum = performanceRatings.reduce((sum, m) => 
       sum + Number(m.performance_rating), 0);
     const performanceRating = performanceRatings.length > 0 ? performanceRatingSum / performanceRatings.length : 0;
@@ -245,13 +241,6 @@ export const fastPlayerService = {
       performanceRating: Number(performanceRating.toFixed(1)),
       dateExperienceRating: Number(dateRating.toFixed(1))
     };
-    
-    console.log('🔍 DEBUG: Player stats calculated for', player.name, {
-      totalMeetings,
-      performanceRating: Number(performanceRating.toFixed(1)),
-      dateExperienceRating: Number(dateRating.toFixed(1)),
-      averageRating: Number(averageRating.toFixed(1))
-    });
     
     playerCache.set(cacheKey, playerWithStats);
     console.log('✅ Player stats loaded for:', player.name);
