@@ -204,11 +204,11 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-300 font-medium text-sm sm:text-base">🔥 Performance</span>
-                  <StarRating rating={player.performanceRating || 0} />
+                  <StarRating rating={player.averageRating} />
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-300 font-medium text-sm sm:text-base">💕 Date Experience</span>
-                  <StarRating rating={player.dateRating || 0} />
+                  <StarRating rating={player.averageRating} />
                 </div>
               </div>
             </div>
@@ -229,7 +229,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
               {/* Likes Section - FIXED */}
               <div className="mb-6">
                 <h4 className="text-green-500 font-medium mb-3">👍 Likes</h4>
-                {player.likes && player.likes.length > 0 ? (
+                {player.likes && Array.isArray(player.likes) && player.likes.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {player.likes.map((like, index) => (
                       <span key={index} className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm border border-green-500/30">
@@ -247,7 +247,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
               {/* Dislikes Section - FIXED */}
               <div className="mb-6">
                 <h4 className="text-red-500 font-medium mb-3">👎 Dislikes</h4>
-                {player.dislikes && player.dislikes.length > 0 ? (
+                {player.dislikes && Array.isArray(player.dislikes) && player.dislikes.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {player.dislikes.map((dislike, index) => (
                       <span key={index} className="bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-sm border border-red-500/30">
@@ -265,7 +265,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
               {/* Notes Section - FIXED */}
               <div className="mb-6">
                 <h4 className="text-purple-500 font-medium mb-3">📋 Notes</h4>
-                {player.notes && player.notes.trim() ? (
+                {player.notes && typeof player.notes === 'string' && player.notes.trim() ? (
                   <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
                     <p className="text-gray-300 leading-relaxed">
                       {player.notes}
@@ -387,6 +387,7 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
             onPlayerUpdated={handleDataUpdate}
             onPlayerDeleted={() => {
               // Clear cache and navigate back immediately
+              fastPlayerService.clearCache();
               onBack();
             }}
             player={player}

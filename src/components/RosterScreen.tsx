@@ -5,6 +5,7 @@ import PlayerCard from './PlayerCard';
 import AddPlayerModal from './AddPlayerModal';
 import LoadingSpinner from './LoadingSpinner';
 import { playerApi } from '../services/api';
+import { useRosterCache } from '../hooks/useRosterCache';
 import type { Tables } from '../lib/supabase';
 
 type Player = Tables<'profiles'>;
@@ -16,28 +17,10 @@ interface RosterScreenProps {
 const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreenProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddPlayerModal, setShowAddPlayerModal] = useState(false);
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [loadingPlayerDetails, setLoadingPlayerDetails] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadPlayers();
-  }, []);
-
-  const loadPlayers = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await playerApi.getAllPlayers();
-      setPlayers(data);
-    } catch (err) {
-      console.error('Error loading players:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load players');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Use simple caching to prevent reloading
+  const { players, loading, error, refresh, invalidateCache } = useRosterCache();
 
   // Handle player selection with lazy loading of detailed data
   const handlePlayerSelect = useCallback(async (player: Partial<Player>) => {
@@ -45,10 +28,10 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
     
     setLoadingPlayerDetails(player.id);
     try {
-      console.log('🔍 ROSTER: Loading detailed data for:', player.name);
-      const playerWithStats = await playerApi.getPlayerDetails(player.id);
-      console.log('✅ ROSTER: Detailed data loaded with stats, navigating to profile');
-      onPlayerSelect(playerWithStats);
+      console.log('🔍 Loading detailed data for:', player.name);
+      const detailedPlayer = await playerApi.getPlayerDetails(player.id);
+      console.log('✅ Detailed data loaded, navigating to profile');
+      onPlayerSelect(detailedPlayer);
     } catch (error) {
       console.error('❌ Error loading player details:', error);
       alert('Failed to load player details. Please try again.');
@@ -246,7 +229,10 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
       <AddPlayerModal
         isOpen={showAddPlayerModal}
         onClose={() => setShowAddPlayerModal(false)}
-        onPlayerAdded={loadPlayers}
+        onPlayerAdded={() => {
+          invalidateCache();
+          refresh();
+        }}
       />
     </div>
   );
