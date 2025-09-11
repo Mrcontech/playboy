@@ -194,8 +194,39 @@ export const fastPlayerService = {
     const playerMeetings = meetings || [];
     const totalSpent = playerMeetings.reduce((sum, m) => sum + (Number(m.amount_spent) || 0), 0);
     const totalMeetings = playerMeetings.length;
-    const ratingsSum = playerMeetings.reduce((sum, m) => sum + (Number(m.rating) || 0), 0);
-    const averageRating = totalMeetings > 0 ? ratingsSum / totalMeetings : 0;
+    
+    // Calculate date experience rating (only from meetings with ratings)
+    const meetingsWithRatings = playerMeetings.filter(m => 
+      m.rating && Number(m.rating) > 0);
+    const ratingsSum = meetingsWithRatings.reduce((sum, m) => 
+      sum + Number(m.rating), 0);
+    const dateRating = meetingsWithRatings.length > 0 ? ratingsSum / meetingsWithRatings.length : 0;
+    
+    // Calculate performance rating average (only from meetings with performance ratings)
+    const performanceRatings = playerMeetings.filter(m => 
+      m.performance_rating && Number(m.performance_rating) > 0);
+    const performanceRatingSum = performanceRatings.reduce((sum, m) => 
+      sum + Number(m.performance_rating), 0);
+    const performanceRating = performanceRatings.length > 0 ? performanceRatingSum / performanceRatings.length : 0;
+    
+    // Calculate overall average rating
+    const looksRating = player.looks_rating || 0;
+    let averageRating;
+    
+    if (performanceRating > 0) {
+      if (dateRating > 0) {
+        averageRating = (looksRating + performanceRating + dateRating) / 3;
+      } else {
+        averageRating = (looksRating + performanceRating) / 2;
+      }
+    } else {
+      if (dateRating > 0) {
+        averageRating = (looksRating + dateRating) / 2;
+      } else {
+        averageRating = looksRating;
+      }
+    }
+    
     const hookups = playerMeetings.filter(m => m.performance_rating && Number(m.performance_rating) > 0).length;
     const cpn = hookups > 0 ? totalSpent / hookups : 0;
     
