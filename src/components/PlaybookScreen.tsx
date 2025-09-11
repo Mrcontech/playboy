@@ -80,6 +80,12 @@ const PlaybookScreen = memo(function PlaybookScreen({ onPlayerSelect }: Playbook
 
   // Handle player selection with lazy loading for top players
   const handleTopPlayerSelect = useCallback(async (player: TopPlayer) => {
+    if (!player?.id) {
+      console.error('❌ Player ID is undefined, cannot load details');
+      alert('Unable to load player details - invalid player data.');
+      return;
+    }
+
     setLoadingPlayerDetails(player.id);
     try {
       console.log('🔍 Loading detailed data for top player:', player.name);
