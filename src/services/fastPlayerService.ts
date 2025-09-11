@@ -33,6 +33,8 @@ export interface PlayerWithStats extends PlayerBasic {
   totalSpent: number;
   averageRating: number;
   cpn: number;
+  performanceRating: number;
+  dateExperienceRating: number;
 }
 
 // Simple in-memory cache
@@ -235,7 +237,9 @@ export const fastPlayerService = {
       totalMeetings,
       totalSpent: Math.round(totalSpent),
       averageRating: Number(averageRating.toFixed(1)),
-      cpn: Math.round(cpn)
+      cpn: Math.round(cpn),
+      performanceRating: Number(performanceRating.toFixed(1)),
+      dateExperienceRating: Number(dateRating.toFixed(1))
     };
     
     playerCache.set(cacheKey, playerWithStats);
