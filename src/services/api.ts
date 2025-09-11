@@ -5,8 +5,8 @@ type Player = Tables<'profiles'>;
 type Meeting = Tables<'meetings'>;
 type UpcomingDate = Tables<'upcoming_dates'>;
 
-// Optimized helper function to calculate player stats with memoization
-function calculatePlayerStats(player: any, playerMeetings: any[], includeStats = false) {
+// Simple helper function to calculate player stats
+function calculatePlayerStats(player: any, playerMeetings: any[]) {
   const totalSpent = playerMeetings.reduce((sum: number, meeting: any) => 
     sum + (Number(meeting.amount_spent) || 0), 0);
   
@@ -14,8 +14,7 @@ function calculatePlayerStats(player: any, playerMeetings: any[], includeStats =
     meeting.performance_rating && Number(meeting.performance_rating) > 0).length;
   const totalMeetings = playerMeetings.length;
   const cpn = hookups > 0 ? totalSpent / hookups : 0;
-  const hookupMeetings = playerMeetings.filter(meeting => 
-    meeting.performance_rating && Number(meeting.performance_rating) > 0).length;
+  
   // Calculate date experience rating (average of all meeting ratings)
   const ratingsSum = playerMeetings.reduce((sum: number, meeting: any) => 
     sum + (Number(meeting.rating) || 0), 0);
@@ -38,14 +37,8 @@ function calculatePlayerStats(player: any, playerMeetings: any[], includeStats =
     averageRating = totalMeetings > 0 ? (looksRating + dateRating) / 2 : looksRating;
   }
   
-  console.log('🧮 CALCULATION RESULTS:', {
-    totalMeetings,
-    performanceRating: Number(performanceRating.toFixed(1)),
-    dateRating: Number(dateRating.toFixed(1)),
-    averageRating: Number(averageRating.toFixed(1))
-  });
-  
   return {
+    ...player,
     totalMeetings,
     totalSpent: Math.round(totalSpent),
     hookups,
@@ -55,9 +48,6 @@ function calculatePlayerStats(player: any, playerMeetings: any[], includeStats =
     dateRating: Number(dateRating.toFixed(1))
   };
 }
-
-// Stats cache for memoization
-const statsCache = new Map();
 
 // Player API
 export const playerApi = {
@@ -74,43 +64,41 @@ export const playerApi = {
       throw error;
     }
     console.log('API: Player created successfully:', data);
-    
-    // Clear relevant caches when new player is created
-    statsCache.clear();
-    
     return data;
   },
 
-  // New lightweight query for initial roster load - only essential fields
-  async getPlayersBasic(): Promise<Partial<Player>[]> {
-    console.log('🚀 Fetching basic player data for roster (fast mode)...');
-    const startTime = performance.now();
-    
+  async getAllPlayers(): Promise<Player[]> {
+    // Get current user first
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      throw new Error('User not authenticated');
+    }
+
     const { data: players, error } = await supabase
       .from('profiles')
-      .select('id, name, image_url, status, looks_rating, bench, updated_at')
+      .select('*')
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false });
     
-    if (error) {
-      console.error('❌ Error fetching basic players:', error);
-      throw error;
-    }
-    
-    const endTime = performance.now();
-    console.log(`✅ Basic player data loaded in ${Math.round(endTime - startTime)}ms:`, players?.length || 0, 'players');
-    
+    if (error) throw error;
     return players || [];
   },
 
-  // New method to get detailed player data on-demand
   async getPlayerDetails(playerId: string): Promise<Player> {
     console.log('🔍 Fetching detailed data for player:', playerId);
     
-    // Step 1: Get complete player profile data
+    // Get current user first
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      throw new Error('User not authenticated');
+    }
+    
+    // Step 1: Get complete player profile data with user check
     const { data: player, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', playerId)
+      .eq('user_id', user.id)
       .single();
     
     if (error) {
@@ -123,7 +111,7 @@ export const playerApi = {
       throw new Error('Player not found');
     }
     
-    // Step 2: Get meetings data separately
+    // Step 2: Get meetings data separately with user check
     const { data: meetings, error: meetingsError } = await supabase
       .from('meetings')
       .select('*')
@@ -138,58 +126,16 @@ export const playerApi = {
     console.log('📊 Meetings loaded:', playerMeetings.length);
     
     // Step 3: Calculate stats
-    const stats = calculatePlayerStats(player, playerMeetings);
-    
-    // Step 4: Combine all data
-    const detailedPlayer = {
-      ...player,
-      meetings: playerMeetings,
-      ...stats
-    };
+    const playerWithStats = calculatePlayerStats(player, playerMeetings);
     
     console.log('✅ FINAL DETAILED PLAYER WITH PROPER STATS:', {
-      name: detailedPlayer.name,
-      performanceRating: detailedPlayer.performanceRating,
-      dateRating: detailedPlayer.dateRating,
-      averageRating: detailedPlayer.averageRating
+      name: playerWithStats.name,
+      performanceRating: playerWithStats.performanceRating,
+      dateRating: playerWithStats.dateRating,
+      averageRating: playerWithStats.averageRating
     });
     
-    return detailedPlayer;
-  },
-
-  // Optimized query with selective field loading
-  async getAllPlayers(includeStats = true): Promise<Player[]> {
-    const baseQuery = supabase
-      .from('profiles')
-      .select(includeStats ? `
-        id, name, image_url, status, looks_rating, bench, created_at, updated_at, user_id,
-        meetings!inner (
-          amount_spent,
-          rating,
-          performance_rating
-        )
-      ` : 'id, name, image_url, status, looks_rating, bench, created_at, updated_at, user_id')
-      .order('created_at', { ascending: false });
-    
-    const { data: players, error } = await supabase
-      .from('profiles')
-      .select(includeStats ? `
-        id, name, image_url, status, looks_rating, bench, created_at, updated_at, user_id,
-        meetings (
-          amount_spent,
-          rating,
-          performance_rating
-        )
-      ` : 'id, name, image_url, status, looks_rating, bench, created_at, updated_at, user_id')
-      .order('created_at', { ascending: false });
-    
-    if (error) throw error;
-    
-    if (!includeStats) {
-      return players || [];
-    }
-    
-    return (players || []).map(player => calculatePlayerStats(player, true));
+    return playerWithStats;
   },
 
   async updatePlayer(id: string, updates: Updates<'profiles'>) {
@@ -201,10 +147,6 @@ export const playerApi = {
       .single();
     
     if (error) throw error;
-    
-    // Clear stats cache when player is updated
-    statsCache.clear();
-    
     return data;
   },
 
@@ -215,9 +157,6 @@ export const playerApi = {
       .eq('id', id);
     
     if (error) throw error;
-    
-    // Clear stats cache when player is deleted
-    statsCache.clear();
   }
 };
 
@@ -283,6 +222,12 @@ export const datesApi = {
   async getUpcomingDates(): Promise<UpcomingDate[]> {
     console.log('🔍 Fetching upcoming dates from database...');
     
+    // Get current user first
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      throw new Error('User not authenticated');
+    }
+    
     // Get today's date in YYYY-MM-DD format to avoid timezone issues
     const today = new Date();
     const currentDate = today.toISOString().split('T')[0]; // YYYY-MM-DD format
@@ -293,11 +238,13 @@ export const datesApi = {
       .from('upcoming_dates')
       .select(`
         *,
-        profiles (
+        profiles!inner (
           name,
-          image_url
+          image_url,
+          user_id
         )
       `)
+      .eq('profiles.user_id', user.id)
       .gte('date', currentDate + 'T00:00:00.000Z')
       .order('date', { ascending: true });
     
@@ -307,14 +254,6 @@ export const datesApi = {
     }
     
     console.log('✅ Upcoming dates fetched:', data?.length || 0, 'dates');
-    if (data && data.length > 0) {
-      console.log('📋 Upcoming dates details:', data.map(d => ({
-        date: d.date,
-        type: d.type,
-        profile_name: d.profiles?.name
-      })));
-    }
-    
     return data || [];
   },
 
@@ -352,8 +291,7 @@ export const statsApi = {
         throw new Error('User not authenticated');
       }
 
-      // Optimized query - only get necessary fields for stats calculation
-      // Filter meetings by user's profiles only
+      // Get meetings for current user only
       const { data: meetings, error } = await supabase
         .from('meetings')
         .select(`
@@ -386,7 +324,6 @@ export const statsApi = {
       // Calculate total spent from ALL meetings (not just hookups)
       const totalSpent = meetings.reduce((sum, meeting) => {
         const amount = Number(meeting.amount_spent) || 0;
-        console.log(`Meeting amount: ${amount}`);
         return sum + amount;
       }, 0);
       
@@ -425,7 +362,6 @@ export const statsApi = {
     }
   },
 
-  // Highly optimized top players query with minimal data transfer
   async getTopPlayersByRating(limit: number = 3) {
     console.log('🏆 Fetching top players with limit:', limit);
     
@@ -447,7 +383,7 @@ export const statsApi = {
       `)
       .eq('bench', false)
       .eq('user_id', user.id)
-      .limit(50); // Pre-filter to reduce data transfer, then sort client-side
+      .limit(50);
     
     if (error) throw error;
     
@@ -459,7 +395,7 @@ export const statsApi = {
     // Calculate stats using meetings data for each player
     const playersWithStats = players.map(player => {
       const meetings = player.meetings || [];
-      return calculatePlayerStats(player, meetings, true);
+      return calculatePlayerStats(player, meetings);
     });
     
     // Filter and sort efficiently
@@ -476,7 +412,7 @@ export const statsApi = {
         cpn: player.cpn,
         averageRating: player.averageRating,
         performanceRating: player.performanceRating,
-        dateExperienceRating: player.dateExperienceRating
+        dateRating: player.dateRating
       }))
       .sort((a, b) => b.average_rating - a.average_rating)
       .slice(0, limit);
@@ -486,7 +422,6 @@ export const statsApi = {
     return playersWithRatings;
   },
 
-  // Highly optimized recent players query - only essential data
   async getRecentPlayers(limit: number = 3): Promise<Player[]> {
     // Get current user
     const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -511,10 +446,9 @@ export const statsApi = {
     
     if (error) throw error;
     
-    return (players || []).map(player => calculatePlayerStats(player, true));
+    return (players || []).map(player => calculatePlayerStats(player, player.meetings || []));
   },
 
-  // Optimized CPN calculation with better query performance
   async getCPNByPeriod(period: 'weekly' | 'monthly' | 'yearly') {
     console.log('📊 Calculating CPN for period:', period);
     
@@ -537,7 +471,7 @@ export const statsApi = {
       `)
       .eq('profiles.user_id', user.id)
       .gt('performance_rating', 0)
-      .order('date', { ascending: true }); // Pre-sort for better performance
+      .order('date', { ascending: true });
     
     if (error) throw error;
     
@@ -546,7 +480,7 @@ export const statsApi = {
       return [];
     }
     
-    // Optimized grouping with Map for better performance
+    // Group data by period
     const groupedData: { [key: string]: { totalSpent: number; hookups: number } } = {};
     
     meetings.forEach(meeting => {

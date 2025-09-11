@@ -29,8 +29,8 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
     setLoadingPlayerDetails(player.id);
     try {
       console.log('🔍 ROSTER: Loading detailed data for:', player.name);
-      // Use fastPlayerService to ensure consistent calculations
-      const playerWithStats = await fastPlayerService.getPlayerWithStats(player.id);
+      // Use playerApi to ensure consistent calculations with playbook
+      const playerWithStats = await playerApi.getPlayerDetails(player.id);
       console.log('✅ ROSTER: Detailed data loaded with stats, navigating to profile');
       onPlayerSelect(playerWithStats);
     } catch (error) {
