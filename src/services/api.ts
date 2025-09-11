@@ -6,58 +6,70 @@ type Meeting = Tables<'meetings'>;
 type UpcomingDate = Tables<'upcoming_dates'>;
 
 // Optimized helper function to calculate player stats with memoization
-function calculatePlayerStats(player: any, playerMeetings: any[], includeStats = false) {
-  const totalSpent = playerMeetings.reduce((sum: number, meeting: any) => 
-    sum + (Number(meeting.amount_spent) || 0), 0);
+const statsCache = new Map<string, any>();
+
+function calculatePlayerStats(player: any, meetings: any[] = [], useCache = true) {
+  const cacheKey = `${player.id}_${player.updated_at}`;
   
-  const hookups = playerMeetings.filter(meeting => 
-    meeting.performance_rating && Number(meeting.performance_rating) > 0).length;
+  if (useCache && statsCache.has(cacheKey)) {
+    return { ...player, ...statsCache.get(cacheKey) };
+  }
+  
+  // Use provided meetings array or fall back to player.meetings
+  const playerMeetings = meetings.length > 0 ? meetings : (player.meetings || []);
+  
+  const totalSpent = meetings.reduce((sum: number, meeting: any) => 
+    sum + (Number(meeting.amount_spent) || 0), 0);
   const totalMeetings = playerMeetings.length;
-  const cpn = hookups > 0 ? totalSpent / hookups : 0;
-  const hookupMeetings = playerMeetings.filter(meeting => 
+  const hookups = playerMeetings.filter((meeting: any) => 
     meeting.performance_rating && Number(meeting.performance_rating) > 0).length;
+  const cpn = hookups > 0 ? totalSpent / hookups : 0;
+  
   // Calculate date experience rating (average of all meeting ratings)
   const ratingsSum = playerMeetings.reduce((sum: number, meeting: any) => 
     sum + (Number(meeting.rating) || 0), 0);
-  const dateRating = totalMeetings > 0 ? ratingsSum / totalMeetings : 0;
+  const dateExperienceRating = totalMeetings > 0 ? ratingsSum / totalMeetings : 0;
   
   // Calculate performance rating average
-  const performanceRatings = playerMeetings.filter(meeting => 
+  const performanceRatings = playerMeetings.filter((meeting: any) => 
     meeting.performance_rating && Number(meeting.performance_rating) > 0);
   const performanceRatingSum = performanceRatings.reduce((sum: number, meeting: any) => 
     sum + Number(meeting.performance_rating), 0);
-  const performanceRating = performanceRatings.length > 0 ? performanceRatingSum / performanceRatings.length : 0;
+  const avgPerformanceRating = performanceRatings.length > 0 ? performanceRatingSum / performanceRatings.length : 0;
   
   // Calculate overall average rating
   const looksRating = player.looks_rating || 0;
   let averageRating;
   
-  if (performanceRating > 0) {
-    averageRating = (looksRating + performanceRating + dateRating) / 3;
+  if (avgPerformanceRating > 0) {
+    // Include all three: looks, performance, date experience
+    averageRating = (looksRating + avgPerformanceRating + dateExperienceRating) / 3;
   } else {
-    averageRating = totalMeetings > 0 ? (looksRating + dateRating) / 2 : looksRating;
+    // Only looks and date experience
+    averageRating = totalMeetings > 0 ? (looksRating + dateExperienceRating) / 2 : looksRating;
   }
   
-  console.log('🧮 CALCULATION RESULTS:', {
+  const calculatedStats = {
     totalMeetings,
-    performanceRating: Number(performanceRating.toFixed(1)),
-    dateRating: Number(dateRating.toFixed(1)),
-    averageRating: Number(averageRating.toFixed(1))
-  });
-  
-  return {
-    totalMeetings,
-    totalSpent: Math.round(totalSpent),
-    hookups,
     cpn: Math.round(cpn),
     averageRating: Number(averageRating.toFixed(1)),
-    performanceRating: Number(performanceRating.toFixed(1)),
-    dateRating: Number(dateRating.toFixed(1))
+    performanceRating: Number(avgPerformanceRating.toFixed(1)),
+    dateExperienceRating: Number(dateExperienceRating.toFixed(1))
+  };
+  
+  // Cache the calculated stats
+  if (useCache) {
+    statsCache.set(cacheKey, calculatedStats);
+  }
+  
+  // Remove meetings array from response to reduce memory usage
+  const { meetings: _, ...playerWithoutMeetings } = player;
+  
+  return {
+    ...playerWithoutMeetings,
+    ...calculatedStats
   };
 }
-
-// Stats cache for memoization
-const statsCache = new Map();
 
 // Player API
 export const playerApi = {
@@ -106,7 +118,6 @@ export const playerApi = {
   async getPlayerDetails(playerId: string): Promise<Player> {
     console.log('🔍 Fetching detailed data for player:', playerId);
     
-    // Step 1: Get complete player profile data
     const { data: player, error } = await supabase
       .from('profiles')
       .select('*')
@@ -123,7 +134,7 @@ export const playerApi = {
       throw new Error('Player not found');
     }
     
-    // Step 2: Get meetings data separately
+    // Now fetch meetings separately to avoid any join issues
     const { data: meetings, error: meetingsError } = await supabase
       .from('meetings')
       .select('*')
@@ -131,30 +142,14 @@ export const playerApi = {
     
     if (meetingsError) {
       console.error('❌ Error fetching meetings:', meetingsError);
-      // Don't throw - continue with empty meetings
+      // Don't throw error, just use empty meetings array
     }
     
     const playerMeetings = meetings || [];
-    console.log('📊 Meetings loaded:', playerMeetings.length);
+    console.log('🔍 Player loaded with', playerMeetings.length, 'meetings');
     
-    // Step 3: Calculate stats
-    const stats = calculatePlayerStats(player, playerMeetings);
-    
-    // Step 4: Combine all data
-    const detailedPlayer = {
-      ...player,
-      meetings: playerMeetings,
-      ...stats
-    };
-    
-    console.log('✅ FINAL DETAILED PLAYER WITH PROPER STATS:', {
-      name: detailedPlayer.name,
-      performanceRating: detailedPlayer.performanceRating,
-      dateRating: detailedPlayer.dateRating,
-      averageRating: detailedPlayer.averageRating
-    });
-    
-    return detailedPlayer;
+    // Calculate stats using the meetings data
+    return calculatePlayerStats(player, playerMeetings, true);
   },
 
   // Optimized query with selective field loading
