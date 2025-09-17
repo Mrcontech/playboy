@@ -8,7 +8,7 @@ type UpcomingDate = Tables<'upcoming_dates'>;
 // Optimized helper function to calculate player stats with memoization
 const statsCache = new Map<string, any>();
 
-function calculatePlayerStats(player: any, useCache = true) {
+export function calculatePlayerStats(player: any, useCache = true) {
   const cacheKey = `${player.id}_${player.updated_at}`;
   
   if (useCache && statsCache.has(cacheKey)) {

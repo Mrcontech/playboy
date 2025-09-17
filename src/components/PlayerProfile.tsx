@@ -56,6 +56,15 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
     await loadMeetings();
   };
 
+  // Calculate ratings from meetings (matches playbook logic)
+  const looksRating = player.looks_rating || 0;
+  const totalMeetings = meetings.length;
+  const ratingsSum = meetings.reduce((sum, m) => sum + (Number(m.rating) || 0), 0);
+  const dateExperienceRating = totalMeetings > 0 ? ratingsSum / totalMeetings : 0;
+  const performanceMeetings = meetings.filter(m => m.performance_rating && Number(m.performance_rating) > 0);
+  const performanceRatingSum = performanceMeetings.reduce((sum, m) => sum + Number(m.performance_rating), 0);
+  const avgPerformanceRating = performanceMeetings.length > 0 ? performanceRatingSum / performanceMeetings.length : 0;
+
   if (loading) {
     return (
       <div className="p-4 lg:p-8">
@@ -200,15 +209,15 @@ export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-300 font-medium text-sm sm:text-base">👀 Looks</span>
-                  <StarRating rating={player.looks_rating || 0} />
+                  <StarRating rating={looksRating} />
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-300 font-medium text-sm sm:text-base">🔥 Performance</span>
-                  <StarRating rating={player.averageRating} />
+                  <StarRating rating={avgPerformanceRating} />
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-300 font-medium text-sm sm:text-base">💕 Date Experience</span>
-                  <StarRating rating={player.averageRating} />
+                  <StarRating rating={dateExperienceRating} />
                 </div>
               </div>
             </div>
