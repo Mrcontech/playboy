@@ -3,6 +3,7 @@ import { Users, Plus } from 'lucide-react';
 import SearchBar from './SearchBar';
 import PlayerCard from './PlayerCard';
 import AddPlayerModal from './AddPlayerModal';
+import EditPlayerModal from './EditPlayerModal';
 import LoadingSpinner from './LoadingSpinner';
 import { playerApi } from '../services/api';
 import { useRosterCache } from '../hooks/useRosterCache';
@@ -17,7 +18,9 @@ interface RosterScreenProps {
 const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreenProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddPlayerModal, setShowAddPlayerModal] = useState(false);
+  const [showEditPlayerModal, setShowEditPlayerModal] = useState(false);
   const [loadingPlayerDetails, setLoadingPlayerDetails] = useState<string | null>(null);
+  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
 
   // Use simple caching to prevent reloading
   const { players, loading, error, refresh, invalidateCache } = useRosterCache();
@@ -164,6 +167,16 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
                     isLoading={loadingPlayerDetails === player.id}
                     showBasicInfo={false}
                   />
+                  <button
+                    className="absolute top-2 right-2 bg-green-600 hover:bg-green-700 text-white rounded-full p-1 z-10"
+                    onClick={() => {
+                      setSelectedPlayer(player);
+                      setShowEditPlayerModal(true);
+                    }}
+                    title="Edit Player"
+                  >
+                    ✏️
+                  </button>
                   {loadingPlayerDetails === player.id && (
                     <div className="absolute inset-0 bg-black bg-opacity-75 rounded-xl flex items-center justify-center">
                       <LoadingSpinner size="small" text="Loading..." />
@@ -233,6 +246,17 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
           invalidateCache();
           refresh();
         }}
+      />
+      <EditPlayerModal
+        isOpen={showEditPlayerModal}
+        onClose={() => setShowEditPlayerModal(false)}
+        onPlayerUpdated={() => {
+          setShowEditPlayerModal(false);
+          setSelectedPlayer(null);
+          invalidateCache();
+          refresh();
+        }}
+        player={selectedPlayer}
       />
     </div>
   );
