@@ -6,8 +6,6 @@ import AddPlayerModal from './AddPlayerModal';
 import EditPlayerModal from './EditPlayerModal';
 import LoadingSpinner from './LoadingSpinner';
 import { playerApi } from '../services/api';
-import { useRosterCache } from '../hooks/useRosterCache';
-import type { Tables } from '../lib/supabase';
 
 type Player = Tables<'profiles'>;
 
@@ -22,8 +20,12 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
   const [loadingPlayerDetails, setLoadingPlayerDetails] = useState<string | null>(null);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
 
-  // Use simple caching to prevent reloading
-  const { players, loading, error, refresh, invalidateCache } = useRosterCache();
+  // Fetch players directly from API for fresh data
+  const { players, loading, error, refresh } = playerApi.usePlayers();
+
+  // Always use fresh stats for each player (no stale cache for looks_rating)
+  const getDetailedPlayer = (player: Player) =>
+    playerApi.calculatePlayerStats ? playerApi.calculatePlayerStats(player) : player;
 
   // Handle player selection with lazy loading of detailed data
   const handlePlayerSelect = useCallback(async (player: Partial<Player>) => {
@@ -151,39 +153,43 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
           <section className="bg-black border-2 border-green-500 rounded-xl p-6">
             <h2 className="text-2xl font-semibold text-white mb-6">Active Players</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 lg:gap-4">
-              {filteredActivePlayers.map((player) => (
-                <div key={player.id} className="relative">
-                  <PlayerCard 
-                    key={player.id}
-                    player={{
-                      id: player.id!,
-                      name: player.name!,
-                      avatar: player.image_url || '',
-                      status: player.status,
-                      isActive: !player.bench
-                    }}
-                    onClick={() => handlePlayerSelect(player)}
-                    size="small"
-                    isLoading={loadingPlayerDetails === player.id}
-                    showBasicInfo={false}
-                  />
-                  <button
-                    className="absolute top-2 right-2 bg-green-600 hover:bg-green-700 text-white rounded-full p-1 z-10"
-                    onClick={() => {
-                      setSelectedPlayer(player);
-                      setShowEditPlayerModal(true);
-                    }}
-                    title="Edit Player"
-                  >
-                    ✏️
-                  </button>
-                  {loadingPlayerDetails === player.id && (
-                    <div className="absolute inset-0 bg-black bg-opacity-75 rounded-xl flex items-center justify-center">
-                      <LoadingSpinner size="small" text="Loading..." />
-                    </div>
-                  )}
-                </div>
-              ))}
+              {filteredActivePlayers.map((player) => {
+                const detailedPlayer = getDetailedPlayer(player); // always recalc
+                return (
+                  <div key={player.id} className="relative">
+                    <PlayerCard 
+                      key={player.id}
+                      player={{
+                        id: player.id!,
+                        name: player.name!,
+                        avatar: player.image_url || '',
+                        status: player.status,
+                        isActive: !player.bench,
+                        looksRating: detailedPlayer.looks_rating || 0
+                      }}
+                      onClick={() => handlePlayerSelect(player)}
+                      size="small"
+                      isLoading={loadingPlayerDetails === player.id}
+                      showBasicInfo={false}
+                    />
+                    <button
+                      className="absolute top-2 right-2 bg-green-600 hover:bg-green-700 text-white rounded-full p-1 z-10"
+                      onClick={() => {
+                        setSelectedPlayer(player);
+                        setShowEditPlayerModal(true);
+                      }}
+                      title="Edit Player"
+                    >
+                      ✏️
+                    </button>
+                    {loadingPlayerDetails === player.id && (
+                      <div className="absolute inset-0 bg-black bg-opacity-75 rounded-xl flex items-center justify-center">
+                        <LoadingSpinner size="small" text="Loading..." />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
             {filteredActivePlayers.length === 0 && !loading && (
               <div className="text-center py-8">
@@ -206,29 +212,33 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
           <section className="bg-black border-2 border-green-500 rounded-xl p-6">
             <h2 className="text-2xl font-semibold text-white mb-6">Bench</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 lg:gap-4">
-              {filteredBenchPlayers.map((player) => (
-                <div key={player.id} className="relative">
-                  <PlayerCard 
-                    key={player.id}
-                    player={{
-                      id: player.id!,
-                      name: player.name!,
-                      avatar: player.image_url || '',
-                      status: player.status,
-                      isActive: !player.bench
-                    }}
-                    onClick={() => handlePlayerSelect(player)}
-                    size="small"
-                    isLoading={loadingPlayerDetails === player.id}
-                    showBasicInfo={false}
-                  />
-                  {loadingPlayerDetails === player.id && (
-                    <div className="absolute inset-0 bg-black bg-opacity-75 rounded-xl flex items-center justify-center">
-                      <LoadingSpinner size="small" text="Loading..." />
-                    </div>
-                  )}
-                </div>
-              ))}
+              {filteredBenchPlayers.map((player) => {
+                const detailedPlayer = getDetailedPlayer(player); // always recalc
+                return (
+                  <div key={player.id} className="relative">
+                    <PlayerCard 
+                      key={player.id}
+                      player={{
+                        id: player.id!,
+                        name: player.name!,
+                        avatar: player.image_url || '',
+                        status: player.status,
+                        isActive: !player.bench,
+                        looksRating: detailedPlayer.looks_rating || 0
+                      }}
+                      onClick={() => handlePlayerSelect(player)}
+                      size="small"
+                      isLoading={loadingPlayerDetails === player.id}
+                      showBasicInfo={false}
+                    />
+                    {loadingPlayerDetails === player.id && (
+                      <div className="absolute inset-0 bg-black bg-opacity-75 rounded-xl flex items-center justify-center">
+                        <LoadingSpinner size="small" text="Loading..." />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
             {filteredBenchPlayers.length === 0 && !loading && (
               <div className="text-center py-8 text-gray-400">
@@ -253,8 +263,8 @@ const RosterScreen = memo(function RosterScreen({ onPlayerSelect }: RosterScreen
         onPlayerUpdated={() => {
           setShowEditPlayerModal(false);
           setSelectedPlayer(null);
-          invalidateCache();
-          refresh();
+          invalidateCache(); // Invalidate cache after edit
+          refresh(); // Refresh player data after edit
         }}
         player={selectedPlayer}
       />

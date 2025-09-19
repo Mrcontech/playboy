@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Upload, Trash2 } from 'lucide-react';
 import { playerApi } from '../services/api';
 import { persistentCache } from '../lib/storage';
+import { fastPlayerService } from '../services/fastPlayerService';
 import type { Tables } from '../lib/supabase';
 
 type Player = Tables<'profiles'>;
@@ -84,16 +85,22 @@ export default function EditPlayerModal({ isOpen, onClose, onPlayerUpdated, onPl
     setLoading(true);
     
     try {
+      // Get current player data before update
+      const oldBench = player.bench;
+      
       await playerApi.updatePlayer(player.id, {
         name: formData.name,
-        image_url: formData.image_url || null,
+        image_url: formData.image_url || undefined,
         status: formData.status as any,
         looks_rating: formData.looks_rating,
         likes: formData.likes ? formData.likes.split(',').map(s => s.trim()) : [],
         dislikes: formData.dislikes ? formData.dislikes.split(',').map(s => s.trim()) : [],
-        notes: formData.notes || null,
+        notes: formData.notes || undefined,
         bench: formData.bench,
       });
+      
+      // Force cache invalidation since stats or bench status may have changed
+      fastPlayerService.clearCache(); // Clear entire cache since bench status affects lists
       
       onPlayerUpdated();
       onClose();
@@ -109,11 +116,15 @@ export default function EditPlayerModal({ isOpen, onClose, onPlayerUpdated, onPl
     try {
       await playerApi.deletePlayer(player.id);
       
+      // Clear legacy cache
       persistentCache.delete('getPlayersBasic');
       persistentCache.delete('getActivePlayers');
       persistentCache.delete('getBenchPlayers');
       persistentCache.delete('getRecentPlayers_3');
       persistentCache.delete('getDashboardStats');
+      
+      // Invalidate fast player cache
+      fastPlayerService.invalidatePlayerCache(player.id);
       
       onPlayerDeleted?.();
       onClose();

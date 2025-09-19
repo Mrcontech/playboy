@@ -139,7 +139,9 @@ const OptimizedRosterScreen = memo(function OptimizedRosterScreen({ onPlayerSele
                       name: player.name,
                       avatar: player.image_url || '',
                       status: player.status,
-                      isActive: !player.bench
+                      isActive: !player.bench,
+                      averageRating: player.averageRating,
+                      looksRating: player.looks_rating // pass looks rating
                     }}
                     onClick={() => handlePlayerSelect(player.id, player.name)}
                     size="small"
@@ -185,7 +187,9 @@ const OptimizedRosterScreen = memo(function OptimizedRosterScreen({ onPlayerSele
                       name: player.name,
                       avatar: player.image_url || '',
                       status: player.status,
-                      isActive: !player.bench
+                      isActive: !player.bench,
+                      averageRating: player.averageRating,
+                      looksRating: player.looks_rating // pass looks rating
                     }}
                     onClick={() => handlePlayerSelect(player.id, player.name)}
                     size="small"

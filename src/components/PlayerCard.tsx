@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import { Star, DollarSign, Heart, User } from 'lucide-react';
+import StarRating from './StarRating';
 
 interface PlayerCardProps {
   player: {
@@ -14,6 +15,7 @@ interface PlayerCardProps {
     averageRating?: number;
     isActive?: boolean;
     image_url?: string;
+    looksRating?: number; // add looksRating prop
   };
   onClick?: () => void;
   size?: 'small' | 'medium' | 'large';
@@ -107,28 +109,35 @@ const PlayerCard = memo(function PlayerCard({
 
         {/* Stats Row - Only show if basic info is enabled and stats are available */}
         {showBasicInfo && (
-          <div className="flex items-center justify-center space-x-1 text-xs">
-            {/* Dates Count */}
-            {player.totalMeetings !== undefined && (
+          <div className="flex flex-col items-center justify-center space-y-1 text-xs">
+            <div className="flex items-center justify-center space-x-1">
+              {/* Dates Count */}
+              {player.totalMeetings !== undefined && (
+                <div className="flex items-center space-x-1">
+                  <span>📅</span>
+                  <span className="text-white font-bold">{player.totalMeetings}</span>
+                </div>
+              )}
+              {/* CPN (Cost Per Night) */}
+              {player.cpn !== undefined && (
+                <div className="flex items-center space-x-1">
+                  <span>💰</span>
+                  <span className="text-green-500 font-bold text-xs">${player.cpn > 999 ? Math.round(player.cpn/1000) + 'k' : player.cpn}</span>
+                </div>
+              )}
+            </div>
+            {/* Looks Rating */}
+            {player.looksRating !== undefined && (
               <div className="flex items-center space-x-1">
-                <span>📅</span>
-                <span className="text-white font-bold">{player.totalMeetings}</span>
+                <span className="text-yellow-400">Looks:</span>
+                <StarRating rating={player.looksRating} maxRating={10} size={size} />
               </div>
             )}
-            
-            {/* CPN (Cost Per Night) */}
-            {player.cpn !== undefined && (
-              <div className="flex items-center space-x-1">
-                <span>💰</span>
-                <span className="text-green-500 font-bold text-xs">${player.cpn > 999 ? Math.round(player.cpn/1000) + 'k' : player.cpn}</span>
-              </div>
-            )}
-            
             {/* Average Rating */}
             {player.averageRating !== undefined && (
               <div className="flex items-center space-x-1">
-                <span>⭐</span>
-                <span className="text-white font-bold text-xs">{player.averageRating}</span>
+                <span className="text-yellow-400">Avg:</span>
+                <StarRating rating={player.averageRating} maxRating={10} size={size} />
               </div>
             )}
           </div>
