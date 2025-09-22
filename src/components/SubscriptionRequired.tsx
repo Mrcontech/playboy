@@ -25,6 +25,7 @@ export default function SubscriptionRequired() {
   const handleSignOut = async () => {
     try {
       await signOut();
+      window.location.reload(); // Force a refresh to clear all state
     } catch (error) {
       console.error('Error signing out:', error);
     }

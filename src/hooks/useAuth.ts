@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
+import { fastPlayerService } from '../services/fastPlayerService';
+import { lightningService } from '../services/lightningService';
+import { optimizedPlayerService } from '../services/optimizedPlayerService';
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
@@ -71,6 +74,11 @@ export function useAuth() {
   };
 
   const signOut = async () => {
+    // Clear all application caches to prevent data leakage between accounts
+    fastPlayerService.clearCache();
+    lightningService.clearAllCaches();
+    optimizedPlayerService.clearCache();
+
     // Clear new user flag on sign out
     localStorage.removeItem('playboi_new_user');
     setIsNewUser(false);
