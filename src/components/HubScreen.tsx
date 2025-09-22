@@ -1,5 +1,4 @@
-import React, { memo, useCallback } from 'react';
-import { useState, useMemo } from 'react';
+import { memo, useCallback, useState, useMemo } from 'react';
 import { Plus, MessageCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import PlayerCard from './PlayerCard';
@@ -9,7 +8,7 @@ import UpcomingDateModal from './UpcomingDateModal';
 import ChatAnalysisModal from './ChatAnalysisModal';
 import SubscriptionBanner from './SubscriptionBanner';
 import { useDataLoader } from '../hooks/useDataLoader';
-import { datesApi, playerApi } from '../services/api';
+import { datesApi } from '../services/api';
 import { playerService } from '../services/playerService';
 import type { Tables } from '../lib/supabase';
 
@@ -70,13 +69,13 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
   }, [refetchDates, refetchPlayers]);
 
   // Handle player selection with lazy loading
-  const handlePlayerSelect = useCallback(async (player: Player) => {
-    if (!player.id) return;
+  const handlePlayerSelect = useCallback(async (playerBasic: { id: string; name: string }) => {
+    if (!playerBasic.id) return;
     
-    setLoadingPlayerDetails(player.id);
+    setLoadingPlayerDetails(playerBasic.id);
     try {
-      console.log('🔍 TIER 2: Loading detailed data for player:', player.name);
-      const detailedPlayer = await playerService.getPlayerDetailed(player.id);
+      console.log('🔍 TIER 2: Loading detailed data for player:', playerBasic.name);
+      const detailedPlayer = await playerService.getPlayerDetailed(playerBasic.id);
       console.log('✅ TIER 2: Detailed data loaded, navigating to profile');
       onPlayerSelect?.(detailedPlayer);
     } catch (error) {
@@ -141,10 +140,12 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
     }
   }, []);
 
-  const getPlayerName = useCallback((profileId: string | null) => {
-    if (!profileId) return undefined;
+  const getPlayerName = useCallback((profileId: string | null): string | null => {
+    if (!profileId) return null;
     const player = recentlyActiveBasic?.find(p => p.id === profileId);
-    return player?.name;
+    // Convert undefined to null
+    const name = player?.name;
+    return name === undefined ? null : name;
   }, [recentlyActiveBasic]);
 
   return (
@@ -227,9 +228,9 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
               </div>
             ) : (
               <>
-                <div className="flex justify-start space-x-3 overflow-x-auto pb-2 px-1">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 py-2 max-w-full overflow-hidden">
                   {recentlyActiveBasic?.map((player) => (
-                    <div key={player.id} className="relative">
+                    <div key={player.id} className="relative w-full">
                       <PlayerCard 
                         player={{
                           id: player.id,
@@ -303,7 +304,7 @@ const HubScreen = memo(function HubScreen({ onPlayerSelect }: HubScreenProps) {
         isOpen={showDateInfoModal}
         onClose={() => setShowDateInfoModal(false)}
         date={selectedDate}
-        playerName={selectedDate ? getPlayerName(selectedDate.profile_id) : undefined}
+        playerName={selectedDate?.profile_id ? getPlayerName(selectedDate.profile_id) : null}
       />
 
       <ChatAnalysisModal

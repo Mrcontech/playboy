@@ -10,12 +10,6 @@ import type { Tables, Inserts, Updates } from '../lib/supabase';
 
 type Player = Tables<'profiles'>;
 
-interface Meeting {
-  amount_spent: number | null;
-  rating: number | null;
-  performance_rating: number | null;
-}
-
 // TIER 1: Minimal data for instant display
 export interface PlayerBasic {
   id: string;
@@ -38,8 +32,6 @@ export interface PlayerWithStats extends PlayerBasic {
   totalMeetings: number;
   totalSpent: number;
   averageRating: number;
-  dateExperienceRating: number;
-  performanceRating: number;
   cpn: number;
 }
 
@@ -54,11 +46,6 @@ class PersistentPlayerCache {
       PersistentPlayerCache.instance = new PersistentPlayerCache();
     }
     return PersistentPlayerCache.instance;
-  }
-
-  // Get all cache keys
-  getKeys(): string[] {
-    return Array.from(this.cache.keys());
   }
 
   set(key: string, data: any): void {
@@ -107,16 +94,6 @@ class PersistentPlayerCache {
     return null;
   }
 
-  remove(key: string): void {
-    this.cache.delete(key);
-    try {
-      sessionStorage.removeItem(`player_cache_${key}`);
-    } catch (error) {
-      console.warn('Failed to remove from sessionStorage:', error);
-    }
-    console.log(`🗑️ Removed from cache: ${key}`);
-  }
-
   clear(): void {
     this.cache.clear();
     // Clear sessionStorage items
@@ -156,9 +133,9 @@ export const fastPlayerService = {
   /**
    * TIER 1: Get minimal player data for instant roster display
    */
-  async getPlayersBasic(forceRefresh: boolean = false): Promise<PlayerBasic[]> {
+  async getPlayersBasic(): Promise<PlayerBasic[]> {
     const cacheKey = 'players_basic';
-    const cached = !forceRefresh && playerCache.get(cacheKey);
+    const cached = playerCache.get(cacheKey);
     if (cached) {
       console.log('⚡ Using cached basic players');
       return cached;
@@ -186,141 +163,78 @@ export const fastPlayerService = {
   /**
    * TIER 2: Get full player data with calculated stats
    */
-  async getPlayerWithStats(playerId: string, forceRefresh: boolean = false): Promise<PlayerWithStats> {
-    if (!playerId) {
-      throw new Error('Player ID is required');
+  async getPlayerWithStats(playerId: string): Promise<PlayerWithStats> {
+    const cacheKey = `player_stats_${playerId}`;
+    const cached = playerCache.get(cacheKey);
+    if (cached) {
+      console.log('⚡ Using cached player stats for:', cached.name);
+      return cached;
     }
 
-    try {
-      // First, get the latest meeting stats to determine cache key
-      const meetingQuery = await supabase
-        .from('meetings')
-        .select('*', { count: 'exact', head: true })
-        .eq('profile_id', playerId);
-
-      if (meetingQuery.error) {
-        console.error('❌ Error getting meeting count:', meetingQuery.error);
-        throw new Error(`Failed to get meeting count: ${meetingQuery.error.message}`);
-      }
-
-      // Cache key includes player ID and meeting count to detect when meetings change
-      const meetingCount = meetingQuery.count ?? 0;
-      const cacheKey = `player_stats_${playerId}_meetings_${meetingCount}`;
-
-      // Only use cache if not forcing refresh
-      const cached = !forceRefresh && playerCache.get(cacheKey);
-      if (cached) {
-        console.log(`⚡ Using cached player stats for: ${cached.name} (${meetingCount} meetings)`);
-        return cached;
-      }
-
-      console.log('🔍 Loading full player data with stats...');
-
-      // Get player data and meetings
-      const [profileResult, meetingsResult] = await Promise.all([
-        supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', playerId)
-          .single(),
-        supabase
-          .from('meetings')
-          .select('amount_spent, rating, performance_rating')
-          .eq('profile_id', playerId)
-      ]);
-
-      if (profileResult.error) {
-        console.error('❌ Error loading player profile:', profileResult.error);
-        throw new Error(`Failed to load player profile: ${profileResult.error.message}`);
-      }
-
-      if (meetingsResult.error) {
-        console.error('❌ Error loading meetings:', meetingsResult.error);
-        throw new Error(`Failed to load player meetings: ${meetingsResult.error.message}`);
-      }
-
-      if (!profileResult.data) {
-        console.error('❌ Player not found:', playerId);
-        throw new Error(`Player not found: ${playerId}`);
-      }
-
-      const player: Player = profileResult.data;
-      const playerMeetings: Meeting[] = meetingsResult.data || [];
-
-      // Calculate basic stats
-      const totalSpent = playerMeetings.reduce((sum: number, m: Meeting) => 
-        sum + (Number(m.amount_spent) || 0), 0);
-      const totalMeetings = playerMeetings.length;
-
-      // Calculate date experience rating using regular rating
-      const dateRatings = playerMeetings.filter((m: Meeting) => 
-        m.rating && Number(m.rating) > 0);
-      const dateRatingSum = dateRatings.reduce((sum: number, m: Meeting) => 
-        sum + Number(m.rating), 0);
-      const dateExperienceRating = dateRatings.length > 0 ? 
-        dateRatingSum / dateRatings.length : 0;
-
-      // Calculate performance rating
-      const performanceRatings = playerMeetings.filter((m: Meeting) => 
-        m.performance_rating && Number(m.performance_rating) > 0);
-      const performanceRatingSum = performanceRatings.reduce((sum: number, m: Meeting) => 
-        sum + Number(m.performance_rating), 0);
-      const performanceRating = performanceRatings.length > 0 ? 
-        performanceRatingSum / performanceRatings.length : 0;
-
-      // Calculate average rating for overall experience
-      const ratingsSum = playerMeetings.reduce((sum: number, m: Meeting) => 
-        sum + (Number(m.rating) || 0), 0);
-      const averageRating = totalMeetings > 0 ? ratingsSum / totalMeetings : 0;
-      
-      // Calculate cost per night
-      const hookups = playerMeetings.filter((m: Meeting) => 
-        m.performance_rating && Number(m.performance_rating) > 0).length;
-      const cpn = hookups > 0 ? totalSpent / hookups : 0;
-
-      const playerWithStats: PlayerWithStats = {
-        ...player,
-        totalMeetings,
-        totalSpent: Math.round(totalSpent),
-        averageRating: Number(averageRating.toFixed(1)),
-        dateExperienceRating: Number(dateExperienceRating.toFixed(1)),
-        performanceRating: Number(performanceRating.toFixed(1)),
-        cpn: Math.round(cpn)
-      };
-      
-      // Store in cache
-      playerCache.set(cacheKey, playerWithStats);
-      console.log('✅ Player stats loaded for:', player.name);
-      
-      return playerWithStats;
-    } catch (error) {
-      console.error('❌ Error in getPlayerWithStats:', error);
-      throw new Error(error instanceof Error ? error.message : 'Failed to load player details');
-    }
+    console.log('🔍 Loading full player data with stats...');
+    
+    // Get player data
+    const { data: player, error: playerError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', playerId)
+      .single();
+    
+    if (playerError) throw playerError;
+    
+    // Get meetings for stats calculation
+    const { data: meetings, error: meetingsError } = await supabase
+      .from('meetings')
+      .select('amount_spent, rating, performance_rating')
+      .eq('profile_id', playerId);
+    
+    if (meetingsError) throw meetingsError;
+    
+    // Calculate stats
+    const playerMeetings = meetings || [];
+    const totalSpent = playerMeetings.reduce((sum, m) => sum + (Number(m.amount_spent) || 0), 0);
+    const totalMeetings = playerMeetings.length;
+    const ratingsSum = playerMeetings.reduce((sum, m) => sum + (Number(m.rating) || 0), 0);
+    const averageRating = totalMeetings > 0 ? ratingsSum / totalMeetings : 0;
+    const hookups = playerMeetings.filter(m => m.performance_rating && Number(m.performance_rating) > 0).length;
+    const cpn = hookups > 0 ? totalSpent / hookups : 0;
+    
+    const playerWithStats: PlayerWithStats = {
+      ...player,
+      totalMeetings,
+      totalSpent: Math.round(totalSpent),
+      averageRating: Number(averageRating.toFixed(1)),
+      cpn: Math.round(cpn)
+    };
+    
+    playerCache.set(cacheKey, playerWithStats);
+    console.log('✅ Player stats loaded for:', player.name);
+    
+    return playerWithStats;
   },
 
   /**
    * Get active players (basic data only)
    */
-  async getActivePlayersBasic(forceRefresh: boolean = false): Promise<PlayerBasic[]> {
-    const players = await this.getPlayersBasic(forceRefresh);
+  async getActivePlayersBasic(): Promise<PlayerBasic[]> {
+    const players = await this.getPlayersBasic();
     return players.filter(p => !p.bench);
   },
 
   /**
    * Get bench players (basic data only)
    */
-  async getBenchPlayersBasic(forceRefresh: boolean = false): Promise<PlayerBasic[]> {
-    const players = await this.getPlayersBasic(forceRefresh);
+  async getBenchPlayersBasic(): Promise<PlayerBasic[]> {
+    const players = await this.getPlayersBasic();
     return players.filter(p => p.bench);
   },
 
   /**
    * Get recent players for hub (basic data only)
    */
-  async getRecentPlayersBasic(limit: number = 3, forceRefresh: boolean = false): Promise<PlayerBasic[]> {
+  async getRecentPlayersBasic(limit: number = 3): Promise<PlayerBasic[]> {
     const cacheKey = `recent_basic_${limit}`;
-    const cached = !forceRefresh && playerCache.get(cacheKey);
+    const cached = playerCache.get(cacheKey);
     if (cached) return cached;
 
     const { data, error } = await supabase
@@ -339,25 +253,7 @@ export const fastPlayerService = {
   },
 
   /**
-   * Clear cache for a specific player
-   */
-  invalidatePlayerCache(playerId: string) {
-    // Clear all keys for this player, regardless of meeting count
-    playerCache.getKeys()
-      .filter(key => key.startsWith(`player_stats_${playerId}`))
-      .forEach(key => playerCache.remove(key));
-
-    // Also clear basic lists since they might contain this player
-    playerCache.remove('players_basic');
-    // Clear recent players cache since order might change
-    for (let i = 1; i <= 10; i++) { // Clear common limit sizes
-      playerCache.remove(`recent_basic_${i}`);
-    }
-    console.log(`🔄 Cache invalidated for player: ${playerId}`);
-  },
-
-  /**
-   * Clear entire cache
+   * Clear cache
    */
   clearCache() {
     playerCache.clear();

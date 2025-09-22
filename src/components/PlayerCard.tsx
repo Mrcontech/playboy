@@ -1,6 +1,5 @@
 import React, { memo } from 'react';
-import { Star, DollarSign, Heart, User } from 'lucide-react';
-import StarRating from './StarRating';
+import { User } from 'lucide-react';
 
 interface PlayerCardProps {
   player: {
@@ -15,7 +14,6 @@ interface PlayerCardProps {
     averageRating?: number;
     isActive?: boolean;
     image_url?: string;
-    looksRating?: number; // add looksRating prop
   };
   onClick?: () => void;
   size?: 'small' | 'medium' | 'large';
@@ -31,23 +29,23 @@ const PlayerCard = memo(function PlayerCard({
   showBasicInfo = true 
 }: PlayerCardProps) {
   const sizeClasses = {
-    small: 'w-36',
-    medium: 'w-40',
-    large: 'w-48'
+    small: 'w-full max-w-[144px]', // w-36 equivalent but responsive
+    medium: 'w-full max-w-[160px]', // w-40 equivalent but responsive
+    large: 'w-full max-w-[192px]'   // w-48 equivalent but responsive
   };
 
   const avatarSizes = {
-    small: 'h-28',
-    medium: 'h-32', 
-    large: 'h-40'
+    small: 'h-24 sm:h-28',
+    medium: 'h-28 sm:h-32', 
+    large: 'h-32 sm:h-40'
   };
 
   return (
     <div
-      className={`${sizeClasses[size]} bg-black border-2 border-green-500 rounded-xl overflow-hidden transition-all duration-200 shadow-lg flex-shrink-0 ${
+      className={`${sizeClasses[size]} bg-black border-2 border-green-500 rounded-xl overflow-hidden transition-all duration-200 shadow-lg ${
         isLoading 
           ? 'cursor-wait opacity-75' 
-          : 'cursor-pointer hover:border-green-400 hover:scale-105'
+          : 'cursor-pointer hover:border-green-400 sm:hover:scale-102 transform-gpu'
       }`}
       onClick={onClick}
     >
@@ -109,35 +107,28 @@ const PlayerCard = memo(function PlayerCard({
 
         {/* Stats Row - Only show if basic info is enabled and stats are available */}
         {showBasicInfo && (
-          <div className="flex flex-col items-center justify-center space-y-1 text-xs">
-            <div className="flex items-center justify-center space-x-1">
-              {/* Dates Count */}
-              {player.totalMeetings !== undefined && (
-                <div className="flex items-center space-x-1">
-                  <span>📅</span>
-                  <span className="text-white font-bold">{player.totalMeetings}</span>
-                </div>
-              )}
-              {/* CPN (Cost Per Night) */}
-              {player.cpn !== undefined && (
-                <div className="flex items-center space-x-1">
-                  <span>💰</span>
-                  <span className="text-green-500 font-bold text-xs">${player.cpn > 999 ? Math.round(player.cpn/1000) + 'k' : player.cpn}</span>
-                </div>
-              )}
-            </div>
-            {/* Looks Rating */}
-            {player.looksRating !== undefined && (
+          <div className="flex items-center justify-center space-x-1 text-xs">
+            {/* Dates Count */}
+            {player.totalMeetings !== undefined && (
               <div className="flex items-center space-x-1">
-                <span className="text-yellow-400">Looks:</span>
-                <StarRating rating={player.looksRating} maxRating={10} size={size} />
+                <span>📅</span>
+                <span className="text-white font-bold">{player.totalMeetings}</span>
               </div>
             )}
+            
+            {/* CPN (Cost Per Night) */}
+            {player.cpn !== undefined && (
+              <div className="flex items-center space-x-1">
+                <span>💰</span>
+                <span className="text-green-500 font-bold text-xs">${player.cpn > 999 ? Math.round(player.cpn/1000) + 'k' : player.cpn}</span>
+              </div>
+            )}
+            
             {/* Average Rating */}
             {player.averageRating !== undefined && (
               <div className="flex items-center space-x-1">
-                <span className="text-yellow-400">Avg:</span>
-                <StarRating rating={player.averageRating} maxRating={10} size={size} />
+                <span>⭐</span>
+                <span className="text-white font-bold text-xs">{player.averageRating}</span>
               </div>
             )}
           </div>

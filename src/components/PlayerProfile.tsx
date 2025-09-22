@@ -18,8 +18,7 @@ interface PlayerProfileProps {
   onBack: () => void;
 }
 
-export default function PlayerProfile({ player: initialPlayer, onBack }: PlayerProfileProps) {
-  const [player, setPlayer] = useState<PlayerWithStats>(initialPlayer);
+export default function PlayerProfile({ player, onBack }: PlayerProfileProps) {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,18 +52,8 @@ export default function PlayerProfile({ player: initialPlayer, onBack }: PlayerP
   };
 
   const handleDataUpdate = async () => {
-    setLoading(true);
-    try {
-      // Reload player data with fresh stats
-      const updatedPlayer = await fastPlayerService.getPlayerWithStats(player.id, true);
-      setPlayer(updatedPlayer);
-      // Refresh meetings after updates
-      await loadMeetings();
-    } catch (error) {
-      console.error('Failed to refresh player data:', error);
-    } finally {
-      setLoading(false);
-    }
+    // Refresh meetings after updates
+    await loadMeetings();
   };
 
   // Calculate ratings from meetings (matches playbook logic)

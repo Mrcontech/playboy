@@ -20,31 +20,24 @@ const FastRosterScreen = memo(function FastRosterScreen({ onPlayerSelect }: Fast
     loadBasicPlayers();
   }, []);
 
-  const loadBasicPlayers = async (forceRefresh: boolean = false) => {
+  const loadBasicPlayers = async () => {
     try {
-      if (!forceRefresh) {
-        // Check if we already have cached data first
-        const cachedPlayers = await fastPlayerService.getPlayersBasic();
-        if (cachedPlayers && cachedPlayers.length > 0) {
-          console.log('⚡ Using cached roster data - instant load!');
-          setBasicPlayers(cachedPlayers);
-          setLoading(false);
-          
-          // Load fresh data in the background
-          fastPlayerService.getPlayersBasic(true).then(freshPlayers => {
-            setBasicPlayers(freshPlayers);
-          });
-          return;
-        }
+      // Check if we already have cached data first
+      const cachedPlayers = await fastPlayerService.getPlayersBasic();
+      if (cachedPlayers && cachedPlayers.length > 0) {
+        console.log('⚡ Using cached roster data - instant load!');
+        setBasicPlayers(cachedPlayers);
+        setLoading(false);
+        return;
       }
       
       console.log('🚀 Loading basic players for instant display...');
       setLoading(true);
       
-      const players = await fastPlayerService.getPlayersBasic(forceRefresh);
+      const players = await fastPlayerService.getPlayersBasic();
       setBasicPlayers(players);
       
-      console.log('⚡ Basic players loaded:', players.length);
+      console.log('⚡ Basic players loaded instantly:', players.length);
     } catch (error) {
       console.error('❌ Error loading basic players:', error);
     } finally {
@@ -58,8 +51,7 @@ const FastRosterScreen = memo(function FastRosterScreen({ onPlayerSelect }: Fast
     
     try {
       console.log('🔍 Loading full stats for:', player.name);
-      // Always get fresh data when viewing a player
-      const playerWithStats = await fastPlayerService.getPlayerWithStats(player.id, true);
+      const playerWithStats = await fastPlayerService.getPlayerWithStats(player.id);
       onPlayerSelect(playerWithStats);
     } catch (error) {
       console.error('❌ Error loading player stats:', error);
@@ -109,18 +101,6 @@ const FastRosterScreen = memo(function FastRosterScreen({ onPlayerSelect }: Fast
             >
               <Plus className="text-black" size={20} />
               <span className="text-black font-medium hidden sm:inline">Add Player</span>
-            </button>
-            <button
-              onClick={() => loadBasicPlayers(true)}
-              className="bg-gray-900 hover:bg-gray-800 p-2 rounded-lg transition-colors"
-              title="Refresh Roster"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
-                <path d="M21 12a9 9 0 0 1-9 9c-2.1 0-4.1-.7-5.7-2" />
-                <path d="M3 12a9 9 0 0 1 9-9c2.1 0 4.1.7 5.7 2" />
-                <path d="m22 12-3-3-3 3" />
-                <path d="m2 12 3 3 3-3" />
-              </svg>
             </button>
             <div className="bg-gray-900 p-2 rounded-lg">
               <Users className="text-gray-400" size={24} />

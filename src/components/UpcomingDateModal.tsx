@@ -8,7 +8,7 @@ interface UpcomingDateModalProps {
   isOpen: boolean;
   onClose: () => void;
   date: UpcomingDate | null;
-  playerName?: string;
+  playerName?: string | null;
 }
 
 export default function UpcomingDateModal({ isOpen, onClose, date, playerName }: UpcomingDateModalProps) {
