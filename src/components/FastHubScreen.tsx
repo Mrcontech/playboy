@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo, useCallback, useMemo } from 'react';
+import { useState, useEffect, memo, useCallback, useMemo } from 'react';
 import { Plus, MessageCircle, User } from 'lucide-react';
 import AddDateModal from './AddDateModal';
 import UpcomingDateModal from './UpcomingDateModal';
@@ -22,7 +22,6 @@ const FastHubScreen = memo(function FastHubScreen({ onPlayerSelect }: FastHubScr
   const [selectedDate, setSelectedDate] = useState<UpcomingDate | null>(null);
   const [showChatAnalysis, setShowChatAnalysis] = useState(false);
   const [playersLoading, setPlayersLoading] = useState(true);
-  const [datesLoading, setDatesLoading] = useState(true);
   const [loadingPlayerDetails, setLoadingPlayerDetails] = useState<string | null>(null);
 
   useEffect(() => {
@@ -56,7 +55,6 @@ const FastHubScreen = memo(function FastHubScreen({ onPlayerSelect }: FastHubScr
       console.error('Error loading hub data:', error);
     } finally {
       setPlayersLoading(false);
-      setDatesLoading(false);
     }
   };
 
@@ -116,9 +114,9 @@ const FastHubScreen = memo(function FastHubScreen({ onPlayerSelect }: FastHubScr
     }
   }, []);
 
-  const getPlayerName = useCallback((profileId: string | null) => {
-    if (!profileId) return undefined;
-    return recentPlayers.find(p => p.id === profileId)?.name;
+  const getPlayerName = useCallback((profileId: string | null): string | null => {
+    if (!profileId) return null;
+    return recentPlayers.find(p => p.id === profileId)?.name || null;
   }, [recentPlayers]);
 
   return (
@@ -151,7 +149,7 @@ const FastHubScreen = memo(function FastHubScreen({ onPlayerSelect }: FastHubScr
                       ? 'bg-green-500 text-black shadow-lg cursor-pointer hover:bg-green-400'
                       : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
                   }`}
-                  onClick={() => handleDateClick(date.dateInfo)}
+                  onClick={() => handleDateClick(date.dateInfo || null)}
                 >
                   <div className="text-xs font-medium mb-1">{date.day}</div>
                   <div className="text-sm lg:text-lg font-bold">{date.date}</div>
@@ -178,7 +176,7 @@ const FastHubScreen = memo(function FastHubScreen({ onPlayerSelect }: FastHubScr
                       className={`flex-shrink-0 w-36 bg-black border-2 border-green-500 rounded-xl overflow-hidden transition-all duration-200 ${
                         loadingPlayerDetails === player.id
                           ? 'cursor-wait opacity-75' 
-                          : 'cursor-pointer hover:border-green-400 hover:scale-105'
+                          : 'cursor-pointer hover:bg-green-900/50 hover:border-green-400'
                       }`}
                     >
                       <div className="h-28 w-full bg-gray-800 flex items-center justify-center">
@@ -270,7 +268,7 @@ const FastHubScreen = memo(function FastHubScreen({ onPlayerSelect }: FastHubScr
         isOpen={showDateInfoModal}
         onClose={() => setShowDateInfoModal(false)}
         date={selectedDate}
-        playerName={selectedDate ? getPlayerName(selectedDate.profile_id) : undefined}
+        playerName={selectedDate ? getPlayerName(selectedDate.profile_id ?? null) : null}
       />
 
       <ChatAnalysisModal

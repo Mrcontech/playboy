@@ -122,7 +122,7 @@ const FastRosterScreen = memo(function FastRosterScreen({ onPlayerSelect }: Fast
             <h2 className="text-2xl font-semibent text-white mb-6">
               Active Players ({filteredPlayers.active.length})
             </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 lg:gap-4">
+            <div className="flex space-x-3 overflow-x-auto pb-4">
               {filteredPlayers.active.map((player) => (
                 <div key={player.id} className="relative">
                   <div
@@ -130,7 +130,7 @@ const FastRosterScreen = memo(function FastRosterScreen({ onPlayerSelect }: Fast
                     className={`w-36 bg-black border-2 border-green-500 rounded-xl overflow-hidden transition-all duration-200 shadow-lg flex-shrink-0 ${
                       loadingPlayerDetails === player.id
                         ? 'cursor-wait opacity-75' 
-                        : 'cursor-pointer hover:border-green-400 hover:scale-105'
+                        : 'cursor-pointer hover:bg-green-900/50 hover:border-green-400'
                     }`}
                   >
                     {/* Image */}
@@ -203,7 +203,7 @@ const FastRosterScreen = memo(function FastRosterScreen({ onPlayerSelect }: Fast
             <h2 className="text-2xl font-semibent text-white mb-6">
               Bench ({filteredPlayers.bench.length})
             </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 lg:gap-4">
+            <div className="flex space-x-3 overflow-x-auto pb-4">
               {filteredPlayers.bench.map((player) => (
                 <div key={player.id} className="relative">
                   <div
@@ -211,7 +211,7 @@ const FastRosterScreen = memo(function FastRosterScreen({ onPlayerSelect }: Fast
                     className={`w-36 bg-black border-2 border-green-500 rounded-xl overflow-hidden transition-all duration-200 shadow-lg flex-shrink-0 opacity-75 ${
                       loadingPlayerDetails === player.id
                         ? 'cursor-wait' 
-                        : 'cursor-pointer hover:border-green-400 hover:scale-105'
+                        : 'cursor-pointer hover:bg-green-900/50 hover:border-green-400'
                     }`}
                   >
                     {/* Image */}
